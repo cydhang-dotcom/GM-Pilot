@@ -140,27 +140,27 @@ const Company: React.FC = () => {
              </div>
         </div>
 
-        {/* 3. Bank Account Card (Prominent) */}
+        {/* 3. Bank Account Card (Compact Redesign) */}
         <div>
-            <div className="flex justify-between items-center mb-3 ml-1">
+            <div className="flex justify-between items-center mb-2 ml-1">
                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">对公账户</h3>
             </div>
             
-            <div className="bg-gradient-to-br from-[#1e3a8a] to-[#172554] rounded-2xl p-6 text-white shadow-lg shadow-blue-900/20 relative overflow-hidden group active:scale-[0.99] transition-transform cursor-pointer">
-                {/* Decorative Background */}
-                <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-12 -mt-12 blur-2xl"></div>
-                <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full -ml-10 -mb-10 blur-xl"></div>
+            <div className="bg-gradient-to-r from-[#172554] to-[#1e40af] rounded-xl p-4 text-white shadow-md relative overflow-hidden group active:scale-[0.99] transition-transform cursor-pointer">
+                {/* Subtle Background Art */}
+                <div className="absolute -right-6 -top-6 w-24 h-24 bg-blue-500/20 rounded-full blur-xl"></div>
+                <div className="absolute -left-6 -bottom-6 w-24 h-24 bg-indigo-500/20 rounded-full blur-xl"></div>
                 
                 <div className="relative z-10">
-                    {/* Card Header */}
-                    <div className="flex justify-between items-start mb-5">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/10">
-                                <Landmark size={20} />
+                    {/* Top Row: Bank Info & Toggle */}
+                    <div className="flex justify-between items-start mb-3">
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center backdrop-blur-sm border border-white/5">
+                                <Landmark size={16} className="text-blue-100"/>
                             </div>
                             <div>
-                                <p className="text-sm font-bold tracking-wide">招商银行</p>
-                                <p className="text-[10px] text-blue-200">基本存款账户</p>
+                                <h4 className="text-sm font-bold tracking-tight">招商银行</h4>
+                                <p className="text-[10px] text-blue-200/80 font-medium">基本存款账户</p>
                             </div>
                         </div>
                         <button 
@@ -168,54 +168,48 @@ const Company: React.FC = () => {
                                 e.stopPropagation();
                                 setShowBalance(!showBalance);
                             }}
-                            className="text-blue-200 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors"
+                            className="text-blue-200/60 hover:text-white transition-colors p-1"
                         >
-                            {showBalance ? <Eye size={18} /> : <EyeOff size={18} />}
+                            {showBalance ? <Eye size={16} /> : <EyeOff size={16} />}
                         </button>
                     </div>
 
-                    {/* Card Number */}
-                    <div className="mb-6">
-                        <div className="flex items-center gap-3">
-                            <p className="text-xl font-mono font-medium tracking-widest text-blue-50">
-                                {showBalance ? '6227 0038 **** 8888' : '**** **** **** 8888'}
-                            </p>
-                            <Copy size={16} className="text-blue-300 opacity-80" />
-                        </div>
-                    </div>
-
-                    {/* Income & Expense Stats */}
-                    <div className="grid grid-cols-2 gap-4 mb-5">
-                        <div className="bg-white/5 rounded-lg p-2.5 backdrop-blur-sm border border-white/5">
-                            <div className="flex items-center gap-1.5 mb-1">
-                                <div className="w-4 h-4 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                                    <ArrowDownLeft size={10} className="text-emerald-400" />
-                                </div>
-                                <span className="text-[10px] text-blue-200">本月收入</span>
-                            </div>
-                            <p className="text-sm font-mono font-bold text-white pl-1">
-                                {showBalance ? '¥ 62,000' : '****'}
-                            </p>
-                        </div>
-                        <div className="bg-white/5 rounded-lg p-2.5 backdrop-blur-sm border border-white/5">
-                            <div className="flex items-center gap-1.5 mb-1">
-                                <div className="w-4 h-4 rounded-full bg-rose-500/20 flex items-center justify-center">
-                                    <ArrowUpRight size={10} className="text-rose-400" />
-                                </div>
-                                <span className="text-[10px] text-blue-200">本月支出</span>
-                            </div>
-                            <p className="text-sm font-mono font-bold text-white pl-1">
-                                {showBalance ? '¥ 29,500' : '****'}
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Footer: Balance */}
-                    <div className="flex justify-between items-end border-t border-white/10 pt-4">
-                        <p className="text-xs text-blue-300">上海分行高新科技园支行</p>
-                        <p className="text-xl font-bold font-mono">
+                    {/* Middle Row: Balance & Number */}
+                    <div className="mb-4 pl-0.5">
+                         <div className="text-2xl font-bold font-mono tracking-tight mb-1">
                             {showBalance ? '¥ 142,590.00' : '******'}
-                        </p>
+                         </div>
+                         <div className="flex items-center gap-2 text-blue-200/60">
+                            <span className="text-xs font-mono tracking-wider">
+                                {showBalance ? '6227 0038 **** 8888' : '**** **** **** 8888'}
+                            </span>
+                            <Copy size={11} className="hover:text-white transition-colors" />
+                         </div>
+                    </div>
+
+                    {/* Bottom Row: Stats & Branch */}
+                    <div className="flex items-center justify-between border-t border-white/10 pt-3">
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-1.5">
+                                <div className="w-4 h-4 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                                   <ArrowDownLeft size={9} className="text-emerald-400" />
+                                </div>
+                                <span className="text-xs font-mono font-medium text-blue-100">
+                                    {showBalance ? '62,000' : '***'}
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                                <div className="w-4 h-4 rounded-full bg-rose-500/10 flex items-center justify-center border border-rose-500/20">
+                                   <ArrowUpRight size={9} className="text-rose-400" />
+                                </div>
+                                <span className="text-xs font-mono font-medium text-blue-100">
+                                    {showBalance ? '29,500' : '***'}
+                                </span>
+                            </div>
+                        </div>
+                        <span className="text-[10px] text-blue-300/60 truncate max-w-[100px]">
+                            科技园支行
+                        </span>
                     </div>
                 </div>
             </div>
