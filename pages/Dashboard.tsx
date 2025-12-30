@@ -230,7 +230,7 @@ const Dashboard: React.FC = () => {
         <div className="flex justify-between items-center">
           <div>
             <div className="flex items-center gap-1.5 active:opacity-60 transition-opacity cursor-pointer text-gray-900">
-              <h1 className="text-lg font-bold tracking-tight">上海示例科技有限公司</h1>
+              <h1 className="text-lg font-bold tracking-tight">千机科技</h1>
               <ChevronDown size={18} className="text-gray-400" />
             </div>
             <p className="text-xs text-gray-400 font-medium mt-0.5 ml-0.5">下午好，总经理</p>
