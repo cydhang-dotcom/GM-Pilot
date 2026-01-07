@@ -1,6 +1,6 @@
 # GM Pilot 设计规范 (Design Standards)
 
-> **版本**: v1.0
+> **版本**: v1.1
 > **适用范围**: 移动端 Web App
 
 ## 1. 核心原则 (Core Principles)
@@ -53,11 +53,9 @@
 *   **底部导航 (Bottom Nav)**: 仅在四个主一级页面显示。
 *   **顶部导航 (Top Bar)**: 二级详情页必须包含“返回”按钮和页面标题。
 
-## 5. 图标系统 (Iconography)
-
-*   **库**: Lucide React
-*   **风格**: Stroke Width 2 (常规), Stroke Width 1.5 (复杂图形)。
-*   **尺寸**: 
-    *   Small: 14px-16px (标签内)
-    *   Medium: 18px-20px (列表图标)
-    *   Large: 24px+ (入口图标)
+### 4.4 页面层级与交互 (Page Layers) [New]
+*   **Level 2 (列表/看板)**: 保持 Scroll 位置，内部管理状态。
+*   **Level 3 (详情 Overlay)**: 
+    *   **模式**: 全屏覆盖 (Fixed Position)，从右侧滑入 (`animate-slide-in-right`)。
+    *   **结构**: 统一使用 `DetailLayout` 组件，包含固定 Header (Back, Title, Actions) 和可滚动内容区。
+    *   **独立性**: 关闭 Overlay 时销毁详情状态，返回列表页原状。

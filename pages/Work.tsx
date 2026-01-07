@@ -20,7 +20,10 @@ import {
   CreditCard,
   History,
   Users,
-  Activity
+  Activity,
+  Scale,
+  Wallet2,
+  HeartHandshake
 } from 'lucide-react';
 
 // Define the structure for categorized menu items
@@ -42,6 +45,25 @@ interface ServiceGroup {
 
 const serviceGroups: ServiceGroup[] = [
   {
+    title: '财务运营 (Finance Ops)',
+    themeColor: 'emerald',
+    items: [
+      { 
+        id: 'fn-rec', 
+        label: '对账', 
+        iconName: 'Scale',
+        badge: { text: '4待办', color: 'bg-rose-500 text-white' }
+      },
+      { id: 'fn-flow', label: '流水', iconName: 'Activity' }, 
+      { id: 'fn-4', label: '发票', iconName: 'Ticket' }, 
+      { id: 'fn-reim', label: '报销', iconName: 'Wallet2' },
+      { id: 'fn-3', label: '凭证', iconName: 'FileUp' }, 
+      { id: 'fn-5', label: '报表', iconName: 'BarChart3' }, 
+      // Tax (fn-2) kept as it was in previous version, though distinct from ops
+      { id: 'fn-2', label: '税款', iconName: 'Calculator' }, 
+    ]
+  },
+  {
     title: '人事管理 (HR)',
     themeColor: 'blue',
     items: [
@@ -52,21 +74,8 @@ const serviceGroups: ServiceGroup[] = [
         badge: { text: '32人', color: 'bg-blue-600 text-white' }
       }, 
       { id: 'hr-1', label: '薪酬', iconName: 'Banknote' }, 
-      // Removed '个税' (hr-2) as requested
       { id: 'hr-4', label: '五险一金', iconName: 'CreditCard' }, 
       { id: 'hr-6', label: '合同', iconName: 'FileSignature' }, 
-    ]
-  },
-  {
-    title: '财务税务 (Finance)',
-    themeColor: 'emerald',
-    items: [
-      { id: 'fn-flow', label: '流水', iconName: 'Activity' }, // Added Transaction Flow
-      // Removed '报税' (fn-1) as requested
-      { id: 'fn-2', label: '税款', iconName: 'Calculator' }, 
-      { id: 'fn-3', label: '凭证', iconName: 'FileUp' }, 
-      { id: 'fn-4', label: '发票', iconName: 'Ticket' }, 
-      { id: 'fn-5', label: '报表', iconName: 'BarChart3' }, 
     ]
   },
   {
@@ -74,7 +83,7 @@ const serviceGroups: ServiceGroup[] = [
     themeColor: 'purple',
     items: [
       { id: 'ot-1', label: '政策咨询', iconName: 'HelpCircle' },
-      { id: 'ot-2', label: '证明开具', iconName: 'FileBadge' },
+      { id: 'ot-5', label: '员工服务', iconName: 'HeartHandshake' }, // Replaced Proof with Employee Service
       { id: 'ot-3', label: '口径确认', iconName: 'MessageSquare' },
       { id: 'ot-4', label: '异常处理', iconName: 'AlertOctagon' },
     ]
@@ -111,6 +120,9 @@ const Work: React.FC = () => {
       case 'CreditCard': return <CreditCard {...props} />;
       case 'History': return <History {...props} />;
       case 'Activity': return <Activity {...props} />;
+      case 'Scale': return <Scale {...props} />;
+      case 'Wallet2': return <Wallet2 {...props} />;
+      case 'HeartHandshake': return <HeartHandshake {...props} />;
       default: return <FileCheck {...props} />;
     }
   };

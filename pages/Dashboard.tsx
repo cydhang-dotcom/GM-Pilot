@@ -131,7 +131,7 @@ const timelineData: TimelineItem[] = [
       { label: '稳岗补贴', statusTheme: 'green' },
       { label: '高新认定', statusTheme: 'orange' }
     ],
-    link: '/work/ot-1'
+    link: '/work/srv-subsidy'
   },
 ];
 

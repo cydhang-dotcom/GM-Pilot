@@ -17,7 +17,10 @@
 - **税款缴纳**: [📄 需求详情](./workstation/fn_tax.md)
 - **电子凭证**: [📄 需求详情](./workstation/fn_voucher.md)
 - **发票管理**: [📄 需求详情](./workstation/fn_invoice.md)
+- **对账中心**: [📄 需求详情](./workstation/finance_reconciliation.md)
+- **费用报销**: [📄 需求详情](./workstation/finance_reimbursement.md)
 - **财税报表**: [📄 需求详情](./workstation/fn_reports.md)
 
 ## 4. 详情页组件拆解 (Services)
 - **综合服务请求**: [📄 需求详情](./workstation/services.md)
+- **政府补助 (New)**: [📄 需求详情](./workstation/srv_subsidy.md)
