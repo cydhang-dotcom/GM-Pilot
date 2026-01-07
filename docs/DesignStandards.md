@@ -1,13 +1,13 @@
 # GM Pilot 设计规范 (Design Standards)
 
-> **版本**: v1.1
+> **版本**: v1.4 (High Fidelity Update)
 > **适用范围**: 移动端 Web App
 
 ## 1. 核心原则 (Core Principles)
 
 *   **Mobile First**: 所有界面优先适配移动端竖屏操作，交互区域便于拇指点击。
-*   **Information Density**: 针对管理者设计，首屏强调关键指标（KPI），次级页面提供数据穿透。
-*   **Trustworthy**: 金融级数据展示，隐私模式默认开启，色彩传达明确的风险/安全信号。
+*   **Immersive & Clean**: 使用毛玻璃 (`backdrop-blur`)、大圆角与柔和阴影，减少分割线，营造现代感。
+*   **Data Driven**: 核心数据（金额、人数）使用高辨识度的等宽字体，图表去噪（无网格、无轴线）。
 
 ## 2. 色彩系统 (Color System)
 
@@ -20,42 +20,44 @@
 | **Success / Safe** | `emerald-600` / `bg-emerald-50` | 已完成、安全、收入、正向趋势 |
 | **Warning / Risk** | `orange-600` / `bg-orange-50` | 风险预警、即将到期、需要关注 |
 | **Critical / Action** | `rose-600` / `bg-rose-50` | 严重超支、驳回、负向趋势、高优待办 |
-| **Neutral / Pending** | `gray-400` / `bg-gray-50` | 未开始、辅助信息、次要文本 |
+| **Brand** | `indigo-600` | 核心行动按钮、品牌卡片背景 |
+| **Neutral** | `slate-900` / `slate-500` / `slate-400` | 标题 / 正文 / 辅助文本 |
 
-### 2.2 品牌色 (Brand Colors)
-*   **Primary**: Indigo (`indigo-600`) - 用于主按钮、强调卡片。
-*   **Background**: Slate/Gray (`gray-50`) - 用于页面背景，保持干净清爽。
+### 2.2 背景系统 (Backgrounds)
+*   **Global Page**: `bg-[#F8F9FB]` (冷灰白，营造通透感)。
+*   **Cards**: `bg-white` + `shadow-sm` + `border-slate-100`。
+*   **Glass**: `bg-white/90` + `backdrop-blur-md` (用于 Sticky Header)。
 
-## 3. 排版与字体 (Typography)
+## 3. 排版与图标 (Typography & Iconography)
 
-*   **数字**: 所有涉及金额、统计数据的数字，优先使用等宽字体 (`font-mono`) 以确保对齐和易读性。
+*   **数字**: 金额、日期、ID 必须使用 `font-mono`。
+*   **图标**: Lucide React，统一使用 `strokeWidth={1.5}` (大图标) 或 `{2}` (小图标)。
 *   **字号层级**:
-    *   **Page Title**: `text-xl font-bold` (20px)
-    *   **Card Title**: `text-sm font-bold` (14px)
-    *   **KPI Value**: `text-2xl` or `text-3xl font-bold`
-    *   **Body**: `text-xs` (12px) - 移动端信息密集场景下的默认正文大小
-    *   **Meta/Label**: `text-[10px]` - 辅助标签、次要时间戳
+    *   **KPI Big**: `text-3xl font-bold tracking-tight`
+    *   **Page Title**: `text-xl font-bold`
+    *   **Card Title**: `text-sm font-bold`
+    *   **Body**: `text-xs` (移动端标准正文)
+    *   **Meta**: `text-[10px]` (标签、时间戳)
 
-## 4. 组件规范 (Components)
+## 4. 交互模式 (Interaction Patterns)
 
-### 4.1 卡片 (Cards)
-*   圆角: `rounded-xl` 或 `rounded-2xl`
-*   阴影: `shadow-sm` (默认), `shadow-md` (悬浮/强调)
-*   边框: `border border-gray-100` (用于在白色背景上区分层级)
+### 4.1 页面层级 (Page Layers)
+*   **Level 1 (App Shell)**: Dashboard, Inbox, Work, Company (带底部导航)。
+*   **Level 2 (List/Board)**: 模块主页，自行管理滚动状态。
+*   **Level 3+ (Overlay)**: 详情页模式。
+    *   **实现**: 全屏 `fixed` 定位，覆盖 Level 2。
+    *   **动效**: 右侧滑入 (`animate-slide-in-right`) 或 底部滑入 (`animate-fade-in-up`)。
+    *   **结构**: 统一使用 `DetailLayout`，包含顶部导航与底部固定操作栏。
 
-### 4.2 图表 (Charts)
+### 4.2 动效规范 (Motion)
+*   **Fade In**: `animate-fade-in` (用于页面加载)。
+*   **Slide In**: `animate-slide-in-right` (用于进入详情页)。
+*   **Pulse**: `animate-pulse` (用于“处理中”或“紧急”状态标记)。
+
+### 4.3 图表规范 (Charts)
 *   **库**: Recharts
-*   **风格**: 极简风格，移除不必要的网格线和轴线。
-*   **交互**: 必须提供 Tooltip，点击/长按显示具体数值。
-*   **配色**: 严格遵循状态色系统（如收入用绿色，支出用黑色/灰色，强调色用蓝色）。
-
-### 4.3 导航 (Navigation)
-*   **底部导航 (Bottom Nav)**: 仅在四个主一级页面显示。
-*   **顶部导航 (Top Bar)**: 二级详情页必须包含“返回”按钮和页面标题。
-
-### 4.4 页面层级与交互 (Page Layers) [New]
-*   **Level 2 (列表/看板)**: 保持 Scroll 位置，内部管理状态。
-*   **Level 3 (详情 Overlay)**: 
-    *   **模式**: 全屏覆盖 (Fixed Position)，从右侧滑入 (`animate-slide-in-right`)。
-    *   **结构**: 统一使用 `DetailLayout` 组件，包含固定 Header (Back, Title, Actions) 和可滚动内容区。
-    *   **独立性**: 关闭 Overlay 时销毁详情状态，返回列表页原状。
+*   **风格**: 极简 (Minimalist)。
+    *   隐藏 Axis Line 和 Tick Line。
+    *   隐藏 CartesianGrid (或使用极淡的虚线)。
+    *   必须提供 `Tooltip` 交互。
+    *   颜色严格对应状态色（如：支出=Slate, 收入=Emerald）。
