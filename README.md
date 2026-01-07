@@ -1,20 +1,24 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# GM Pilot
 
-# Run and deploy your AI Studio app
+> A comprehensive mobile-first dashboard for General Managers to oversee outsourced HR and Finance workflows.
 
-This contains everything you need to run your app locally.
+## 📚 Key Documentation
 
-View your app in AI Studio: https://ai.studio/apps/drive/1EjaNcqBg8RVl7mSIpcEEpR5dJueRs1m2
+We maintain strictly versioned documentation in the `docs/` directory to guide development.
 
-## Run Locally
+### 1. [Product Requirements (PRD)](docs/PRD.md)
+*   **Role**: The master source of truth. Defines project vision, core goals, user roles, and module priorities (P0/P1).
+*   **When to read**: Before starting a new module to confirm functionality scope.
+*   **Status**: v1.4.0 (Internal Pilot).
 
-**Prerequisites:**  Node.js
+### 2. [Design Standards](docs/DesignStandards.md)
+*   **Role**: The visual language guide. Defines the "Modern Clean" aesthetic, including Color System, Typography, Glassmorphism effects, and the standard **Level 3 Overlay** interaction pattern.
+*   **When to read**: Before building any UI component or page layout.
 
+### 3. [Feature Checklist](docs/FeatureList.md)
+*   **Role**: Granular acceptance criteria. Tracks the exact implementation status of every feature in the codebase.
+*   **When to read**: Daily, to verify progress against the v1.4.0 scope.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+---
+
+*For technical stack details, coding habits, and project history, please refer to **[memory.md](memory.md)**.*
