@@ -6,10 +6,23 @@ import {
   CheckCircle2, Clock, CreditCard, Stamp, Banknote, 
   ArrowLeft, ChevronRight, UserPlus, FileCheck, Briefcase,
   AlertTriangle, Wallet, Circle, AlertCircle, Loader2,
-  ArrowUpRight, ArrowDownLeft, Minus, MoreHorizontal, ChevronDown
+  ArrowUpRight, ArrowDownLeft, Minus, MoreHorizontal, ChevronDown,
+  Play
 } from 'lucide-react';
 
-// --- TIMELINE TYPES & DATA (Moved from Dashboard) ---
+// --- TASK CONSTANTS ---
+
+const SALARY_TASK: Task = { 
+  id: 'u_salary', 
+  title: '12月工资发放确认', 
+  description: '总额 ¥425,000.00，涉及 32 人', 
+  deadline: '今天 18:00', 
+  type: TaskType.SUBMIT_DATA, 
+  priority: 'HIGH', 
+  source: 'Finance Outsourcing' 
+};
+
+// --- TIMELINE TYPES & DATA ---
 
 interface Alert {
   type: 'action' | 'risk';
@@ -41,21 +54,23 @@ interface TimelineItem {
   subItems?: SubItem[];
   alerts?: Alert[];
   link?: string;
+  taskData?: Task; // New: Bind a task object directly to timeline node
 }
 
 const timelineData: TimelineItem[] = [
   { 
     id: '1', 
     title: '薪酬发放', 
-    tag: '11月',
-    status: 'completed', 
+    tag: '12月',
+    status: 'active', // Active for confirmation
     dateLabel: '12-10', 
     detail: '',
     metrics: [
       { label: '实发总额', value: '¥425k', trend: 'up', trendValue: '1.2%' },
       { label: '发放人数', value: '32人', trend: 'up', trendValue: '2' }
     ],
-    link: '/work/hr-1'
+    taskData: SALARY_TASK, // Bind the task here
+    alerts: [{ type: 'action', text: '待确认发放', link: '' }]
   },
   { 
     id: '2', 
@@ -74,7 +89,7 @@ const timelineData: TimelineItem[] = [
     id: '3', 
     title: '五险一金', 
     tag: '12月',
-    status: 'active', 
+    status: 'pending', 
     dateLabel: '12-15', 
     detail: '',
     metrics: [
@@ -114,8 +129,7 @@ const timelineData: TimelineItem[] = [
 const mockTasks: Task[] = [
   // BILLS
   { id: 'b_service', title: '12月平台服务费', description: '待支付 ¥ 5,800.00', deadline: '2023-12-25', type: TaskType.CONFIRM, priority: 'HIGH', source: 'HR Outsourcing' },
-  // FINANCE (Salary)
-  { id: 'u_salary', title: '12月工资发放确认', description: '总额 ¥425,000.00，涉及 32 人', deadline: '今天 18:00', type: TaskType.SUBMIT_DATA, priority: 'HIGH', source: 'Finance Outsourcing' },
+  // Salary Task removed from here as it is now in Timeline
   // OA
   { id: 'o1', title: '报销: 市场部-李娜', description: '11月北京出差差旅费', deadline: '无', type: TaskType.PROGRESS, priority: 'LOW', source: 'Internal OA' },
 ];
@@ -411,6 +425,17 @@ const Inbox: React.FC = () => {
         const isActive = item.status === 'active';
         const isCompleted = item.status === 'completed';
         
+        // Handle click: If taskData exists, open task; else navigate link
+        const Container: any = item.taskData ? 'div' : Link;
+        const containerProps = item.taskData ? {
+            onClick: (e: React.MouseEvent) => {
+                e.stopPropagation();
+                setSelectedTask(item.taskData!);
+            }
+        } : {
+            to: item.link || '#'
+        };
+
         return (
           <div key={item.id} className="relative pl-6 pb-6">
             {/* Connector Line */}
@@ -451,7 +476,7 @@ const Inbox: React.FC = () => {
                 </div>
     
                 {/* Detail Box */}
-                <Link to={item.link || '#'} className={`block rounded-2xl p-4 border transition-all active:scale-[0.99] ${
+                <Container {...containerProps} className={`block rounded-2xl p-4 border transition-all active:scale-[0.99] cursor-pointer ${
                     hasRisk ? 'bg-orange-50/50 border-orange-100' : 
                     isActive ? 'bg-white border-blue-100 shadow-[0_4px_12px_-2px_rgba(59,130,246,0.08)]' : 
                     'bg-white border-slate-100'
@@ -485,8 +510,6 @@ const Inbox: React.FC = () => {
                        <div className="space-y-2">
                           {item.subItems.map((sub, sIdx) => {
                              let themeClass = 'text-slate-500';
-                             
-                             // Icon Selection
                              let Icon = Circle;
                              let iconColor = 'text-slate-300';
                              
@@ -496,7 +519,7 @@ const Inbox: React.FC = () => {
                                 iconColor = 'text-emerald-500';
                              } else if (sub.statusTheme === 'blue') {
                                 themeClass = 'text-blue-700';
-                                Icon = Clock; // Or Loader2 for active
+                                Icon = Clock;
                                 iconColor = 'text-blue-500';
                              } else if (sub.statusTheme === 'orange') {
                                 themeClass = 'text-orange-700';
@@ -521,7 +544,17 @@ const Inbox: React.FC = () => {
                           })}
                        </div>
                     )}
-                </Link>
+
+                    {/* Integrated Action Button for Tasks */}
+                    {item.taskData && (
+                        <div className="mt-4 pt-3 border-t border-dashed border-indigo-100 flex justify-between items-center">
+                            <span className="text-[10px] text-indigo-400 font-medium">需要总经理确认</span>
+                            <button className="text-xs font-bold bg-indigo-600 text-white px-3 py-1.5 rounded-lg shadow-sm shadow-indigo-200 flex items-center gap-1">
+                                去确认 <Play size={10} fill="currentColor" />
+                            </button>
+                        </div>
+                    )}
+                </Container>
             </div>
           </div>
         );
@@ -536,7 +569,7 @@ const Inbox: React.FC = () => {
             
             <div className="p-5 space-y-6 overflow-y-auto pb-20">
                  
-                 {/* 1. TIMELINE SECTION (Moved here) */}
+                 {/* 1. TIMELINE SECTION (Merged) */}
                  <section className="bg-white rounded-[20px] shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)] border border-slate-100 overflow-hidden">
                     {/* Header */}
                     <div 
