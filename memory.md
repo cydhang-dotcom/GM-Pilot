@@ -16,6 +16,7 @@
 - **组件独立性**: Mock Data 定义在组件文件内部，不跨文件共享（除全局枚举外）。
 - **布局约束**: 全局 `max-w-md mx-auto` 确保移动端体验。
 - **文档同步 (Doc Sync)**: 每次修改代码文件后，**必须同步更新** `docs/` 目录下对应的需求文档 (`requirements/*.md`) 或功能清单 (`FeatureList.md`)，确保文档与代码逻辑严格一致。
+- **版本号维护 (Version Increment)**: 每次修改代码后，需更新 `pages/Company.tsx` 底部的显示版本号（如 `v1.0.2.xxx`），作为部署验证标记。
 
 ## 2. 文档目录索引 (Docs Index)
 

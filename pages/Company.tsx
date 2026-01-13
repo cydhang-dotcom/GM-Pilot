@@ -359,7 +359,7 @@ const Company: React.FC = () => {
                  <ShieldCheck size={12} className="text-gray-300"/>
                  <span className="text-[10px] text-gray-300">数据已加密保护</span>
              </div>
-             <p className="text-[10px] text-gray-300 font-mono">GM Pilot v1.0.2</p>
+             <p className="text-[10px] text-gray-300 font-mono">GM Pilot v1.0.2.001</p>
         </div>
 
       </div>
