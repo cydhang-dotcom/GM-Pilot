@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileBarChart, Search, FileText, Download } from 'lucide-react';
+import { FileBarChart, Search, FileText, ChevronRight } from 'lucide-react';
 import { AreaChart, Area, XAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
 import { ReportDetail } from './FinanceDetails';
 
@@ -57,7 +57,7 @@ const FinancialReports: React.FC = () => {
 
             {/* Report Files */}
             <div>
-                <h3 className="text-sm font-bold text-gray-900 mb-3 px-1">月度报表下载</h3>
+                <h3 className="text-sm font-bold text-gray-900 mb-3 px-1">月度报表归档</h3>
                 <div className="space-y-3">
                     {MOCK_FINANCIAL_REPORTS.map((file) => (
                         <div 
@@ -76,9 +76,9 @@ const FinancialReports: React.FC = () => {
                                      <p className="text-[10px] text-gray-400 mt-0.5">{file.date} 上传 · {file.size}</p>
                                  </div>
                              </div>
-                             <button className="text-gray-400 p-2 hover:bg-gray-50 rounded-full transition-colors">
-                                 <Download size={18} />
-                             </button>
+                             <div className="text-gray-300">
+                                 <ChevronRight size={18} />
+                             </div>
                         </div>
                     ))}
                 </div>

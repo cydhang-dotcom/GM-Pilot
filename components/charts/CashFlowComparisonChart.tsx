@@ -64,9 +64,13 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-const CashFlowComparisonChart: React.FC = () => {
+interface Props {
+  className?: string;
+}
+
+const CashFlowComparisonChart: React.FC<Props> = ({ className }) => {
   return (
-    <div className="h-48 w-full">
+    <div className={`w-full ${className || 'h-48'}`}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
           <defs>
