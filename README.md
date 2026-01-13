@@ -2,6 +2,8 @@
 
 > 专为中小企业总经理（GM）设计的移动端人事财务外包管理 App。
 
+**🔗 在线预览**: [Live Demo](https://ibanbu-6ghi7uy328127407-1258799494.tcloudbaseapp.com/GMP/)
+
 ## 📚 核心文档 (Documentation)
 
 我们在 `docs/` 目录下维护了严格的版本化文档，用于指导开发。

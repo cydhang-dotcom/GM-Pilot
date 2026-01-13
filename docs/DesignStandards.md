@@ -1,17 +1,29 @@
 # GM Pilot 设计规范 (Design Standards)
 
-> **版本**: v1.4 (High Fidelity Update)
+> **版本**: v1.5 (Consolidated)
 > **适用范围**: 移动端 Web App
 
 ## 1. 核心原则 (Core Principles)
 
-*   **Mobile First**: 所有界面优先适配移动端竖屏操作，交互区域便于拇指点击。
+*   **Mobile First**: 所有界面优先适配移动端竖屏操作，交互区域便于拇指点击。容器宽度限制 `max-w-md`。
 *   **Immersive & Clean**: 使用毛玻璃 (`backdrop-blur`)、大圆角与柔和阴影，减少分割线，营造现代感。
 *   **Data Driven**: 核心数据（金额、人数）使用高辨识度的等宽字体，图表去噪（无网格、无轴线）。
 
-## 2. 色彩系统 (Color System)
+## 2. 布局与容器 (Layout & Visuals)
 
-### 2.1 状态色 (Status Colors)
+*   **Global Background**: `bg-[#F8F9FB]` (冷灰白，营造通透感)。
+*   **Card Style**: `bg-white` + `shadow-sm` + `border-slate-100`。
+*   **Glass Effect**: `bg-white/90` + `backdrop-blur-md` (用于 Sticky Header)。
+*   **圆角 (Border Radius)**:
+    *   常规: `rounded-xl`
+    *   大卡片: `rounded-[20px]`
+*   **阴影 (Shadows)**:
+    *   基础: `shadow-sm`
+    *   浮起: `shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)]`
+
+## 3. 色彩系统 (Color System)
+
+### 3.1 状态色 (Status Colors)
 用于表达业务状态、风险等级及操作反馈。
 
 | 语义 | Tailwind 类 | 用途 |
@@ -23,12 +35,7 @@
 | **Brand** | `indigo-600` | 核心行动按钮、品牌卡片背景 |
 | **Neutral** | `slate-900` / `slate-500` / `slate-400` | 标题 / 正文 / 辅助文本 |
 
-### 2.2 背景系统 (Backgrounds)
-*   **Global Page**: `bg-[#F8F9FB]` (冷灰白，营造通透感)。
-*   **Cards**: `bg-white` + `shadow-sm` + `border-slate-100`。
-*   **Glass**: `bg-white/90` + `backdrop-blur-md` (用于 Sticky Header)。
-
-## 3. 排版与图标 (Typography & Iconography)
+## 4. 排版与图标 (Typography & Iconography)
 
 *   **数字**: 金额、日期、ID 必须使用 `font-mono`。
 *   **图标**: Lucide React，统一使用 `strokeWidth={1.5}` (大图标) 或 `{2}` (小图标)。
@@ -39,22 +46,28 @@
     *   **Body**: `text-xs` (移动端标准正文)
     *   **Meta**: `text-[10px]` (标签、时间戳)
 
-## 4. 交互模式 (Interaction Patterns)
+## 5. 交互模式 (Interaction Patterns)
 
-### 4.1 页面层级 (Page Layers)
+### 5.1 页面层级 (Page Layers)
 *   **Level 1 (App Shell)**: Dashboard, Inbox, Work, Company (带底部导航)。
 *   **Level 2 (List/Board)**: 模块主页，自行管理滚动状态。
 *   **Level 3+ (Overlay)**: 详情页模式。
     *   **实现**: 全屏 `fixed` 定位，覆盖 Level 2。
-    *   **动效**: 右侧滑入 (`animate-slide-in-right`) 或 底部滑入 (`animate-fade-in-up`)。
     *   **结构**: 统一使用 `DetailLayout`，包含顶部导航与底部固定操作栏。
 
-### 4.2 动效规范 (Motion)
+### 5.2 特定场景交互 (Specific Patterns)
+*   **File Download Pattern (文件下载)**:
+    *   **禁止直接下载**: 列表项点击后不能直接触发下载。
+    *   **中间页原则**: 必须先进入一个概览页 (Preview Overlay)，展示文件元数据（大小、时间、预览图）后，再提供明确的下载按钮。
+*   **Communication UI (沟通记录)**:
+    *   使用对话式气泡布局 (Chat Bubble Layout) 替代静态文本块，区分“我”与“代理/系统”的角色，增强互动感。
+
+### 5.3 动效规范 (Motion)
 *   **Fade In**: `animate-fade-in` (用于页面加载)。
 *   **Slide In**: `animate-slide-in-right` (用于进入详情页)。
 *   **Pulse**: `animate-pulse` (用于“处理中”或“紧急”状态标记)。
 
-### 4.3 图表规范 (Charts)
+### 5.4 图表规范 (Charts)
 *   **库**: Recharts
 *   **风格**: 极简 (Minimalist)。
     *   隐藏 Axis Line 和 Tick Line。

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import ExpenditureBreakdownChart from '../components/charts/ExpenditureBreakdownChart';
 import PersonnelChart from '../components/charts/PersonnelChart';
@@ -22,7 +21,8 @@ import {
   Wallet,
   TrendingUp,
   PieChart,
-  ChevronDown
+  ChevronDown,
+  Hourglass
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -83,7 +83,7 @@ const timelineData: TimelineItem[] = [
     dateLabel: '12-15', 
     detail: '',
     subItems: [
-      { label: '增值税', statusTheme: 'green' },
+      { label: '增值税', statusTheme: 'green', statusText: '已缴款' },
       { label: '个税', statusTheme: 'blue', statusText: '申报中' }, 
     ],
     link: '/work/fn-2'
@@ -121,8 +121,8 @@ const timelineData: TimelineItem[] = [
     dateLabel: '12-30', 
     detail: '',
     subItems: [
-      { label: '稳岗补贴', statusTheme: 'green' },
-      { label: '高新认定', statusTheme: 'orange' }
+      { label: '稳岗补贴', statusTheme: 'green', statusText: '已到账' },
+      { label: '高新认定', statusTheme: 'blue', statusText: '审核中' }
     ],
     link: '/work/srv-subsidy'
   },
@@ -211,26 +211,32 @@ const Dashboard: React.FC = () => {
 
                 {/* Sub Items */}
                 {item.subItems && (
-                   <div className="space-y-1.5">
+                   <div className="space-y-2">
                       {item.subItems.map((sub, sIdx) => {
                          let themeClass = 'text-slate-500';
-                         let dotClass = 'bg-slate-300';
-
+                         
+                         // Icon Selection
+                         let Icon = Circle;
+                         let iconColor = 'text-slate-300';
+                         
                          if (sub.statusTheme === 'green') {
                             themeClass = 'text-emerald-700';
-                            dotClass = 'bg-emerald-500';
+                            Icon = CheckCircle2;
+                            iconColor = 'text-emerald-500';
                          } else if (sub.statusTheme === 'blue') {
                             themeClass = 'text-blue-700';
-                            dotClass = 'bg-blue-500';
+                            Icon = Clock; // Or Loader2 for active
+                            iconColor = 'text-blue-500';
                          } else if (sub.statusTheme === 'orange') {
                             themeClass = 'text-orange-700';
-                            dotClass = 'bg-orange-500';
+                            Icon = AlertCircle;
+                            iconColor = 'text-orange-500';
                          }
                          
                          return (
                            <div key={sIdx} className="flex justify-between items-center text-xs">
                               <div className="flex items-center gap-2">
-                                <div className={`w-1.5 h-1.5 rounded-full ${dotClass}`}></div>
+                                <Icon size={12} className={iconColor} />
                                 <span className={`${themeClass} font-medium`}>{sub.label}</span>
                               </div>
                               {sub.statusText && (
