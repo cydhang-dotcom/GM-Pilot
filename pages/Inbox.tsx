@@ -531,7 +531,7 @@ const Inbox: React.FC = () => {
     return (
         <div className="flex flex-col h-full bg-[#FAFAFA]">
             <div className="bg-white/80 backdrop-blur-md sticky top-0 z-30 px-5 pt-12 pb-4 border-b border-gray-100/50">
-                 <h1 className="text-2xl font-bold text-gray-900 tracking-tight">待办事项</h1>
+                 <h1 className="text-2xl font-bold text-gray-900 tracking-tight">本月任务</h1>
             </div>
             
             <div className="p-5 space-y-6 overflow-y-auto pb-20">
