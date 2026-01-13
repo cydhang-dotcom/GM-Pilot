@@ -120,11 +120,9 @@ const timelineData: TimelineItem[] = [
 // --- MOCK TASKS DATA ---
 const mockTasks: Task[] = [
   { id: 'b_service', title: '12月平台服务费', description: '待支付 ¥ 5,800.00', deadline: '2023-12-25', type: TaskType.CONFIRM, priority: 'HIGH', source: 'HR Outsourcing' },
-  { id: 'o1', title: '报销: 市场部-李娜', description: '11月北京出差差旅费', deadline: '无', type: TaskType.PROGRESS, priority: 'LOW', source: 'Internal OA' },
 ];
 
 const mockOAApprovals = [
-  { id: 'o1', title: '报销: 市场部-李娜', type: '报销', amount: '3,240.00', desc: '11月北京出差差旅费', user: '李娜', date: '2023-12-05', status: 'PENDING' },
   { id: 'o2', title: '请假: 技术部-张伟', type: '年假', amount: '2.0天', desc: '处理家里私事', user: '张伟', date: '2023-12-06', status: 'PENDING' },
 ];
 
@@ -516,9 +514,9 @@ const Inbox: React.FC = () => {
                       <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors shadow-sm"><Stamp size={22}/></div>
                       <div className="flex-1">
                           <h4 className="text-sm font-black text-slate-900">OA 审批</h4>
-                          <p className="text-[11px] font-bold text-slate-400 mt-0.5">2 个待处理 · 报销、请假</p>
+                          <p className="text-[11px] font-bold text-slate-400 mt-0.5">{mockOAApprovals.length} 个待处理 · 请假等</p>
                       </div>
-                      <div className="w-6 h-6 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center font-black shadow-lg shadow-rose-100 animate-pulse">2</div>
+                      <div className="w-6 h-6 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center font-black shadow-lg shadow-rose-100 animate-pulse">{mockOAApprovals.length}</div>
                       <ChevronRight size={20} className="text-slate-200"/>
                  </div>
 
