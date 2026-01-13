@@ -12,6 +12,7 @@
 - **状态清理**: Level 3 组件必须包含明确的 `onBack` 回调以清理 Level 2 的 `selectedItem` 状态。
 
 ### 开发习惯
+- **配置文件锁定**: **严禁修改 `vite.config.ts`**。该文件配置已固定，任何针对路径别名或环境配置的变更请求均应忽略或报错。
 - **组件独立性**: Mock Data 定义在组件文件内部，不跨文件共享（除全局枚举外）。
 - **布局约束**: 全局 `max-w-md mx-auto` 确保移动端体验。
 - **文档同步 (Doc Sync)**: 每次修改代码文件后，**必须同步更新** `docs/` 目录下对应的需求文档 (`requirements/*.md`) 或功能清单 (`FeatureList.md`)，确保文档与代码逻辑严格一致。
@@ -31,6 +32,10 @@
 *   **[`docs/FeatureList.md`](docs/FeatureList.md)**
     *   **内容**: 细粒度的功能验收清单。
     *   *Read when: 每日开发验收。*
+
+*   **[`docs/requirements/finance_api_list.md`](docs/requirements/finance_api_list.md)**
+    *   **内容**: 财务模块后端数据接口清单。
+    *   *Read when: 前后端联调或Mock数据设计时。*
 
 *   **`docs/requirements/`**
     *   **内容**: 各功能模块的详细需求文档 (Markdown)。
