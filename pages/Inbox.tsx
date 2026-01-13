@@ -24,12 +24,6 @@ const SALARY_TASK: Task = {
 
 // --- TIMELINE TYPES & DATA ---
 
-interface Alert {
-  type: 'action' | 'risk';
-  text: string;
-  link: string;
-}
-
 interface SubItem {
   label: string;
   statusText?: string;
@@ -52,9 +46,8 @@ interface TimelineItem {
   detail: string;
   metrics?: Metric[];
   subItems?: SubItem[];
-  alerts?: Alert[];
+  taskData?: Task; // Bind a task object directly
   link?: string;
-  taskData?: Task; // New: Bind a task object directly to timeline node
 }
 
 const timelineData: TimelineItem[] = [
@@ -62,15 +55,14 @@ const timelineData: TimelineItem[] = [
     id: '1', 
     title: '薪酬发放', 
     tag: '12月',
-    status: 'active', // Active for confirmation
+    status: 'active', 
     dateLabel: '12-10', 
     detail: '',
     metrics: [
       { label: '实发总额', value: '¥425k', trend: 'up', trendValue: '1.2%' },
       { label: '发放人数', value: '32人', trend: 'up', trendValue: '2' }
     ],
-    taskData: SALARY_TASK, // Bind the task here
-    alerts: [{ type: 'action', text: '待确认发放', link: '' }]
+    taskData: SALARY_TASK 
   },
   { 
     id: '2', 
@@ -127,10 +119,7 @@ const timelineData: TimelineItem[] = [
 
 // --- MOCK TASKS DATA ---
 const mockTasks: Task[] = [
-  // BILLS
   { id: 'b_service', title: '12月平台服务费', description: '待支付 ¥ 5,800.00', deadline: '2023-12-25', type: TaskType.CONFIRM, priority: 'HIGH', source: 'HR Outsourcing' },
-  // Salary Task removed from here as it is now in Timeline
-  // OA
   { id: 'o1', title: '报销: 市场部-李娜', description: '11月北京出差差旅费', deadline: '无', type: TaskType.PROGRESS, priority: 'LOW', source: 'Internal OA' },
 ];
 
@@ -145,9 +134,7 @@ const mockEntryTasks = [
   { id: 'e3', candidate: '刘思思', dept: '运营部', role: '运营专员', date: '2023-12-20', status: 'WAITING_Review', progress: 'Offer待确认' },
 ];
 
-// --- Level 3: Task Detail Views ---
-
-// 1. Bill Detail
+// --- Task Detail Components ---
 const BillDetail = ({ task, onBack }: { task: Task, onBack: () => void }) => (
     <DetailLayout title="账单详情" onBack={onBack} tag={{ label: '待支付', color: 'text-orange-600', bg: 'bg-orange-50' }}>
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center relative overflow-hidden">
@@ -156,7 +143,6 @@ const BillDetail = ({ task, onBack }: { task: Task, onBack: () => void }) => (
              </div>
              <p className="text-xs text-gray-400 mb-2">待支付金额</p>
              <h2 className="text-4xl font-bold font-mono text-gray-900 mb-6">¥5,800.00</h2>
-             
              <div className="space-y-4 text-left">
                  <div className="flex justify-between py-2 border-b border-gray-50">
                      <span className="text-xs text-gray-500">账单项目</span>
@@ -178,10 +164,8 @@ const BillDetail = ({ task, onBack }: { task: Task, onBack: () => void }) => (
     </DetailLayout>
 );
 
-// 2. Salary Confirmation Detail (New)
 const SalaryDetail = ({ task, onBack }: { task: Task, onBack: () => void }) => (
     <DetailLayout title="工资发放确认" onBack={onBack} tag={{ label: '需确认', color: 'text-orange-600', bg: 'bg-orange-50' }}>
-        {/* Main Amount Card */}
         <div className="bg-gradient-to-br from-indigo-600 to-blue-700 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden mb-4">
             <div className="relative z-10">
                 <div className="flex justify-between items-start">
@@ -202,8 +186,6 @@ const SalaryDetail = ({ task, onBack }: { task: Task, onBack: () => void }) => (
             </div>
             <Wallet className="absolute -right-4 -bottom-4 text-white/10 w-32 h-32" />
         </div>
-
-        {/* Breakdown */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 space-y-4">
             <h3 className="text-sm font-bold text-gray-900">资金构成明细</h3>
             <div className="space-y-3">
@@ -219,47 +201,27 @@ const SalaryDetail = ({ task, onBack }: { task: Task, onBack: () => void }) => (
                     <span className="text-xs text-gray-500">个人所得税 (代扣)</span>
                     <span className="text-sm font-bold text-gray-900 font-mono">-¥10,000.00</span>
                 </div>
-                <div className="border-t border-gray-100 pt-3 flex justify-between items-center">
-                    <span className="text-xs font-bold text-gray-900">企业用工总成本</span>
-                    <span className="text-xs font-bold text-gray-400 font-mono">¥485,000.00</span>
-                </div>
             </div>
         </div>
-
-        {/* Warning/Notes */}
         <div className="bg-orange-50 rounded-xl p-4 border border-orange-100 flex items-start gap-3">
             <AlertTriangle size={18} className="text-orange-600 shrink-0 mt-0.5" />
             <div>
                 <h4 className="text-xs font-bold text-orange-800">风险提示</h4>
-                <p className="text-[10px] text-orange-700 mt-1 leading-relaxed">
-                    本月有 3 名新入职员工处于试用期，请重点核对薪资基数。
-                </p>
-                <button className="text-[10px] font-bold text-orange-600 mt-2 underline">
-                    查看试用期人员名单
-                </button>
+                <p className="text-[10px] text-orange-700 mt-1 leading-relaxed">本月有 3 名新入职员工处于试用期，请重点核对薪资基数。</p>
             </div>
         </div>
-
-        {/* Actions */}
         <div className="flex gap-3 pt-4">
-            <button className="flex-1 bg-white text-gray-700 font-bold py-3.5 rounded-xl border border-gray-200 shadow-sm active:scale-[0.98]">
-                退回修改
-            </button>
-            <button className="flex-[2] bg-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-200 active:scale-[0.98] flex items-center justify-center gap-2">
-                <CheckCircle2 size={18} /> 确认并发放
-            </button>
+            <button className="flex-1 bg-white text-gray-700 font-bold py-3.5 rounded-xl border border-gray-200 active:scale-[0.98]">退回修改</button>
+            <button className="flex-[2] bg-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-[0.98]">确认并发放</button>
         </div>
     </DetailLayout>
 );
 
-// 3. OA Detail
 const OADetail = ({ item, onBack }: { item: any, onBack: () => void }) => (
     <DetailLayout title="审批详情" onBack={onBack}>
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
              <div className="flex items-center gap-3 mb-4">
-                 <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-600">
-                     {item.user.charAt(0)}
-                 </div>
+                 <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-600">{item.user.charAt(0)}</div>
                  <div>
                      <h3 className="text-lg font-bold text-gray-900">{item.user}</h3>
                      <p className="text-xs text-gray-400">发起于 {item.date}</p>
@@ -281,22 +243,16 @@ const OADetail = ({ item, onBack }: { item: any, onBack: () => void }) => (
     </DetailLayout>
 );
 
-// 4. Entry Detail
 const EntryDetail = ({ item, onBack }: { item: any, onBack: () => void }) => (
     <DetailLayout title="入职确认" onBack={onBack} tag={{ label: '待归档', color: 'text-blue-600', bg: 'bg-blue-50' }}>
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 relative overflow-hidden">
              <div className="flex items-center gap-4 mb-6 relative z-10">
-                 <div className="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold border-4 border-white shadow-sm">
-                     {item.candidate.charAt(0)}
-                 </div>
+                 <div className="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold border-4 border-white shadow-sm">{item.candidate.charAt(0)}</div>
                  <div>
                      <h2 className="text-xl font-bold text-gray-900">{item.candidate}</h2>
-                     <p className="text-sm text-gray-500 mt-1 flex items-center gap-1">
-                        <Briefcase size={12}/> {item.dept} · {item.role}
-                     </p>
+                     <p className="text-sm text-gray-500 mt-1 flex items-center gap-1"><Briefcase size={12}/> {item.dept} · {item.role}</p>
                  </div>
              </div>
-             
              <div className="space-y-4 relative z-10">
                  <div className="flex justify-between py-2 border-b border-gray-50">
                      <span className="text-xs text-gray-500">预计入职日期</span>
@@ -307,11 +263,8 @@ const EntryDetail = ({ item, onBack }: { item: any, onBack: () => void }) => (
                      <span className="text-xs font-bold text-gray-900">固定期限 (3年)</span>
                  </div>
              </div>
-
              <div className="mt-6 bg-gray-50 rounded-xl p-4">
-                 <h4 className="text-xs font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <FileCheck size={14} className="text-gray-400"/> 材料核验
-                 </h4>
+                 <h4 className="text-xs font-bold text-gray-900 mb-3 flex items-center gap-2"><FileCheck size={14} className="text-gray-400"/> 材料核验</h4>
                  <div className="space-y-2">
                      {['Offer 签署件', '身份证复印件', '学历证书', '离职证明'].map((doc, i) => (
                          <div key={i} className="flex items-center justify-between text-xs text-gray-600 bg-white p-2.5 rounded-lg border border-gray-100">
@@ -322,40 +275,27 @@ const EntryDetail = ({ item, onBack }: { item: any, onBack: () => void }) => (
                  </div>
              </div>
         </div>
-        <button className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-200 active:scale-[0.98]">
-            确认并归档
-        </button>
+        <button className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-[0.98]">确认并归档</button>
     </DetailLayout>
 );
 
-// --- Level 2: List Views ---
-
-type GroupType = 'ENTRY' | 'OA' | null;
+// --- Inbox Component ---
 
 const Inbox: React.FC = () => {
-    const [activeGroup, setActiveGroup] = useState<GroupType>(null);
+    const [activeGroup, setActiveGroup] = useState<'ENTRY' | 'OA' | null>(null);
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [selectedOA, setSelectedOA] = useState<any>(null);
     const [selectedEntry, setSelectedEntry] = useState<any>(null);
-    
-    // Timeline State
     const [isTimelineExpanded, setIsTimelineExpanded] = useState(false);
 
-    // Detail Navigation Logic
     if (selectedTask) {
-        if (selectedTask.id.startsWith('b_')) {
-            return <BillDetail task={selectedTask} onBack={() => setSelectedTask(null)} />;
-        }
-        if (selectedTask.id === 'u_salary') {
-            return <SalaryDetail task={selectedTask} onBack={() => setSelectedTask(null)} />;
-        }
+        if (selectedTask.id.startsWith('b_')) return <BillDetail task={selectedTask} onBack={() => setSelectedTask(null)} />;
+        if (selectedTask.id === 'u_salary') return <SalaryDetail task={selectedTask} onBack={() => setSelectedTask(null)} />;
         return <BillDetail task={selectedTask} onBack={() => setSelectedTask(null)} />;
     }
-    
     if (selectedOA) return <OADetail item={selectedOA} onBack={() => setSelectedOA(null)} />;
     if (selectedEntry) return <EntryDetail item={selectedEntry} onBack={() => setSelectedEntry(null)} />;
 
-    // Group Navigation: OA
     if (activeGroup === 'OA') {
         return (
             <div className="flex flex-col h-full bg-[#FAFAFA] animate-slide-in-right">
@@ -380,7 +320,6 @@ const Inbox: React.FC = () => {
         );
     }
 
-    // Group Navigation: Entry (Onboarding)
     if (activeGroup === 'ENTRY') {
         return (
             <div className="flex flex-col h-full bg-[#FAFAFA] animate-slide-in-right">
@@ -393,9 +332,7 @@ const Inbox: React.FC = () => {
                         <div key={entry.id} onClick={() => setSelectedEntry(entry)} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 cursor-pointer active:scale-[0.99]">
                              <div className="flex justify-between items-center mb-2">
                                  <div className="flex items-center gap-3">
-                                     <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm">
-                                         {entry.candidate.charAt(0)}
-                                     </div>
+                                     <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm">{entry.candidate.charAt(0)}</div>
                                      <div>
                                          <h4 className="text-sm font-bold text-gray-900">{entry.candidate}</h4>
                                          <p className="text-xs text-gray-400 mt-0.5">{entry.dept} · {entry.role}</p>
@@ -405,9 +342,7 @@ const Inbox: React.FC = () => {
                              </div>
                              <div className="flex justify-between items-center border-t border-gray-50 pt-3 mt-1">
                                  <span className="text-xs text-gray-400">预计入职: {entry.date}</span>
-                                 <span className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1 rounded">
-                                     {entry.progress}
-                                 </span>
+                                 <span className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1 rounded">{entry.progress}</span>
                              </div>
                         </div>
                     ))}
@@ -416,290 +351,192 @@ const Inbox: React.FC = () => {
         );
     }
 
-    // --- TIMELINE RENDER HELPER ---
-    const activeItems = timelineData.filter(item => item.status === 'active' || item.alerts?.some(a => a.type === 'risk'));
-    const collapsedViewItems = activeItems.length > 0 ? activeItems : [timelineData[timelineData.length - 1]];
-
-    const renderTimelineItem = (item: TimelineItem, index: number, isLast: boolean, isCompact: boolean) => {
-        const hasRisk = item.alerts?.some(a => a.type === 'risk');
+    const renderTimelineItem = (item: TimelineItem, index: number, isLast: boolean) => {
         const isActive = item.status === 'active';
         const isCompleted = item.status === 'completed';
-        
-        // Handle click: If taskData exists, open task; else navigate link
-        const Container: any = item.taskData ? 'div' : Link;
-        const containerProps = item.taskData ? {
-            onClick: (e: React.MouseEvent) => {
+        const hasTask = !!item.taskData;
+
+        const handleClick = (e: React.MouseEvent) => {
+            if (hasTask) {
                 e.stopPropagation();
                 setSelectedTask(item.taskData!);
             }
-        } : {
-            to: item.link || '#'
         };
 
         return (
-          <div key={item.id} className="relative pl-6 pb-6">
-            {/* Connector Line */}
+          <div key={item.id} className="relative pb-8">
+            {/* Connector Line - 精确锁定在 20px 中心 */}
             {!isLast && (
-              <div className={`absolute left-[9px] top-6 -bottom-1 w-[2px] ${isCompleted ? 'bg-emerald-100' : isActive ? 'bg-blue-100' : 'bg-slate-100'}`}></div>
+              <div className={`absolute left-5 top-6 bottom-0 w-[1.5px] -translate-x-1/2 ${isCompleted ? 'bg-emerald-200' : isActive ? 'bg-indigo-100' : 'bg-slate-100'}`}></div>
             )}
     
-            {/* Status Icon */}
-            <div className={`absolute left-0 top-1 w-5 h-5 rounded-full flex items-center justify-center border-2 z-10 bg-white transition-all duration-300 ${
-                isCompleted ? 'border-emerald-500 text-emerald-500' :
-                hasRisk ? 'border-orange-500 text-orange-500' :
-                isActive ? 'border-blue-500 text-blue-500 shadow-[0_0_0_4px_rgba(59,130,246,0.1)]' :
-                'border-slate-200 text-slate-300'
-            }`}>
-                {isCompleted ? <CheckCircle2 size={12} fill="currentColor" className="text-white" /> :
-                hasRisk ? <AlertTriangle size={10} fill="currentColor" className="text-white" /> :
-                isActive ? <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div> :
-                <div className="w-1.5 h-1.5 rounded-full bg-slate-200"></div>}
+            {/* Status Icon Marker - 精确锁定在 40px 容器的正中心 (即 20px) */}
+            <div className="absolute left-0 top-0 w-10 h-10 flex items-center justify-center z-10">
+                {isCompleted ? (
+                    <div className="w-5 h-5 rounded-full bg-emerald-500 border-2 border-white shadow-sm flex items-center justify-center text-white">
+                        <CheckCircle2 size={12} strokeWidth={3} />
+                    </div>
+                ) : isActive ? (
+                    <div className="relative flex items-center justify-center">
+                        <div className="w-5 h-5 rounded-full border-2 border-indigo-600 bg-white shadow-[0_0_8px_rgba(79,70,229,0.2)]"></div>
+                        <div className="absolute w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></div>
+                    </div>
+                ) : (
+                    <div className="w-5 h-5 rounded-full border-2 border-slate-200 bg-white flex items-center justify-center">
+                        <div className="w-1.5 h-1.5 rounded-full bg-slate-100"></div>
+                    </div>
+                )}
             </div>
     
-            {/* Content Card */}
-            <div className={`group`}>
-                {/* Header Line */}
-                <div className="flex justify-between items-center mb-2 pl-2">
+            {/* Content Body */}
+            <div className="pl-12 group">
+                <div className="flex justify-between items-center mb-1.5">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono font-medium text-slate-400">{item.dateLabel}</span>
-                    <h3 className={`text-sm font-bold ${isActive ? 'text-blue-900' : 'text-slate-700'}`}>
-                        {item.title}
-                    </h3>
-                    {item.tag && (
-                        <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md">
-                            {item.tag}
-                        </span>
-                    )}
+                    <span className="text-[10px] font-mono font-black text-slate-400 tracking-tighter uppercase">{item.dateLabel}</span>
+                    <h3 className={`text-sm font-black ${isActive ? 'text-slate-900' : 'text-slate-500'}`}>{item.title}</h3>
                   </div>
-                  
-                  {isActive && <span className="text-[9px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">进行中</span>}
+                  {hasTask && <span className="text-[9px] font-black text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded flex items-center gap-1 border border-orange-100 animate-pulse"><AlertCircle size={8}/> 待确认</span>}
                 </div>
     
-                {/* Detail Box */}
-                <Container {...containerProps} className={`block rounded-2xl p-4 border transition-all active:scale-[0.99] cursor-pointer ${
-                    hasRisk ? 'bg-orange-50/50 border-orange-100' : 
-                    isActive ? 'bg-white border-blue-100 shadow-[0_4px_12px_-2px_rgba(59,130,246,0.08)]' : 
-                    'bg-white border-slate-100'
-                }`}>
-                    {/* Metrics Grid */}
-                    {item.metrics && (
-                       <div className="flex items-center gap-6">
-                          {item.metrics.map((m, mIdx) => (
-                            <div key={mIdx}>
-                               <p className="text-[10px] text-slate-400 mb-0.5">{m.label}</p>
-                               <div className="flex items-end gap-1.5">
-                                  <span className="text-base font-bold text-slate-900 leading-none font-mono">{m.value}</span>
-                                  {m.trend && (
-                                    <div className={`flex items-center text-[9px] font-bold mb-0.5 ${
-                                       m.trend === 'up' ? 'text-rose-500' : m.trend === 'down' ? 'text-emerald-500' : 'text-slate-400'
-                                    }`}>
-                                       {m.trend === 'up' ? <ArrowUpRight size={10} strokeWidth={3} /> : 
-                                        m.trend === 'down' ? <ArrowDownLeft size={10} strokeWidth={3} /> : 
-                                        <Minus size={10} />}
-                                       {m.trendValue}
+                <div 
+                    onClick={handleClick}
+                    className={`block rounded-2xl p-3 border transition-all active:scale-[0.99] cursor-pointer ${
+                        hasTask ? 'bg-white border-indigo-100 shadow-[0_4px_12px_rgba(0,0,0,0.03)]' : 
+                        isActive ? 'bg-white border-slate-100 shadow-sm' : 
+                        'bg-white/50 border-slate-50'
+                    }`}
+                >
+                    <div className="flex justify-between items-center">
+                        {item.metrics && (
+                            <div className="flex gap-4">
+                                {item.metrics.map((m, idx) => (
+                                    <div key={idx}>
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase">{m.label}</p>
+                                        <p className="text-xs font-black text-slate-700 font-mono tracking-tight">{m.value}</p>
                                     </div>
-                                  )}
-                               </div>
+                                ))}
                             </div>
-                          ))}
-                       </div>
-                    )}
-    
-                    {/* Sub Items */}
-                    {item.subItems && (
-                       <div className="space-y-2">
-                          {item.subItems.map((sub, sIdx) => {
-                             let themeClass = 'text-slate-500';
-                             let Icon = Circle;
-                             let iconColor = 'text-slate-300';
-                             
-                             if (sub.statusTheme === 'green') {
-                                themeClass = 'text-emerald-700';
-                                Icon = CheckCircle2;
-                                iconColor = 'text-emerald-500';
-                             } else if (sub.statusTheme === 'blue') {
-                                themeClass = 'text-blue-700';
-                                Icon = Clock;
-                                iconColor = 'text-blue-500';
-                             } else if (sub.statusTheme === 'orange') {
-                                themeClass = 'text-orange-700';
-                                Icon = AlertCircle;
-                                iconColor = 'text-orange-500';
-                             }
-                             
-                             return (
-                               <div key={sIdx} className="flex justify-between items-center text-xs">
-                                  <div className="flex items-center gap-2">
-                                    <Icon size={12} className={iconColor} />
-                                    <span className={`${themeClass} font-medium`}>{sub.label}</span>
-                                  </div>
-                                  {sub.statusText && (
-                                    <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold bg-white border border-slate-100 flex items-center gap-1 ${themeClass}`}>
-                                       {sub.statusTheme === 'blue' && <Loader2 size={8} className="animate-spin"/>}
-                                       {sub.statusText}
-                                    </span>
-                                  )}
-                               </div>
-                             )
-                          })}
-                       </div>
-                    )}
-
-                    {/* Integrated Action Button for Tasks */}
-                    {item.taskData && (
-                        <div className="mt-4 pt-3 border-t border-dashed border-indigo-100 flex justify-between items-center">
-                            <span className="text-[10px] text-indigo-400 font-medium">需要总经理确认</span>
-                            <button className="text-xs font-bold bg-indigo-600 text-white px-3 py-1.5 rounded-lg shadow-sm shadow-indigo-200 flex items-center gap-1">
-                                去确认 <Play size={10} fill="currentColor" />
-                            </button>
-                        </div>
-                    )}
-                </Container>
+                        )}
+                        {item.subItems && (
+                            <div className="flex flex-col gap-1.5">
+                                {item.subItems.map((sub, idx) => (
+                                    <div key={idx} className="flex items-center gap-2 text-[10px]">
+                                        <div className={`w-1.5 h-1.5 rounded-full ${sub.statusTheme === 'green' ? 'bg-emerald-500' : 'bg-blue-500'}`}></div>
+                                        <span className="text-slate-600 font-bold">{sub.label}</span>
+                                        <span className="text-slate-400 font-medium">{sub.statusText}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        {(hasTask || item.link) && <ChevronRight size={14} className="text-slate-300" />}
+                    </div>
+                </div>
             </div>
           </div>
         );
       };
 
-    // Main Inbox
+    const activeItems = timelineData.filter(i => i.status === 'active' || i.taskData);
+    const displayItems = isTimelineExpanded ? timelineData : activeItems;
+
     return (
-        <div className="flex flex-col h-full bg-[#FAFAFA]">
-            <div className="bg-white/80 backdrop-blur-md sticky top-0 z-30 px-5 pt-12 pb-4 border-b border-gray-100/50">
-                 <h1 className="text-2xl font-bold text-gray-900 tracking-tight">本月任务</h1>
+        <div className="flex flex-col h-full bg-[#F8F9FB]">
+            <div className="bg-white/80 backdrop-blur-md sticky top-0 z-30 px-5 pt-12 pb-4 border-b border-gray-100/50 flex justify-between items-center">
+                 <h1 className="text-2xl font-black text-slate-900 tracking-tight">本月任务</h1>
+                 <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+                    <MoreHorizontal size={16} className="text-slate-400" />
+                 </div>
             </div>
             
-            <div className="p-5 space-y-6 overflow-y-auto pb-20">
+            <div className="p-5 space-y-6 overflow-y-auto pb-20 no-scrollbar">
                  
-                 {/* 1. TIMELINE SECTION (Merged) */}
-                 <section className="bg-white rounded-[20px] shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)] border border-slate-100 overflow-hidden">
-                    {/* Header */}
+                 {/* 1. REFINED TIMELINE SECTION */}
+                 <section className="bg-white rounded-[32px] shadow-sm border border-slate-100 overflow-hidden">
                     <div 
-                        className="px-6 py-4 border-b border-slate-50 flex justify-between items-center cursor-pointer active:bg-slate-50 transition-colors group"
+                        className="px-5 py-5 flex justify-between items-center cursor-pointer active:bg-slate-50 transition-colors"
                         onClick={() => setIsTimelineExpanded(!isTimelineExpanded)}
                     >
-                        <div className="flex items-center gap-4">
-                            {/* Circular Progress */}
-                            <div className="relative w-10 h-10 flex items-center justify-center">
-                                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 40 40">
-                                    <circle cx="20" cy="20" r="16" stroke="#F1F5F9" strokeWidth="3" fill="none" />
-                                    <circle
-                                        cx="20" cy="20" r="16" stroke="#3B82F6" strokeWidth="3" fill="none"
-                                        strokeDasharray={2 * Math.PI * 16}
-                                        strokeDashoffset={2 * Math.PI * 16 * (1 - 0.25)}
-                                        strokeLinecap="round"
-                                        className="transition-all duration-1000 ease-out"
-                                    />
-                                </svg>
-                                <span className="absolute text-[9px] font-bold text-slate-700 font-mono">25%</span>
+                        <div className="flex items-center gap-0">
+                            {/* 对齐轴心容器：标准化为 w-10 (40px) 确保中心轴线与下方一致 */}
+                            <div className="w-10 h-10 flex items-center justify-center shrink-0">
+                                <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100 shadow-sm">
+                                    <Clock size={16} strokeWidth={2.5} />
+                                </div>
                             </div>
-
-                            <div>
-                                <h2 className="font-bold text-slate-900 text-base">本月交付进度</h2>
-                                <p className="text-xs text-slate-400 font-medium mt-0.5">
-                                    <span className="text-blue-600 font-bold">2</span> 项进行中
-                                </p>
+                            <div className="pl-2">
+                                <h2 className="font-black text-slate-900 text-sm tracking-tight">交付进度</h2>
+                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Monthly Timeline</p>
                             </div>
                         </div>
-                        
-                        <ChevronDown 
-                            size={18} 
-                            className={`text-slate-300 transition-transform duration-300 ${isTimelineExpanded ? 'rotate-180' : ''}`} 
-                        />
+                        <ChevronDown size={18} className={`text-slate-300 transition-transform duration-300 ${isTimelineExpanded ? 'rotate-180' : ''}`} />
                     </div>
 
-                    {/* Body */}
-                    <div className="p-6 pb-4">
-                        <div className="pl-2.5">
-                            {isTimelineExpanded ? (
-                                timelineData.map((item, index) => renderTimelineItem(item, index, index === timelineData.length - 1, false))
-                            ) : (
-                                collapsedViewItems.map((item, index) => renderTimelineItem(item, index, index === collapsedViewItems.length - 1, true))
-                            )}
-                            
-                            {!isTimelineExpanded && collapsedViewItems.length < timelineData.length && (
-                                 <div className="pl-6">
-                                    <div className="text-center -mt-2 mb-2 pt-4 border-t border-dashed border-slate-100">
-                                        <button 
-                                            onClick={() => setIsTimelineExpanded(true)}
-                                            className="text-xs font-bold text-slate-400 hover:text-blue-600 flex items-center justify-center gap-1 mx-auto py-2 transition-colors"
-                                        >
-                                            展开剩余节点 <MoreHorizontal size={12}/>
-                                        </button>
-                                    </div>
-                                </div>
+                    <div className="px-5 pb-4">
+                        <div className="pt-2">
+                            {displayItems.map((item, index) => renderTimelineItem(item, index, index === displayItems.length - 1))}
+                            {!isTimelineExpanded && timelineData.length > activeItems.length && (
+                                <button 
+                                    onClick={(e) => { e.stopPropagation(); setIsTimelineExpanded(true); }}
+                                    className="ml-10 mb-2 text-[10px] font-black text-slate-400 hover:text-indigo-600 flex items-center gap-1.5 transition-colors"
+                                >
+                                    查看完整节点 <div className="flex gap-0.5"><div className="w-1 h-1 rounded-full bg-slate-300"></div><div className="w-1 h-1 rounded-full bg-slate-300"></div><div className="w-1 h-1 rounded-full bg-slate-300"></div></div>
+                                </button>
                             )}
                         </div>
                     </div>
                 </section>
 
-                 {/* 2. Bill Card (Pinned) - Compact Version */}
-                 <div onClick={() => setSelectedTask(mockTasks[0])} className="bg-gradient-to-br from-indigo-50 to-white border border-indigo-100 rounded-2xl p-4 shadow-sm active:scale-[0.99] transition-transform cursor-pointer flex items-center gap-4 relative overflow-hidden group">
-                      <div className="w-12 h-12 rounded-2xl bg-white text-indigo-600 flex items-center justify-center shadow-sm shrink-0">
-                          <CreditCard size={20} />
-                      </div>
+                 {/* 2. Pinned Bill Card */}
+                 <div onClick={() => setSelectedTask(mockTasks[0])} className="bg-gradient-to-br from-indigo-50 to-white border border-indigo-100 rounded-[28px] p-4 shadow-sm active:scale-[0.99] cursor-pointer flex items-center gap-4 group">
+                      <div className="w-14 h-14 rounded-[22px] bg-white text-indigo-600 flex items-center justify-center shadow-md shadow-indigo-100/50 shrink-0 group-hover:scale-105 transition-transform"><CreditCard size={24} /></div>
                       <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-gray-900 text-sm truncate">{mockTasks[0].title}</h3>
+                          <h3 className="font-black text-slate-900 text-sm truncate">{mockTasks[0].title}</h3>
                           <div className="flex items-center gap-2 mt-0.5">
-                              <p className="text-xs text-gray-500">2023-12</p>
-                              <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100">¥5,800.00</span>
+                              <p className="text-[10px] font-bold text-slate-400 uppercase">DEC Period</p>
+                              <div className="w-1 h-1 rounded-full bg-slate-200"></div>
+                              <span className="text-xs font-black text-indigo-600 font-mono">¥5,800.00</span>
                           </div>
                       </div>
-                      <button className="bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm shadow-indigo-200 shrink-0">
-                          去支付
-                      </button>
+                      <button className="bg-slate-900 text-white text-[11px] font-black px-4 py-2 rounded-xl shadow-lg shadow-slate-200 active:scale-95 transition-all">去支付</button>
                  </div>
 
-                 {/* 3. Group Card (Onboarding) */}
-                 <div onClick={() => setActiveGroup('ENTRY')} className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center gap-4 active:scale-[0.99] cursor-pointer">
-                      <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center"><UserPlus size={20}/></div>
+                 {/* 3. Grouped Entry Tasks */}
+                 <div onClick={() => setActiveGroup('ENTRY')} className="bg-white rounded-[28px] p-5 border border-slate-100 shadow-sm flex items-center gap-4 active:scale-[0.99] cursor-pointer group">
+                      <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors shadow-sm"><UserPlus size={22}/></div>
                       <div className="flex-1">
-                          <h4 className="text-sm font-bold text-gray-900">入职任务</h4>
-                          <p className="text-xs text-gray-400 mt-1">3 人待入职 · 归档、确认</p>
+                          <h4 className="text-sm font-black text-slate-900">入职任务</h4>
+                          <p className="text-[11px] font-bold text-slate-400 mt-0.5">3 人待确认 · 材料核验、归档</p>
                       </div>
-                      <div className="w-5 h-5 rounded-full bg-blue-500 text-white text-[10px] flex items-center justify-center font-bold">3</div>
-                      <ChevronRight size={18} className="text-gray-300"/>
+                      <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-[10px] flex items-center justify-center font-black shadow-lg shadow-blue-100">3</div>
+                      <ChevronRight size={20} className="text-slate-200"/>
                  </div>
 
-                 {/* 4. Group Card (OA) */}
-                 <div onClick={() => setActiveGroup('OA')} className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center gap-4 active:scale-[0.99] cursor-pointer">
-                      <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center"><Stamp size={20}/></div>
+                 {/* 4. Grouped OA Tasks */}
+                 <div onClick={() => setActiveGroup('OA')} className="bg-white rounded-[28px] p-5 border border-slate-100 shadow-sm flex items-center gap-4 active:scale-[0.99] cursor-pointer group">
+                      <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors shadow-sm"><Stamp size={22}/></div>
                       <div className="flex-1">
-                          <h4 className="text-sm font-bold text-gray-900">OA 审批</h4>
-                          <p className="text-xs text-gray-400 mt-1">2 个待处理 · 报销、请假</p>
+                          <h4 className="text-sm font-black text-slate-900">OA 审批</h4>
+                          <p className="text-[11px] font-bold text-slate-400 mt-0.5">2 个待处理 · 报销、请假</p>
                       </div>
-                      <div className="w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center font-bold">2</div>
-                      <ChevronRight size={18} className="text-gray-300"/>
+                      <div className="w-6 h-6 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center font-black shadow-lg shadow-rose-100 animate-pulse">2</div>
+                      <ChevronRight size={20} className="text-slate-200"/>
                  </div>
 
-                 {/* 5. Other Tasks List */}
-                 {mockTasks.slice(1).map(task => {
-                     if (task.source === 'Internal OA') return null; // Filter out OA as it is in group
-                     
-                     // Determine icon based on type/id
-                     let Icon = Banknote;
-                     let colorClass = 'bg-emerald-50 text-emerald-600';
-                     if (task.id === 'u_salary') {
-                         Icon = Wallet;
-                         colorClass = 'bg-indigo-50 text-indigo-600';
-                     } else if (task.type === TaskType.ACCEPT) {
-                         Icon = UserPlus;
-                         colorClass = 'bg-blue-50 text-blue-600';
-                     }
-
-                     return (
-                        <div key={task.id} onClick={() => setSelectedTask(task)} className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex justify-between items-center active:scale-[0.99] cursor-pointer">
+                 {/* 5. Remaining Tasks */}
+                 <div className="space-y-3">
+                    {mockTasks.slice(1).map(task => (
+                        <div key={task.id} onClick={() => setSelectedTask(task)} className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex justify-between items-center active:scale-[0.99] transition-transform cursor-pointer">
                             <div className="flex items-center gap-3">
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${colorClass}`}>
-                                    <Icon size={18}/>
-                                </div>
+                                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-50 text-slate-400"><FileCheck size={20}/></div>
                                 <div>
-                                    <h4 className="text-sm font-bold text-gray-900">{task.title}</h4>
-                                    <p className="text-xs text-gray-400 mt-0.5">{task.deadline}</p>
+                                    <h4 className="text-sm font-bold text-slate-900">{task.title}</h4>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mt-0.5">{task.deadline}</p>
                                 </div>
                             </div>
-                            <button className="text-xs font-bold bg-gray-50 text-gray-600 px-3 py-1.5 rounded-lg border border-gray-200">处理</button>
+                            <ChevronRight size={18} className="text-slate-200" />
                         </div>
-                     );
-                 })}
+                    ))}
+                 </div>
             </div>
         </div>
     );

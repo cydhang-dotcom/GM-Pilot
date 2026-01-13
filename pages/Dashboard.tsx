@@ -1,27 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Users,
   Wallet,
   TrendingUp,
   TrendingDown,
-  AlertTriangle,
-  Briefcase,
   Zap,
   Calendar,
-  ChevronDown,
-  ShieldAlert,
   Landmark,
   ArrowUpRight,
   ArrowDownRight,
   ChevronRight,
   CheckCircle2,
+  AlertCircle,
+  ShieldAlert,
+  Banknote,
+  Clock,
   Bot,
-  Sparkles,
-  PieChart as PieIcon,
-  Banknote
+  UserPlus,
+  ArrowRight,
+  Target,
+  BarChart3,
+  Search,
+  Eye,
+  EyeOff,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import CashFlowComparisonChart from '../components/charts/CashFlowComparisonChart';
 
 // --- Types & Mock Data ---
@@ -33,10 +38,10 @@ interface FinancialData {
   cost: number;
   headcount: number;
   lastMonthHeadcount: number;
-  bankBalance: number; // Added for Cash Flow card
-  revenueSources: { name: string; amount: number; date: string; status: 'settled' | 'pending' }[];
+  bankBalance: number;
+  revenueSources: { name: string; amount: number; date: string; status: '已入账' | '待入账'; category: 'main' | 'service' | 'other' }[];
   costStructure: { category: 'R&D' | 'Admin' | 'Ops' | 'Tax'; amount: number; items: string[] }[];
-  risks: { level: 'danger' | 'warning'; message: string; tag: string }[];
+  diagnosis: string; 
 }
 
 const MOCK_DATA: Record<MonthKey, FinancialData> = {
@@ -47,96 +52,205 @@ const MOCK_DATA: Record<MonthKey, FinancialData> = {
     lastMonthHeadcount: 30,
     bankBalance: 1425900,
     revenueSources: [
-      { name: '主营业务收入-技术服务', amount: 620000, date: '12-15', status: 'settled' },
-      { name: '外包服务费收入', amount: 180000, date: '12-20', status: 'settled' },
-      { name: '技术维护费', amount: 50000, date: '12-25', status: 'pending' },
+      { name: '主营业务收入-技术服务', amount: 620000, date: '12-15', status: '已入账', category: 'main' },
+      { name: '外包服务费收入', amount: 180000, date: '12-20', status: '已入账', category: 'service' },
+      { name: '技术维护费', amount: 50000, date: '12-25', status: '待入账', category: 'other' },
     ],
     costStructure: [
-      { category: 'R&D', amount: 280000, items: ['研发人员薪资', '云服务器租赁'] },
-      { category: 'Tax', amount: 85000, items: ['增值税', '附加税'] },
-      { category: 'Ops', amount: 65000, items: ['市场推广', '差旅费'] },
-      { category: 'Admin', amount: 50000, items: ['办公室租金', '行政杂项'] },
+      { category: 'R&D', amount: 280000, items: ['研发'] },
+      { category: 'Tax', amount: 85000, items: ['增值税'] },
+      { category: 'Ops', amount: 65000, items: ['市场'] },
+      { category: 'Admin', amount: 50000, items: ['办公'] },
     ],
-    risks: [
-      { level: 'warning', message: '业务招待费占比接近红线 (4.8%)', tag: '合规预警' },
-      { level: 'danger', message: '大额无票支出: 渠道推广费 (¥45,000)', tag: '税务风险' }
-    ]
+    diagnosis: "[资金安全] 余额充足，本月净流入 ¥37w，预计可覆盖未来 4 个月运营开支。\n[合规风险] 发现 1 笔 ¥4.5w 渠道推广费缺失合法票据，可能导致年终纳税调整。\n[人效预警] 研发投入占比上升 12%，但人均产出环比持平，需关注项目交付效率。\n[税务建议] 建议在本月 25 日前完成进项税额抵扣确认，预计可减少 ¥1.2w 税费支出。\n[经营提效] 当前管理费用占比略高，建议通过数字化报销流程减少 15% 的人工审计成本。"
   },
   '2024-01': {
-    revenue: 420000, // Lower revenue, might show loss or low margin
+    revenue: 420000,
     cost: 450000,
     headcount: 35,
     lastMonthHeadcount: 32,
     bankBalance: 1280000,
     revenueSources: [
-      { name: '主营业务收入-技术服务', amount: 400000, date: '01-15', status: 'pending' },
-      { name: '零星技术咨询', amount: 20000, date: '01-10', status: 'settled' },
+      { name: '主营业务收入-技术服务', amount: 400000, date: '01-15', status: '待入账', category: 'main' },
+      { name: '零星技术咨询', amount: 20000, date: '01-10', status: '已入账', category: 'other' },
     ],
     costStructure: [
-      { category: 'R&D', amount: 300000, items: ['研发人员薪资(扩招)', '软件授权'] },
-      { category: 'Admin', amount: 80000, items: ['年会筹备', '年终奖计提'] },
-      { category: 'Tax', amount: 40000, items: ['增值税'] },
-      { category: 'Ops', amount: 30000, items: ['团建费'] },
+      { category: 'R&D', amount: 300000, items: ['扩招'] },
+      { category: 'Admin', amount: 80000, items: ['奖金'] },
+      { category: 'Tax', amount: 40000, items: ['税收'] },
+      { category: 'Ops', amount: 30000, items: ['年会'] },
     ],
-    risks: [
-      { level: 'danger', message: '本月预计亏损，请关注现金流', tag: '经营预警' },
-      { level: 'warning', message: '团建餐饮费超过房租支出', tag: '异常支出' }
-    ]
+    diagnosis: "[亏损预警] 本月预计产生净亏损 ¥3w，收入侧波动剧烈，建议收紧非必要行政开支。\n[异常支出] 员工团建费用环比激增 160%，已超出年度管理预算。\n[流动性] 建议关注 01-15 待入账的 ¥40w 服务费，若逾期将面临现金周转压力。\n[成本分析] 扩招后人力成本增长 20%，需同步建立项目产出评估模型。\n[财税合规] 跨年发票报销已进入倒计时，请督促财务部尽快完成账务封账。"
   }
 };
 
-const formatCurrency = (val: number) => {
+const formatCurrency = (val: number, isVisible: boolean = true) => {
+  if (!isVisible) return '••••••';
   if (val >= 10000) return `¥${(val / 10000).toFixed(1)}w`;
   return `¥${val.toLocaleString()}`;
 };
 
-// Colors for Chart
-const CATEGORY_COLORS: Record<string, string> = {
-    'R&D': '#6366f1',   // Indigo 500
-    'Admin': '#a855f7', // Purple 500
-    'Ops': '#f97316',   // Orange 500
-    'Tax': '#94a3b8'    // Slate 400
-};
+// --- Sub-Component: SmartDiagnosisChat ---
 
-const CATEGORY_NAMES: Record<string, string> = {
-    'R&D': '研发成本',
-    'Admin': '管理成本',
-    'Ops': '运营杂项',
-    'Tax': '税金附加'
+const SmartDiagnosisChat: React.FC<{ content: string; month: string }> = ({ content, month }) => {
+  const [displayText, setDisplayText] = useState('');
+  const [phase, setPhase] = useState<'thinking' | 'typing' | 'done'>('thinking');
+  const [isExpanded, setIsExpanded] = useState(false);
+  const timerRef = useRef<any>(null);
+
+  useEffect(() => {
+    setDisplayText('');
+    setPhase('thinking');
+    setIsExpanded(false);
+    const thinkTimer = setTimeout(() => setPhase('typing'), 1000);
+    return () => {
+      clearTimeout(thinkTimer);
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [content, month]);
+
+  useEffect(() => {
+    if (phase === 'typing') {
+      let index = 0;
+      timerRef.current = setInterval(() => {
+        if (index < content.length) {
+          setDisplayText(content.substring(0, index + 1));
+          index++;
+        } else {
+          setPhase('done');
+          if (timerRef.current) clearInterval(timerRef.current);
+        }
+      }, 30); 
+    }
+  }, [phase, content]);
+
+  const renderFormattedText = (text: string) => {
+    const danger = ['合规风险', '亏损预警'];
+    const warning = ['人效预警', '异常支出'];
+
+    return text.split('\n').filter(line => line.trim()).map((line, i) => {
+      const parts = line.match(/^\[(.*?)\](.*)/);
+      if (parts) {
+        const tag = parts[1];
+        const isDanger = danger.includes(tag);
+        const isWarning = warning.includes(tag);
+        
+        return (
+          <div key={i} className="mb-2.5 last:mb-0 flex items-start gap-2">
+            <div className={`mt-2 shrink-0 w-1.5 h-1.5 rounded-full ${isDanger ? 'bg-rose-500' : isWarning ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
+            <p className="text-[12px] leading-relaxed text-slate-700">
+                <span className={`font-bold mr-1 ${isDanger ? 'text-rose-600' : isWarning ? 'text-amber-600' : 'text-emerald-600'}`}>{tag}</span>
+                {parts[2].trim()}
+            </p>
+          </div>
+        );
+      }
+      return <p key={i} className="mb-1.5 last:mb-0 text-[12px] leading-relaxed text-slate-500/80 pl-3.5">{line}</p>;
+    });
+  };
+
+  // 严格控制在 4 行高度（约 88px）
+  const needsTruncation = displayText.split('\n').length > 3 || displayText.length > 80;
+
+  return (
+    <div className="flex items-start gap-3 px-1">
+        <div className="shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-slate-900 flex items-center justify-center shadow-lg shadow-slate-200 border border-slate-800 relative">
+                <Bot size={22} className="text-white" />
+                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-sm"></div>
+            </div>
+        </div>
+
+        <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1.5 pl-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">AI 智能经营诊断</span>
+                {phase === 'done' && <div className="flex items-center gap-1 bg-emerald-50 px-1.5 py-0.5 rounded-md"><CheckCircle2 size={8} className="text-emerald-500"/><span className="text-[9px] text-emerald-600 font-bold uppercase">诊断就绪</span></div>}
+            </div>
+            
+            <div className={`bg-white rounded-[24px] rounded-tl-none p-5 shadow-[0_2px_20px_rgba(0,0,0,0.03)] border border-slate-100 relative overflow-hidden transition-all duration-500`}>
+                {phase === 'thinking' ? (
+                    <div className="flex items-center gap-2 py-1 h-[88px]">
+                        <span className="text-[12px] text-slate-400 font-medium">深度扫描账务数据中</span>
+                        <div className="flex gap-1">
+                            <div className="w-1 h-1 bg-slate-300 rounded-full animate-bounce"></div>
+                            <div className="w-1 h-1 bg-slate-300 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                            <div className="w-1 h-1 bg-slate-300 rounded-full animate-bounce [animation-delay:0.4s]"></div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="animate-fade-in relative">
+                        {/* 默认与最大高度锁定在 88px (约4行)，防止打字时页面抖动 */}
+                        <div className={`transition-all duration-500 ease-in-out relative ${!isExpanded ? 'h-[88px] overflow-hidden select-none' : 'min-h-[88px] max-h-[1000px]'}`}>
+                            {renderFormattedText(displayText)}
+                            
+                            {/* 打字机光标 */}
+                            {phase === 'typing' && (
+                                <span className="inline-block w-1.5 h-4 bg-indigo-500/50 ml-1 animate-pulse rounded-full align-middle"></span>
+                            )}
+
+                            {/* 闪烁省略号：替代按钮作为展开入口 */}
+                            {!isExpanded && needsTruncation && (
+                                <div 
+                                    onClick={() => setIsExpanded(true)}
+                                    className="absolute bottom-0 right-0 h-10 pl-16 pr-1 bg-gradient-to-l from-white via-white/95 to-transparent flex items-end justify-end cursor-pointer group"
+                                >
+                                    <div className="flex items-center gap-1.5 text-indigo-500 font-black text-xl pb-1.5 animate-pulse group-hover:scale-125 transition-transform">
+                                        <span>...</span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* 展开后提供一个微妙的收起入口，不占据大空间 */}
+                        {isExpanded && (
+                            <div 
+                                onClick={() => setIsExpanded(false)}
+                                className="mt-4 pt-3 border-t border-slate-50 flex justify-center cursor-pointer hover:text-indigo-500 transition-colors"
+                            >
+                                <ChevronUp size={16} className="text-slate-300" />
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+        </div>
+    </div>
+  );
 };
 
 const Dashboard: React.FC = () => {
   const [month, setMonth] = useState<MonthKey>('2023-12');
+  const [showBalance, setShowBalance] = useState<boolean>(false); // 默认打码
 
   const currentData = MOCK_DATA[month];
   const netProfit = currentData.revenue - currentData.cost;
   const isProfit = netProfit >= 0;
   const margin = (netProfit / currentData.revenue) * 100;
-  const revPerCapita = currentData.revenue / currentData.headcount;
   const headcountDiff = currentData.headcount - currentData.lastMonthHeadcount;
 
   return (
-    <div className="min-h-full bg-[#F8F9FB] pb-8 animate-fade-in">
+    <div className="min-h-full bg-[#F8F9FB] pb-12 animate-fade-in font-sans">
       
-      {/* 1. Header & Month Selector */}
-      <header className="sticky top-0 z-30 px-5 pt-12 pb-4 bg-[#F8F9FB]/90 backdrop-blur-md border-b border-slate-100/50 flex justify-between items-end">
+      {/* 驾驶舱 Header */}
+      <header className="sticky top-0 z-40 px-6 pt-12 pb-5 bg-[#F8F9FB]/90 backdrop-blur-xl border-b border-slate-100 flex justify-between items-end">
         <div>
-           <div className="flex items-center gap-1.5 mb-1 opacity-60">
-              <Calendar size={12} className="text-slate-500"/>
-              <span className="text-xs font-bold text-slate-500 font-mono tracking-wide">FINANCIAL PILOT</span>
+           <div className="flex items-center gap-1.5 mb-1.5 opacity-60">
+              <Target size={14} className="text-slate-500"/>
+              <span className="text-[10px] font-bold text-slate-500 font-mono tracking-widest uppercase">CEO Cockpit Control</span>
            </div>
-           <h1 className="text-xl font-bold text-slate-900 tracking-tight">经营概览</h1>
+           <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-black text-slate-900 tracking-tighter">经营总览</h1>
+           </div>
         </div>
         
-        {/* Month Toggle */}
-        <div className="bg-white rounded-lg p-1 flex shadow-sm border border-slate-200">
+        <div className="bg-white rounded-2xl p-1 flex shadow-sm border border-slate-200/60 ring-4 ring-slate-100/30">
             {(['2023-12', '2024-01'] as MonthKey[]).map((m) => (
                 <button
                     key={m}
                     onClick={() => setMonth(m)}
-                    className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${
+                    className={`px-4 py-1.5 text-[11px] font-black rounded-xl transition-all duration-300 ${
                         month === m 
-                        ? 'bg-slate-900 text-white shadow-sm' 
+                        ? 'bg-slate-900 text-white shadow-md' 
                         : 'text-slate-400 hover:text-slate-600'
                     }`}
                 >
@@ -146,287 +260,221 @@ const Dashboard: React.FC = () => {
         </div>
       </header>
 
-      <div className="px-5 space-y-6 mt-4">
+      <div className="px-5 space-y-6 mt-6">
         
-        {/* 2. Core Profit Dashboard (Hero Card) - Light/Elegant Theme */}
-        <div className={`rounded-[24px] p-6 shadow-sm border relative overflow-hidden transition-all duration-500 flex flex-col justify-between min-h-[180px] group ${
-            isProfit 
-            ? 'bg-gradient-to-br from-emerald-50 via-[#f0fdf4] to-teal-50 border-emerald-100 shadow-emerald-100/50' 
-            : 'bg-gradient-to-br from-rose-50 via-[#fff1f2] to-orange-50 border-rose-100 shadow-rose-100/50'
+        {/* 1. 核心经营看板 (Hero Card) */}
+        <div className={`rounded-[32px] p-[1.5px] shadow-2xl shadow-slate-200/50 relative transition-all duration-700 overflow-hidden border ${
+            isProfit ? 'bg-emerald-200/40 border-emerald-100' : 'bg-rose-200/40 border-rose-100'
         }`}>
-            {/* Background Pattern */}
-            <div className={`absolute top-0 right-0 p-6 opacity-[0.06] transform group-hover:scale-110 transition-transform duration-700 ${
-                isProfit ? 'text-emerald-600' : 'text-rose-600'
-            }`}>
-                <Landmark size={140} />
-            </div>
+            <div className={`absolute inset-0 transition-colors duration-700 opacity-60 ${
+              isProfit ? 'bg-gradient-to-br from-emerald-50 via-emerald-100/30 to-teal-100/20' : 'bg-gradient-to-br from-rose-50 via-rose-100/30 to-orange-100/20'
+            }`}></div>
 
-            <div className="relative z-10">
-                <div className="flex justify-between items-start mb-4">
+            <div className="relative z-10 p-7 flex flex-col h-full">
+                <div className="flex justify-between items-start mb-10">
                     <div>
-                        <p className="text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">本月净利润 (Net Profit)</p>
-                        <h2 className={`text-4xl font-bold font-mono tracking-tighter ${
-                            isProfit ? 'text-emerald-700' : 'text-rose-700'
+                        <div className="flex items-center gap-2 mb-2">
+                            <BarChart3 size={14} className={isProfit ? 'text-emerald-500' : 'text-rose-500'} />
+                            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.1em]">本月经营净成果</p>
+                        </div>
+                        <h2 className={`text-4xl font-black font-mono tracking-tighter transition-colors duration-500 ${
+                          isProfit ? 'text-emerald-600' : 'text-rose-600'
                         }`}>
                             {isProfit ? '+' : ''}{formatCurrency(netProfit)}
                         </h2>
                     </div>
-                    <div className={`px-3 py-1.5 rounded-lg border flex items-center gap-1.5 backdrop-blur-sm ${
-                        isProfit 
-                        ? 'bg-white/60 border-emerald-200 text-emerald-700' 
-                        : 'bg-white/60 border-rose-200 text-rose-700'
+                    <div className={`rounded-2xl px-3 py-1.5 border flex flex-col items-center shadow-sm backdrop-blur-md transition-all duration-500 ${
+                      isProfit ? 'bg-emerald-500/10 border-emerald-200/50' : 'bg-rose-500/10 border-rose-200/50'
                     }`}>
-                        {isProfit ? <TrendingUp size={14}/> : <TrendingDown size={14}/>}
-                        <span className="text-xs font-bold font-mono">{margin.toFixed(1)}%</span>
+                        <p className={`text-[9px] font-bold uppercase mb-0.5 tracking-wider ${isProfit ? 'text-emerald-600' : 'text-rose-600'}`}>净利率</p>
+                        <span className={`text-xs font-black font-mono ${isProfit ? 'text-emerald-700' : 'text-rose-700'}`}>{margin.toFixed(1)}%</span>
                     </div>
                 </div>
 
-                {/* Mini Stats Row */}
-                <div className={`flex gap-6 border-t pt-4 ${
-                    isProfit ? 'border-emerald-100' : 'border-rose-100'
-                }`}>
-                    <div>
-                        <p className="text-[10px] text-slate-400 mb-0.5 font-medium">总收入 (Revenue)</p>
-                        <p className="text-sm font-bold font-mono text-slate-700">{formatCurrency(currentData.revenue)}</p>
-                    </div>
-                    <div>
-                        <p className="text-[10px] text-slate-400 mb-0.5 font-medium">总支出 (Cost)</p>
-                        <p className="text-sm font-bold font-mono text-slate-700">{formatCurrency(currentData.cost)}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {/* 3. Cash Flow Trend (Spacious Chart) */}
-        <div className="bg-white rounded-[24px] p-5 shadow-sm border border-slate-100 flex flex-col relative overflow-hidden">
-            {/* Header Section */}
-            <div className="flex justify-between items-center relative z-10 mb-2">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
-                        <Wallet size={16} strokeWidth={2.5} />
-                    </div>
-                    <div>
-                        <h3 className="text-sm font-bold text-slate-900">银行结余走势</h3>
-                        <p className="text-[10px] text-slate-400 font-medium">近30天资金水位</p>
-                    </div>
-                </div>
-                <Link to="/work/fn-flow" className="p-2 rounded-full hover:bg-slate-50 text-slate-300 transition-colors -mr-2">
-                    <ChevronRight size={20} />
-                </Link>
-            </div>
-
-            {/* Chart taking up remaining space - Increased to h-36 for spacious look */}
-            <div className="h-36 w-full -ml-2 -mb-4 mt-2 relative">
-                <CashFlowComparisonChart className="h-full" />
-            </div>
-        </div>
-
-        {/* 4. Smart Risk & Insights (Chat AI Style) */}
-        <div className="flex items-start gap-3 px-1">
-            {/* Avatar */}
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-200 shrink-0 mt-2">
-                <Bot size={20} className="text-white" />
-            </div>
-            
-            {/* Chat Bubble */}
-            <div className="bg-white p-5 rounded-2xl rounded-tl-none shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex-1 relative">
-                {/* Triangle */}
-                <div className="absolute top-4 -left-2 w-4 h-4 bg-white border-l border-b border-slate-100 transform rotate-45"></div>
-                
-                <div className="relative z-10">
-                    <div className="flex items-center gap-2 mb-3">
-                        <Sparkles size={14} className="text-purple-500 fill-purple-100" />
-                        <span className="text-xs font-bold text-purple-700">智能经营诊断</span>
-                    </div>
-                    
-                    {currentData.risks.length > 0 ? (
-                        <div className="space-y-3">
-                            <p className="text-xs text-slate-600 leading-relaxed">
-                                GM 您好，基于本月财务数据，我发现了 <span className="font-bold text-slate-900">{currentData.risks.length}</span> 项需要关注的经营风险：
-                            </p>
-                            <div className="space-y-2">
-                                {currentData.risks.map((risk, idx) => (
-                                    <div key={idx} className={`p-2.5 rounded-xl border flex items-start gap-2.5 ${
-                                        risk.level === 'danger' 
-                                        ? 'bg-rose-50/50 border-rose-100' 
-                                        : 'bg-amber-50/50 border-amber-100'
-                                    }`}>
-                                        <AlertTriangle size={14} className={`shrink-0 mt-0.5 ${
-                                            risk.level === 'danger' ? 'text-rose-500' : 'text-amber-500'
-                                        }`} />
-                                        <p className={`text-xs font-medium leading-relaxed ${
-                                            risk.level === 'danger' ? 'text-rose-800' : 'text-amber-800'
-                                        }`}>
-                                            {risk.message}
-                                        </p>
-                                    </div>
-                                ))}
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-white/40 backdrop-blur-sm border border-white/50 rounded-2xl p-4 flex flex-col gap-4 shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
+                        <div className="flex justify-between items-center opacity-80">
+                            <span className="text-[10px] font-bold text-slate-500 tracking-wider">财务运营</span>
+                            <TrendingUp size={12} className="text-slate-400" />
+                        </div>
+                        <div className="space-y-2.5">
+                            <div className="flex justify-between items-end">
+                                <span className="text-[10px] font-bold text-slate-400">营收</span>
+                                <span className="text-[13px] font-black text-slate-900 font-mono">{formatCurrency(currentData.revenue)}</span>
+                            </div>
+                            <div className="flex justify-between items-end">
+                                <span className="text-[10px] font-bold text-slate-400">支出</span>
+                                <span className="text-[13px] font-black text-slate-900 font-mono">{formatCurrency(currentData.cost)}</span>
                             </div>
                         </div>
-                    ) : (
-                        <div className="space-y-2">
-                            <p className="text-xs text-slate-600 leading-relaxed">
-                                GM 您好，本月经营数据 <span className="font-bold text-emerald-600">健康稳定</span>，未发现明显异常风险。
-                            </p>
-                            <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 px-3 py-2 rounded-lg w-fit">
-                                <CheckCircle2 size={14} />
-                                <span className="text-xs font-bold">各项指标正常</span>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
-
-        {/* 5. Cost Structure (Card A) */}
-        <div className="bg-white rounded-[24px] shadow-sm border border-slate-100 p-5">
-            <div className="flex justify-between items-center mb-4">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center border border-violet-100">
-                        <PieIcon size={16} strokeWidth={2.5} />
                     </div>
-                    <h3 className="text-sm font-bold text-slate-900">成本结构 (Cost)</h3>
-                </div>
-                <Link to="/work/fn-5" className="flex items-center gap-1 text-[10px] font-bold text-slate-400 hover:text-slate-600 bg-slate-50 px-2 py-1 rounded-lg transition-colors">
-                    财税报表 <ArrowUpRight size={10} />
-                </Link>
-            </div>
 
-            <div className="flex items-center justify-between gap-6">
-                {/* Donut Chart */}
-                <div className="relative w-32 h-32 shrink-0">
-                        <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                            <Pie
-                                data={currentData.costStructure}
-                                dataKey="amount"
-                                innerRadius={35}
-                                outerRadius={50}
-                                paddingAngle={5}
-                                stroke="none"
-                            >
-                                {currentData.costStructure.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[entry.category]} />
-                                ))}
-                            </Pie>
-                        </PieChart>
-                        </ResponsiveContainer>
-                        {/* Center Label */}
-                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                            <span className="text-[10px] text-gray-400">总支出</span>
-                            <span className="text-xs font-bold text-gray-900 font-mono">{formatCurrency(currentData.cost)}</span>
+                    <div className="bg-white/40 backdrop-blur-sm border border-white/50 rounded-2xl p-4 flex flex-col gap-4 shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
+                        <div className="flex justify-between items-center opacity-80">
+                            <span className="text-[10px] font-bold text-slate-500 tracking-wider">人资规模</span>
+                            <Users size={12} className="text-slate-400" />
                         </div>
-                </div>
-
-                {/* Legend List */}
-                <div className="flex-1 space-y-3 min-w-0">
-                    {[...currentData.costStructure].sort((a,b) => b.amount - a.amount).map((item, idx) => {
-                        const percent = ((item.amount / currentData.cost) * 100).toFixed(1);
-                        return (
-                            <div key={idx} className="flex justify-between items-center group cursor-default">
-                                <div className="flex items-center gap-2 overflow-hidden">
-                                    <span 
-                                        className="w-2.5 h-2.5 rounded-full shrink-0" 
-                                        style={{ backgroundColor: CATEGORY_COLORS[item.category] }}
-                                    ></span>
-                                    <span className="text-xs font-medium text-gray-600 truncate">
-                                        {CATEGORY_NAMES[item.category]}
-                                    </span>
-                                </div>
-                                <div className="flex items-center gap-3 shrink-0">
-                                    <span className="text-xs font-bold font-mono text-gray-900">{formatCurrency(item.amount)}</span>
-                                    <span className="text-[10px] text-gray-400 font-mono w-8 text-right">{percent}%</span>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
-        </div>
-
-        {/* 6. Revenue Sources (Card B) */}
-        <div className="bg-white rounded-[24px] shadow-sm border border-slate-100 p-5">
-            <div className="flex justify-between items-center mb-4">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
-                        <Banknote size={16} strokeWidth={2.5} />
-                    </div>
-                    <h3 className="text-sm font-bold text-slate-900">收入构成 (Revenue)</h3>
-                </div>
-                <Link to="/work/fn-flow" className="flex items-center gap-1 text-[10px] font-bold text-slate-400 hover:text-slate-600 bg-slate-50 px-2 py-1 rounded-lg transition-colors">
-                    资金流水 <ArrowUpRight size={10} />
-                </Link>
-            </div>
-
-            <div className="space-y-3">
-                {currentData.revenueSources.map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3 bg-slate-50/50 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
-                        <div>
-                            <div className="flex items-center gap-2 mb-1">
-                                <h4 className="text-xs font-bold text-slate-800 line-clamp-1">{item.name}</h4>
+                        <div className="flex flex-col gap-1.5 justify-center h-full">
+                            <div className="flex items-baseline gap-1.5">
+                                <span className="text-2xl font-black text-slate-900 font-mono tracking-tighter">{currentData.headcount}</span>
+                                <span className="text-[10px] font-bold text-slate-400">在职人数</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className={`text-[9px] px-1.5 py-0.5 rounded border ${
-                                    item.status === 'settled' 
-                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
-                                    : 'bg-amber-50 text-amber-700 border-amber-100'
+                                <div className={`px-2 py-0.5 rounded-lg text-[10px] font-black flex items-center gap-1 ${
+                                    headcountDiff >= 0 ? 'bg-emerald-100/50 text-emerald-600' : 'bg-rose-100/50 text-rose-600'
                                 }`}>
-                                    {item.status === 'settled' ? '已入账' : '待结算'}
-                                </span>
-                                <p className="text-[10px] text-slate-400 font-mono">入账日: {item.date}</p>
+                                    {headcountDiff >= 0 ? <UserPlus size={10}/> : <TrendingDown size={10}/>}
+                                    {headcountDiff >= 0 ? '+' : ''}{headcountDiff}
+                                </div>
+                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">环比变动</span>
                             </div>
                         </div>
-                        <span className="text-sm font-bold font-mono text-slate-900">{formatCurrency(item.amount)}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {/* 2. 智能诊断 AI 顾问 */}
+        <SmartDiagnosisChat content={currentData.diagnosis} month={month} />
+
+        {/* 3. 银行结余走势 (资金心脏) */}
+        <section className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-100 relative overflow-hidden">
+            <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 shadow-sm">
+                        <Wallet size={18} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                        <h3 className="text-sm font-black text-slate-900 tracking-tight">银行账户余额走势</h3>
+                        <p className="text-[11px] text-slate-400 font-bold uppercase tracking-tighter">Cash Flow MoM Trend</p>
+                    </div>
+                </div>
+                <Link to="/work/fn-flow" className="w-9 h-9 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all">
+                    <ChevronRight size={22} />
+                </Link>
+            </div>
+            
+            <div className="relative">
+                <div className="flex items-center gap-2 mb-4">
+                    <span className={`text-3xl font-black text-slate-900 font-mono tracking-tighter transition-all duration-300 ${!showBalance ? 'blur-[8px] opacity-25 select-none' : ''}`}>
+                      {showBalance ? `¥${(currentData.bankBalance/10000).toFixed(1)}w` : '••••••'}
+                    </span>
+                    <button 
+                      onClick={() => setShowBalance(!showBalance)}
+                      className="p-1.5 rounded-full hover:bg-slate-100 text-slate-300 transition-all active:scale-90"
+                    >
+                      {showBalance ? <Eye size={18} /> : <EyeOff size={18} className="text-indigo-500" />}
+                    </button>
+                    <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest ml-auto">账户总余额</span>
+                </div>
+                <CashFlowComparisonChart className="h-44" />
+            </div>
+        </section>
+
+        {/* 4. 经营支出结构 */}
+        <div className="bg-white rounded-[32px] p-7 shadow-sm border border-slate-100">
+             <div className="flex justify-between items-center mb-8">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100 shadow-sm">
+                        <Zap size={18} strokeWidth={2.5} />
+                    </div>
+                    <h3 className="text-sm font-black text-slate-900">经营总支出构成</h3>
+                </div>
+                <Link to="/work/fn-5" className="text-[10px] font-black text-indigo-600 flex items-center gap-1.5 bg-indigo-50 px-3 py-1.5 rounded-xl border border-indigo-100/50 hover:bg-indigo-100 transition-colors">
+                    数据报表 <ArrowUpRight size={12} />
+                </Link>
+             </div>
+             
+             <div className="space-y-6">
+                {currentData.costStructure.map((item, idx) => {
+                    const percentage = (item.amount / currentData.cost) * 100;
+                    const colors: Record<string, string> = {
+                        'R&D': 'bg-indigo-500',
+                        'Admin': 'bg-purple-500',
+                        'Ops': 'bg-amber-500',
+                        'Tax': 'bg-slate-500'
+                    };
+                    const labels: Record<string, string> = {
+                        'R&D': '研发人力',
+                        'Admin': '管理费用',
+                        'Ops': '运营杂项',
+                        'Tax': '税金附加'
+                    };
+                    return (
+                        <div key={idx} className="space-y-2">
+                            <div className="flex justify-between items-end">
+                                <div className="flex items-center gap-2">
+                                    <div className={`w-2 h-2 rounded-full ${colors[item.category]}`}></div>
+                                    <span className="text-xs font-bold text-slate-700">{labels[item.category]}</span>
+                                    <span className="text-[10px] text-slate-400/80 font-medium">({item.items[0]}等)</span>
+                                </div>
+                                <span className="text-sm font-black font-mono text-slate-900">{formatCurrency(item.amount)}</span>
+                            </div>
+                            <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden">
+                                <div 
+                                    className={`h-full rounded-full transition-all duration-1000 shadow-sm ${colors[item.category]}`}
+                                    style={{ width: `${percentage}%` }}
+                                ></div>
+                            </div>
+                        </div>
+                    );
+                })}
+             </div>
+        </div>
+
+        {/* 5. 收入回款明细 */}
+        <div className="bg-white rounded-[32px] p-7 shadow-sm border border-slate-100">
+            <div className="flex justify-between items-center mb-7">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100 shadow-sm">
+                        <TrendingUp size={18} strokeWidth={2.5} />
+                    </div>
+                    <h3 className="text-sm font-black text-slate-900">收入回款构成</h3>
+                </div>
+                <div className="text-[10px] font-bold text-slate-300">本月累计 {currentData.revenueSources.length} 笔</div>
+            </div>
+
+            <div className="space-y-4">
+                {currentData.revenueSources.map((source, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50/50 border border-slate-100 hover:border-indigo-100 hover:bg-white hover:shadow-md hover:shadow-indigo-50/50 transition-all duration-300 group">
+                        <div className="flex items-center gap-4 min-w-0">
+                            <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 shadow-sm transition-colors ${
+                                source.status === '已入账' ? 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white' : 'bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white'
+                            }`}>
+                                {source.status === '已入账' ? <CheckCircle2 size={20}/> : <Clock size={20}/>}
+                            </div>
+                            <div className="min-w-0">
+                                <h4 className="text-sm font-black text-slate-800 truncate leading-tight">{source.name}</h4>
+                                <div className="flex items-center gap-2 mt-1.5">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase">{source.date}</span>
+                                    <div className="w-1 h-1 rounded-full bg-slate-200"></div>
+                                    <span className={`text-[10px] font-bold uppercase ${source.status === '已入账' ? 'text-emerald-500' : 'text-amber-500'}`}>
+                                        {source.status}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="text-right ml-2">
+                            <p className="text-base font-black font-mono text-slate-900 group-hover:text-indigo-600 transition-colors">{formatCurrency(source.amount)}</p>
+                        </div>
                     </div>
                 ))}
-                {currentData.revenueSources.length === 0 && (
-                    <div className="text-center py-6">
-                        <p className="text-xs text-slate-400">本月暂无收入记录</p>
-                    </div>
-                )}
             </div>
         </div>
 
-        {/* 7. Efficiency & Ops Indicators (Moved to Bottom) */}
-        <div className="bg-white rounded-[24px] p-5 shadow-sm border border-slate-100 grid grid-cols-2 gap-4 relative overflow-hidden">
-            {/* Left: Headcount */}
-            <div className="space-y-1">
-                <div className="flex items-center gap-2 text-slate-400 mb-2">
-                    <Users size={14} />
-                    <span className="text-xs font-bold">团队规模</span>
-                </div>
-                <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-bold text-slate-900 font-mono">{currentData.headcount}</span>
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border flex items-center gap-0.5 ${
-                        headcountDiff >= 0 
-                        ? 'text-emerald-600 bg-emerald-50 border-emerald-100' 
-                        : 'text-rose-600 bg-rose-50 border-rose-100'
-                    }`}>
-                        {headcountDiff >= 0 ? <ArrowUpRight size={8} strokeWidth={3}/> : <ArrowDownRight size={8} strokeWidth={3}/>}
-                        {Math.abs(headcountDiff)}
-                    </span>
-                </div>
-                <p className="text-[10px] text-slate-300 pl-0.5">人</p>
-            </div>
-
-            {/* Vertical Divider */}
-            <div className="absolute left-1/2 top-4 bottom-4 w-px bg-slate-100"></div>
-
-            {/* Right: Revenue Per Capita */}
-            <div className="pl-4 space-y-1">
-                <div className="flex items-center gap-2 text-slate-400 mb-2">
-                    <Zap size={14} />
-                    <span className="text-xs font-bold">人均产出</span>
-                </div>
-                <div className="flex items-baseline gap-1">
-                    <span className="text-2xl font-bold text-slate-900 font-mono">
-                        ¥{(revPerCapita / 10000).toFixed(1)}w
-                    </span>
-                </div>
-                <p className="text-[10px] text-slate-300 pl-0.5">/ 人 / 月</p>
-            </div>
-        </div>
-
+        {/* 底部品牌标示 */}
+        <footer className="pt-12 pb-16 text-center">
+             <div className="flex items-center justify-center gap-2 mb-2 opacity-30 group">
+                 <ShieldAlert size={14} className="text-slate-900 group-hover:text-indigo-600 transition-colors"/>
+                 <span className="text-[11px] font-black tracking-[0.3em] text-slate-900 uppercase">GM Pilot Insight</span>
+             </div>
+             <p className="text-[9px] font-black text-slate-300 font-mono tracking-widest">VERSION 1.8.0-PRO-NAV · ENCRYPTED DATA LINK</p>
+             <div className="mt-6 flex justify-center gap-4">
+                <div className="w-1.5 h-1.5 rounded-full bg-slate-200"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-slate-200"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-slate-200"></div>
+             </div>
+        </footer>
       </div>
     </div>
   );

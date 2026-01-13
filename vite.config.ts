@@ -3,7 +3,8 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, process.cwd(), '');
+    // Using '.' instead of process.cwd() to resolve type error on Process object
+    const env = loadEnv(mode, '.', '');
     return {
       base: '/GMP',
       server: {
@@ -17,7 +18,8 @@ export default defineConfig(({ mode }) => {
       },
       resolve: {
         alias: {
-          '@': path.resolve(__dirname, './src'),
+          // Using path.resolve with relative path as __dirname is not available in ESM context
+          '@': path.resolve('./src'),
         }
       }
     };

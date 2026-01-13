@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { 
   Building2, ChevronRight, Settings, ShieldCheck, Stamp, Users, FileText, 
-  CreditCard, Wallet, ScrollText, History, Bell, Briefcase, Copy, Landmark, 
-  MapPin, QrCode, Eye, EyeOff, ArrowDownLeft, ArrowUpRight, Check
+  Landmark, QrCode, Eye, EyeOff, ArrowDownLeft, ArrowUpRight, Check, Copy,
+  History, Bell, MapPin, ScrollText
 } from 'lucide-react';
 import { DetailLayout } from '../components/DetailLayout';
 
@@ -116,7 +116,8 @@ const AssetDetail = ({ onBack }: { onBack: () => void }) => (
 // --- Level 2: Main View ---
 
 const Company: React.FC = () => {
-  const [showBalance, setShowBalance] = useState(true);
+  // 默认开启打码模式，保护用户财务隐私
+  const [showBalance, setShowBalance] = useState(false);
   const [activeDetail, setActiveDetail] = useState<string | null>(null);
   
   // Render Overlay
@@ -232,33 +233,35 @@ const Company: React.FC = () => {
                             <span className="text-[10px] text-gray-400 mb-0.5">统一社会信用代码</span>
                             <span className="text-xs font-mono font-medium text-gray-700">91310000XXXXXXXX</span>
                         </div>
-                        <Copy size={14} className="text-gray-400 cursor-pointer active:text-gray-600"/>
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors">
+                            <Copy size={14} className="text-gray-400 cursor-pointer active:text-gray-600"/>
+                        </div>
                      </div>
                  </div>
              </div>
         </div>
 
-        {/* 3. Bank Account Card (Compact Redesign) */}
+        {/* 3. Bank Account Card (Lightened Modern Design) */}
         <div>
             <div className="flex justify-between items-center mb-2 ml-1">
-                 <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">对公账户</h3>
+                 <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">对公账户 (Assets)</h3>
             </div>
             
-            <div className="bg-gradient-to-r from-[#172554] to-[#1e40af] rounded-xl p-4 text-white shadow-md relative overflow-hidden group active:scale-[0.99] transition-transform cursor-pointer">
-                {/* Subtle Background Art */}
-                <div className="absolute -right-6 -top-6 w-24 h-24 bg-blue-500/20 rounded-full blur-xl"></div>
-                <div className="absolute -left-6 -bottom-6 w-24 h-24 bg-indigo-500/20 rounded-full blur-xl"></div>
+            <div className="bg-gradient-to-br from-indigo-50 via-white to-blue-50 rounded-3xl p-5 border border-indigo-100 shadow-[0_8px_30px_rgba(79,70,229,0.06)] relative overflow-hidden group active:scale-[0.99] transition-all cursor-pointer">
+                {/* Subtle Decorative Elements */}
+                <div className="absolute -right-6 -top-6 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl"></div>
+                <div className="absolute -left-6 -bottom-6 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl"></div>
                 
                 <div className="relative z-10">
                     {/* Top Row: Bank Info & Toggle */}
-                    <div className="flex justify-between items-start mb-3">
-                        <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center backdrop-blur-sm border border-white/5">
-                                <Landmark size={16} className="text-blue-100"/>
+                    <div className="flex justify-between items-start mb-6">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-100 border border-indigo-500">
+                                <Landmark size={20} className="text-white"/>
                             </div>
                             <div>
-                                <h4 className="text-sm font-bold tracking-tight">招商银行</h4>
-                                <p className="text-[10px] text-blue-200/80 font-medium">基本存款账户</p>
+                                <h4 className="text-sm font-bold text-slate-900 tracking-tight">招商银行</h4>
+                                <p className="text-[10px] text-slate-400 font-medium">基本存款账户</p>
                             </div>
                         </div>
                         <button 
@@ -266,48 +269,49 @@ const Company: React.FC = () => {
                                 e.stopPropagation();
                                 setShowBalance(!showBalance);
                             }}
-                            className="text-blue-200/60 hover:text-white transition-colors p-1"
+                            className="text-slate-300 hover:text-indigo-600 transition-colors p-2 -mr-2"
                         >
-                            {showBalance ? <Eye size={16} /> : <EyeOff size={16} />}
+                            {showBalance ? <Eye size={18} /> : <EyeOff size={18} />}
                         </button>
                     </div>
 
                     {/* Middle Row: Balance & Number */}
-                    <div className="mb-4 pl-0.5">
-                         <div className="text-2xl font-bold font-mono tracking-tight mb-1">
-                            {showBalance ? '¥ 142,590.00' : '******'}
+                    <div className="mb-6">
+                         <div className={`text-3xl font-bold font-mono tracking-tight mb-2 transition-all duration-300 ${showBalance ? 'text-slate-900' : 'text-slate-200 blur-md select-none'}`}>
+                            {showBalance ? '¥ 142,590.00' : '¥ 888,888.88'}
                          </div>
-                         <div className="flex items-center gap-2 text-blue-200/60">
-                            <span className="text-xs font-mono tracking-wider">
-                                {showBalance ? '6227 0038 **** 8888' : '**** **** **** 8888'}
+                         <div className="flex items-center gap-2 text-slate-400">
+                            <span className="text-xs font-mono tracking-widest bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+                                {showBalance ? '6227 0038 **** 8888' : '•••• •••• •••• 8888'}
                             </span>
-                            <Copy size={11} className="hover:text-white transition-colors" />
+                            <Copy size={12} className="hover:text-indigo-600 transition-colors cursor-pointer" />
                          </div>
                     </div>
 
-                    {/* Bottom Row: Stats & Branch */}
-                    <div className="flex items-center justify-between border-t border-white/10 pt-3">
+                    {/* Bottom Row: Branch Info with subtle accent */}
+                    <div className="flex items-center justify-between border-t border-slate-100 pt-4">
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-1.5">
-                                <div className="w-4 h-4 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                                   <ArrowDownLeft size={9} className="text-emerald-400" />
+                                <div className="w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100">
+                                   <ArrowDownLeft size={10} className="text-emerald-500" />
                                 </div>
-                                <span className="text-xs font-mono font-medium text-blue-100">
-                                    {showBalance ? '62,000' : '***'}
+                                <span className={`text-xs font-bold font-mono text-emerald-600 transition-all ${!showBalance && 'blur-sm'}`}>
+                                    {showBalance ? '62,000' : '00,000'}
                                 </span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                                <div className="w-4 h-4 rounded-full bg-rose-500/10 flex items-center justify-center border border-rose-500/20">
-                                   <ArrowUpRight size={9} className="text-rose-400" />
+                                <div className="w-5 h-5 rounded-full bg-rose-50 flex items-center justify-center border border-rose-100">
+                                   <ArrowUpRight size={10} className="text-rose-500" />
                                 </div>
-                                <span className="text-xs font-mono font-medium text-blue-100">
-                                    {showBalance ? '29,500' : '***'}
+                                <span className={`text-xs font-bold font-mono text-rose-600 transition-all ${!showBalance && 'blur-sm'}`}>
+                                    {showBalance ? '29,500' : '00,000'}
                                 </span>
                             </div>
                         </div>
-                        <span className="text-[10px] text-blue-300/60 truncate max-w-[100px]">
-                            科技园支行
-                        </span>
+                        <div className="flex items-center gap-1 text-[10px] text-slate-400 font-medium">
+                            <MapPin size={10} />
+                            <span>科技园支行</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -359,7 +363,7 @@ const Company: React.FC = () => {
                  <ShieldCheck size={12} className="text-gray-300"/>
                  <span className="text-[10px] text-gray-300">数据已加密保护</span>
              </div>
-             <p className="text-[10px] text-gray-300 font-mono">GM Pilot v1.0.2.018</p>
+             <p className="text-[10px] text-gray-300 font-mono">GM Pilot v1.0.14.225</p>
         </div>
 
       </div>

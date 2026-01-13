@@ -1,76 +1,37 @@
 # GM Pilot 设计规范 (Design Standards)
 
-> **版本**: v1.5 (Consolidated)
+> **版本**: v1.6 (Latest Update)
 > **适用范围**: 移动端 Web App
 
-## 1. 核心原则 (Core Principles)
+## 1. 核心布局原则
 
-*   **Mobile First**: 所有界面优先适配移动端竖屏操作，交互区域便于拇指点击。容器宽度限制 `max-w-md`。
-*   **Immersive & Clean**: 使用毛玻璃 (`backdrop-blur`)、大圆角与柔和阴影，减少分割线，营造现代感。
-*   **Data Driven**: 核心数据（金额、人数）使用高辨识度的等宽字体，图表去噪（无网格、无轴线）。
+*   **20px 轴心法则**: 在 Timeline 或纵向列表结构中，左侧图标与装饰物的中心点必须严格锁定在距离容器左边缘 **20px** 的垂直轴线上，确保绝对整齐。
+*   **布局稳定性**: 对于 AI 诊断等动态内容，必须锁定容器最小/最大高度（如 88px），避免内容加载（打字机）时的页面震荡。
 
-## 2. 布局与容器 (Layout & Visuals)
+## 2. 图表与数据可视化
 
-*   **Global Background**: `bg-[#F8F9FB]` (冷灰白，营造通透感)。
-*   **Card Style**: `bg-white` + `shadow-sm` + `border-slate-100`。
-*   **Glass Effect**: `bg-white/90` + `backdrop-blur-md` (用于 Sticky Header)。
-*   **圆角 (Border Radius)**:
-    *   常规: `rounded-xl`
-    *   大卡片: `rounded-[20px]`
-*   **阴影 (Shadows)**:
-    *   基础: `shadow-sm`
-    *   浮起: `shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)]`
+*   **线性进度条标准**: 
+    *   **弃用饼图**: Dashboard 核心屏弃用 Pie Chart，统一使用横向线性进度条。
+    *   **规格**: 条高 `h-1.5` 或 `h-2`，圆角 `rounded-full`。
+    *   **配对**: 成本项（点色暗示）需与收入项（图标暗示）在间距和长度上保持像素级对齐。
+*   **数值呈现**: 涉及金额、百分比、日期均使用 `font-mono` (等宽字体)。
 
-## 3. 色彩系统 (Color System)
+## 3. 隐私与安全规范
 
-### 3.1 状态色 (Status Colors)
-用于表达业务状态、风险等级及操作反馈。
+*   **敏感信息屏蔽**: 对公余额、个人薪资等敏感数字在首页或详情页入口处，必须遵循 **Privacy by Default** 原则：
+    *   默认开启模糊（Mosaic/Blur）。
+    *   提供明确的 Toggle（眼睛图标）进行切换。
 
-| 语义 | Tailwind 类 | 用途 |
+## 4. AI 诊断交互规范
+
+*   **轻量化展开**: 避免使用突兀的“展开/收起”文字按钮。
+*   **暗示交互**: 在文末使用紫色主题的闪烁省略号 (`...`) 作为展开入口。内容平滑过渡，不占据额外垂直空间。
+
+## 5. 色彩与语义
+
+| 语义 | 配色 (Tailwind) | 典型场景 |
 | :--- | :--- | :--- |
-| **Active / Info** | `blue-600` / `bg-blue-50` | 进行中任务、选中状态、常规信息 |
-| **Success / Safe** | `emerald-600` / `bg-emerald-50` | 已完成、安全、收入、正向趋势 |
-| **Warning / Risk** | `orange-600` / `bg-orange-50` | 风险预警、即将到期、需要关注 |
-| **Critical / Action** | `rose-600` / `bg-rose-50` | 严重超支、驳回、负向趋势、高优待办 |
-| **Brand** | `indigo-600` | 核心行动按钮、品牌卡片背景 |
-| **Neutral** | `slate-900` / `slate-500` / `slate-400` | 标题 / 正文 / 辅助文本 |
-
-## 4. 排版与图标 (Typography & Iconography)
-
-*   **数字**: 金额、日期、ID 必须使用 `font-mono`。
-*   **图标**: Lucide React，统一使用 `strokeWidth={1.5}` (大图标) 或 `{2}` (小图标)。
-*   **字号层级**:
-    *   **KPI Big**: `text-3xl font-bold tracking-tight`
-    *   **Page Title**: `text-xl font-bold`
-    *   **Card Title**: `text-sm font-bold`
-    *   **Body**: `text-xs` (移动端标准正文)
-    *   **Meta**: `text-[10px]` (标签、时间戳)
-
-## 5. 交互模式 (Interaction Patterns)
-
-### 5.1 页面层级 (Page Layers)
-*   **Level 1 (App Shell)**: Dashboard, Inbox, Work, Company (带底部导航)。
-*   **Level 2 (List/Board)**: 模块主页，自行管理滚动状态。
-*   **Level 3+ (Overlay)**: 详情页模式。
-    *   **实现**: 全屏 `fixed` 定位，覆盖 Level 2。
-    *   **结构**: 统一使用 `DetailLayout`，包含顶部导航与底部固定操作栏。
-
-### 5.2 特定场景交互 (Specific Patterns)
-*   **File Download Pattern (文件下载)**:
-    *   **禁止直接下载**: 列表项点击后不能直接触发下载。
-    *   **中间页原则**: 必须先进入一个概览页 (Preview Overlay)，展示文件元数据（大小、时间、预览图）后，再提供明确的下载按钮。
-*   **Communication UI (沟通记录)**:
-    *   使用对话式气泡布局 (Chat Bubble Layout) 替代静态文本块，区分“我”与“代理/系统”的角色，增强互动感。
-
-### 5.3 动效规范 (Motion)
-*   **Fade In**: `animate-fade-in` (用于页面加载)。
-*   **Slide In**: `animate-slide-in-right` (用于进入详情页)。
-*   **Pulse**: `animate-pulse` (用于“处理中”或“紧急”状态标记)。
-
-### 5.4 图表规范 (Charts)
-*   **库**: Recharts
-*   **风格**: 极简 (Minimalist)。
-    *   隐藏 Axis Line 和 Tick Line。
-    *   隐藏 CartesianGrid (或使用极淡的虚线)。
-    *   必须提供 `Tooltip` 交互。
-    *   颜色严格对应状态色（如：支出=Slate, 收入=Emerald）。
+| **盈利/收入** | `emerald-500` / `bg-emerald-50` | 经营成果 +、入账记录 |
+| **亏损/支出** | `rose-500` / `bg-rose-50` | 经营成果 -、费用支出 |
+| **风险/预警** | `orange-500` / `bg-orange-50` | 合规风险、即将到期、待办红点 |
+| **进行中** | `indigo-500` / `blue-500` | 申报中、AI 交互、中轴连接线 |
