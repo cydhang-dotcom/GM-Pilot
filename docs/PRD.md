@@ -3,45 +3,44 @@
 > **版本**: v1.6.0  
 > **状态**: 内部试运行 (Internal Pilot)  
 > **更新日期**: 2024-01  
-> **负责人**: 产品经理
+> **同步原则**: 遵循 `memory.md` 规范，任何功能变动均需同步此文档。
 
-## 1. 项目概述
-**GM Pilot** 是一款专为中小企业总经理（GM）设计的移动端驾驶舱应用。它聚合了外包的人事（HR）、财务（Finance）服务数据及内部 OA 审批流，旨在解决管理者“信息分散、审批繁琐、资金不可见”的痛点。
+## 1. 项目愿景 (Vision)
+**GM Pilot** 是为中小企业总经理打造的“数字副官”。通过聚合人事财务外包数据，将复杂的专业账目转化为 GM 听得懂、看得见的经营指标。
 
-## 2. 需求优先级矩阵 (Prioritization)
+## 2. 核心设计原则 (Design Principles)
+- **上帝视角**: 所有的复杂逻辑隐藏在后台，GM 只看结果。
+- **隐私保护**: 财务数据默认打码，隐私是第一优先级。
+- **20px 轴心**: 极致的秩序感，所有列表与轴线像素级对齐。
 
-| 优先级 | 定义 | 包含模块/功能 |
+## 3. 需求优先级矩阵 (Prioritization)
+
+| 优先级 | 功能范畴 | 关键点 |
 | :--- | :--- | :--- |
-| **P0 (高)** | **核心闭环**：缺失此功能产品无法通过验收，直接影响核心决策。 | • 看板：交付进度（20px中轴对齐）、经营风险预警<br>• 待办：工资/税金确认、服务费支付<br>• 财务：对公账户（默认隐私）、资金流水、对账中心 |
-| **P1 (中)** | **体验关键**：高频使用场景，需具备完整的数据穿透能力。 | • 事务：薪酬/五险一金/纳税/发票详情页<br>• 待办：OA 审批流及历史记录<br>• 企业：企业资质与基本户信息 |
-| **P2 (低)** | **辅助增强**：提升效率与体验，可延后迭代。 | • 服务：政府补助追踪、服务工单<br>• 报表：财税报表下载预览<br>• 全局：深色模式适配 (Backlog) |
+| **P0 (高)** | **核心决策闭环** | 经营盈亏看板、AI 风险诊断、交付进度时间轴、对公账户隐私卡片 |
+| **P1 (中)** | **业务穿透能力** | 薪酬明细查询、资金流水解释、发票管理、对账差异沟通 |
+| **P2 (低)** | **辅助与增强** | 政府补助追踪、操作日志、消息通知配置 |
 
-## 3. 详细需求文档目录 (Requirements Index)
+## 4. 详细需求规范索引 (Detailed Requirements)
 
-点击下方链接查看各模块详细需求规范：
+### 4.1 经营总览 (Dashboard)
+- [01_Dashboard.md](./requirements/01_Dashboard.md)
+- [支出构成分析](./requirements/dashboard/expenditure.md)
+- [现金流走势环比](./requirements/dashboard/cash_flow_trend.md)
 
-### 3.1 经营总览 (Dashboard)
-[📄 查看 Dashboard 需求详情](./requirements/01_Dashboard.md)
-> **核心目标**: 上帝视角，一屏掌握企业经营成果、风险诊断与现金流。
-> *v1.6 更新: AI诊断交互升级，支出构成全面改用线性进度条。*
+### 4.2 智能待办 (Inbox)
+- [02_Inbox.md](./requirements/02_Inbox.md)
+- [交付进度时间轴](./requirements/dashboard/timeline.md)
+- [账单置顶卡片](./requirements/inbox/pinned_bill.md)
 
-### 3.2 智能待办 (Inbox)
-[📄 查看 Inbox 需求详情](./requirements/02_Inbox.md)
-> **核心目标**: 集中决策，聚合支付、签字、审批三大类任务。
-> *v1.6 更新: 交付进度时间轴实现 20px 像素级中轴对齐。*
+### 4.3 事务工作台 (Workstation)
+- [03_Workstation.md](./requirements/03_Workstation.md)
+- [财务明细 (流水/发票/报销/凭证)](./requirements/workstation/)
+- [人事明细 (薪酬/员工/社保/合同)](./requirements/workstation/)
 
-### 3.3 事务工作台 (Workstation)
-[📄 查看 Workstation 需求详情](./requirements/03_Workstation.md)
-> **核心目标**: 数据穿透，提供人事与财税的完整业务明细。
-
-### 3.4 专项服务 (Services)
-[📄 查看 Government Subsidy 需求详情](./requirements/workstation/srv_subsidy.md)
-> **核心目标**: 追踪政府补助进度与服务请求。
-
-### 3.5 企业中心 (Company)
-[📄 查看 Company 需求详情](./requirements/04_Company.md)
-> **核心目标**: 资产管家，管理现金流、数字资产与企业档案。
-> *v1.6 更新: 敏感金额默认隐私模式。*
+### 4.4 企业中心 (Company)
+- [04_Company.md](./requirements/04_Company.md)
+- [对公账户隐私逻辑](./requirements/company/bank_account.md)
 
 ---
-*设计规范参考: [Design Standards](./DesignStandards.md)*
+*关联标准: [设计规范](./DesignStandards.md) | [业务映射索引](./BusinessMapping.md)*

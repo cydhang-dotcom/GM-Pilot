@@ -1,26 +1,25 @@
 # 模块需求: 事务工作台 (Workstation)
 
 > **优先级**: P1
-> **涉及页面**: `pages/Work.tsx` & `pages/WorkDetail.tsx`
+> **设计核心**: 业务分类 (Categorized)、数据穿透 (Drill-down)、极简入口 (Minimal Entry)
 
-## 1. 概述
-提供按业务领域分类的功能入口，支持数据穿透查询。
+## 1. 用户故事 (User Stories) 与 数据逻辑
 
-## 2. 详情页组件拆解 (HR)
-- **薪酬管理**: [📄 需求详情](./workstation/hr_payroll.md)
-- **员工管理**: [📄 需求详情](./workstation/hr_employee.md)
-- **社保公积金**: [📄 需求详情](./workstation/hr_social.md)
-- **合同管理**: [📄 需求详情](./workstation/hr_contract.md)
+### US1: 业务快速定位 (Fast Navigation)
+*   **故事**: 我需要一个逻辑清晰的业务分类入口，能快速找到对应的事务处理。
+*   **数据业务逻辑**:
+    *   **实时角标 (Badge Logic)**: `Badge_Value = count(Pending_Tasks_by_BusinessID)`。
+    *   **搜索算法**: 支持对 `ServiceItem.label` 进行模糊匹配。
 
-## 3. 详情页组件拆解 (Finance)
-- **资金流水**: [📄 需求详情](./workstation/fn_cashflow.md)
-- **税款缴纳**: [📄 需求详情](./workstation/fn_tax.md)
-- **电子凭证**: [📄 需求详情](./workstation/fn_voucher.md)
-- **发票管理**: [📄 需求详情](./workstation/fn_invoice.md)
-- **对账中心**: [📄 需求详情](./workstation/finance_reconciliation.md)
-- **费用报销**: [📄 需求详情](./workstation/finance_reimbursement.md)
-- **财税报表**: [📄 需求详情](./workstation/fn_reports.md)
+## 2. 界面行为规范 (UI Behaviors)
 
-## 4. 详情页组件拆解 (Services)
-- **综合服务请求**: [📄 需求详情](./workstation/services.md)
-- **政府补助 (New)**: [📄 需求详情](./workstation/srv_subsidy.md)
+*   **四宫格布局标准**: 
+    *   图标容器统一采用 `w-14 h-14` 圆角矩形。
+    *   文字标签下方必须保留至少 12px 的呼吸空间。
+*   **视觉对齐**: 图标中心的水平对齐线必须贯穿同排的所有图标。
+
+## 3. 验收标准 (Acceptance Criteria)
+
+- [x] 搜索框在输入 1 个字符后必须触发过滤。
+- [x] 所有业务图标必须带有对应的 Badge 计数（若有待办）。
+- [x] 业务分类标题左侧必须有对应的品牌色装饰块。
