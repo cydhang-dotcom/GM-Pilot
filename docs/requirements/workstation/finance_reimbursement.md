@@ -1,34 +1,32 @@
 # 业务需求: 费用报销 (Reimbursement)
 
-> **入口 ID**: `fn-reim`
-> **优先级**: P1
-> **设计核心**: 流程合规 (Compliance)、证据闭环 (Evidence Loop)、极简发起 (Quick Post)
+## 1. 核心元数据
+*   **入口 ID**: `fn-reim`
+*   **优先级**: P1
+*   **设计核心**: 流程合规 (Compliance), 证据闭环 (Evidence Loop)
 
-## 1. 用户故事 (User Stories) 与 数据逻辑
+## 2. 用户故事 (User Story)
+*   **故事**: 员工报销时，系统要自动检查发票、支付记录齐不齐，别等财务退回了才补。
 
-### US1: 报销合规预检 (Pre-compliance Check)
-*   **故事**: 我不希望财务在月底告诉我某笔报销缺票，我需要系统在发起时就检查“票据、行程、支付截图”是否齐全。
-*   **数据业务逻辑**:
-    *   **证据链算法**: 每个报销项需校验 `Has_Invoice && Has_Payment_Voucher && Has_Business_Reason`。
-    *   **状态触发器**: 若任一必要件缺失，标记单据状态为 `Evidence_Missing` (红色预警)，并在卡片显著位置列出“补：XXX”提示。
+## 3. 详细业务逻辑 (Business Logic)
 
-### US2: 智能拍票采集 (Smart Capture)
-*   **故事**: 作为 GM，我通过拍照上传多张发票后，系统应自动汇总金额并分类。
-*   **数据业务逻辑**:
-    *   **OCR 映射**: 自动提取 `Amount`, `Date`, `Category (餐饮/交通/住宿)`。
+### 3.1 证据链完整性
+*   **Rule**: `Evidence_Score = (Has_Invoice ? 1 : 0) + (Has_Payment_Record ? 1 : 0) + (Has_Reason ? 1 : 0)`
+*   **Status**: `Score < 3` -> `EVIDENCE_MISSING` (提示补全).
 
-## 2. 界面行为规范 (UI Behaviors)
+### 3.2 OCR 辅助
+*   上传图片后自动识别金额，并累加至总报销额。
 
-*   **视觉对齐**: 
-    *   报销列表的“报销人”头像中心点锁定在 **20px 轴线**。
-*   **加载逻辑**: 
-    *   上传票据时展示 `Scanning` 扫描光束动效。
-*   **Overlay 结构**: 
-    *   报销详情页顶部金额采用大字展示，下方紧跟“证据包”状态汇总区。
+## 4. UI/UX 视觉规范 (UI Specifications)
 
-## 3. 验收标准 (Acceptance Criteria)
+### 4.1 状态反馈
+*   **Evidence Missing**: 卡片底部显示红色提示条：“缺支付记录”。
+*   **Approved**: 绿色状态标签。
 
-- [x] 证据缺失的单据在列表中必须具备“待补充”红色标签。
-- [x] 详情页必须按分类（交通、住宿等）展示明细条目。
-- [x] 点击“补充缺失材料”必须能直接唤起相机或相册。
-- [x] 审批通过后的单据背景需呈现微弱的绿色渐变。
+### 4.2 发起页
+*   支持多张发票连拍，自动生成明细列表。
+
+## 5. 验收标准 (Acceptance Criteria)
+
+*   **Then** 如果缺少支付凭证，提交时应弹出阻断性或警告性提示。
+*   **Then** 报销总额应自动等于所有明细金额之和。

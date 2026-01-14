@@ -1,33 +1,39 @@
 # 业务需求: 凭证管理 (Voucher)
 
-> **入口 ID**: `fn-3`
-> **优先级**: P2
-> **设计核心**: 审计穿透 (Audit Drill-down)、月结锁定 (Closing Lock)、拟物体验 (Skeuomorphic)
+## 1. 核心元数据
+*   **入口 ID**: `fn-3`
+*   **优先级**: P2
+*   **设计核心**: 审计穿透 (Audit Drill-down), 月结锁定 (Closing Lock)
 
-## 1. 用户故事 (User Stories) 与 数据逻辑
+## 2. 用户故事 (User Story)
+*   **故事**: 我要看某笔账是怎么记的，并且在月底确认所有凭证无误后，锁定账本（月结），防止被随意篡改。
 
-### US1: 凭证审计穿透 (Voucher Traceability)
-*   **故事**: 看到一张“记账凭证”时，我需要点一下就能看到它背后的发票和银行流水。
-*   **数据业务逻辑**:
-    *   **分录校验**: `SUM(Debit_Amount) === SUM(Credit_Amount)`。若不平，凭证状态标记为 `Error`。
-    *   **穿透层级**: `Voucher (L3) -> Source_Detail (L4) -> Original_Image (L5)`。
+## 3. 详细业务逻辑 (Business Logic)
 
-### US2: 月结验收锁版 (Period Closing)
-*   **故事**: 我确认本月账目无误后进行“数字签名”，防止代理会计再随意修改。
-*   **数据业务逻辑**:
-    *   **锁版算法**: 验收完成后，调用 `POST /accounting/lock`，将该账期所有 `is_locked` 标记设为 `true`，禁止任何 `CRUD` 操作。
+### 3.1 借贷平衡校验
+```python
+Debit_Sum = Sum(Entries.filter(dir='DEBIT').amount)
+Credit_Sum = Sum(Entries.filter(dir='CREDIT').amount)
+Is_Balanced = (Debit_Sum == Credit_Sum)
+```
 
-## 2. 界面行为规范 (UI Behaviors)
+### 3.2 锁版机制
+*   **Action**: `LockPeriod(Year, Month)`
+*   **Effect**: 该账期下所有 Voucher 的 `readOnly` 属性设为 `true`，禁止增删改。
 
-*   **拟物设计标准**: 
-    *   凭证卡片背景需使用 `#FAFAFA` 略带纹理感的背景。
-    *   会计分录表格需采用经典的红/黑细线布局。
-*   **影像预览交互**: 
-    *   Level 5 影像预览必须全屏且背景为黑色（沉浸式）。
+## 4. UI/UX 视觉规范 (UI Specifications)
 
-## 3. 验收标准 (Acceptance Criteria)
+### 4.1 拟物凭证
+*   详情页模仿纸质凭证样式：
+    *   顶部：标题、日期、字号。
+    *   中部：表格（摘要、科目、借方、贷方）。
+    *   底部：制单人、审核人签名。
+*   **金额线**: 表格内金额列可选用虚线分割千分位（可选）。
 
-- [x] 凭证详情必须清晰展示借贷平衡表。
-- [x] 附件列表必须区分显示发票、流水、回单等不同图标。
-- [x] 月结验收流程必须包含“资金平衡”与“附件齐套”两个强制校验项。
-- [x] 已锁定的账期，页面顶部必须显示灰色的“已归档”水印标签。
+### 4.2 附件挂载
+*   凭证下方显示关联的原始单据（发票、回单）缩略图，点击可全屏预览。
+
+## 5. 验收标准 (Acceptance Criteria)
+
+*   **Then** 每一张凭证的借方合计必须等于贷方合计。
+*   **Then** 已锁定的账期，页面应有明显的“已归档/Locked”水印或标记。

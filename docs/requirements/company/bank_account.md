@@ -1,32 +1,36 @@
-# 功能需求: 对公账户卡片 (Bank Account)
+# 业务需求: 对公账户卡片 (Bank Account)
 
-> **所属模块**: Company
-> **优先级**: P0
-> **设计核心**: 资产安全 (Security)、拟态交互 (Skeuomorphic Interaction)
+## 1. 核心元数据
+*   **所属模块**: Company (04_Company.md)
+*   **优先级**: P0
+*   **设计核心**: 资产安全 (Security), 拟态交互 (Skeuomorphic)
 
-## 1. 用户故事 (User Story)
-*   **故事**: 作为总经理，我需要随时查看银行里的确切余额，但在电梯或会议室里，我不希望周围的人看到我的账上有多少钱。
+## 2. 用户故事 (User Story)
+*   **故事**: 查看余额时必须默认打码，只有我点开小眼睛才能看，看完得自动或者手动关上。
 
-## 2. 业务逻辑规格 (Business Logic)
-*   **隐私模式规则 (Privacy by Default)**:
-    *   页面加载时，无论上次退出是什么状态，余额必须默认应用 `backdrop-filter: blur(12px)`。
-    *   仅当用户显式点击“眼睛图标”后，方可解除模糊并明文显示。
-*   **数据同步**: 每次进入 `Company` 页面，前端需异步调用 `Bank_Sync` 接口刷新余额，刷新过程中余额位置显示 `...` 动效。
+## 3. 详细业务逻辑 (Business Logic)
 
-## 3. 数据业务需求 (Data Specifications)
-*   **数据源**: `Bank_Gateway_API`。
-*   **核心字段**: 
-    *   `Bank_Name`: 开户行。
-    *   `Account_Balance`: 实时余额。
-    *   `Month_In/Out`: 本月累计流转。
-*   **多币种逻辑**: 默认展示 CNY。若存在多币种账户，需在卡片下方提供左右滑动切换。
+### 3.1 隐私逻辑
+*   **Default**: `Masked` (e.g., `¥ ****`).
+*   **Toggle**: Click `Eye Icon` -> `Visible`.
+*   **Reset**: Leave Page -> `Masked`.
 
-## 4. UI/UX 视觉与交互细节 (Visuals & Interaction)
-*   **视觉设计**: 
-    *   背景色采用 `Indigo-900` 渐变到 `Blue-800`。
-    *   文字对齐：开户行位于左上角，余额居中，本月收支概览位于底部且使用 20px 边距对齐。
-*   **交互动效**: 点击眼睛图标时，余额的模糊效果应在 300ms 内平滑消散，而非瞬间消失。
+### 3.2 数据刷新
+*   进入页面时静默刷新余额 (`Silent Refresh`)，若失败显示缓存值并提示“更新失败”。
+
+## 4. UI/UX 视觉规范 (UI Specifications)
+
+### 4.1 模糊效果
+*   使用 CSS `filter: blur(8px)` 或替换为 `••••` 字符。
+*   切换时要有 `transition-opacity` 渐变动效。
+
+### 4.2 卡片布局
+*   左上角：银行 Logo + 名称。
+*   中间：大字号余额。
+*   底部：账号（脱敏） + 复制图标。
 
 ## 5. 验收标准 (Acceptance Criteria)
-- [x] 隐私模式下，无法通过长按复制或查看网页源码获取真实余额文本。
-- [x] 卡片底部必须显示“科技园支行”等网点描述，辅助 GM 区分同银行的多个账户。
+
+*   **Given** 离开 Company 页面再回来
+    *   **Then** 余额应恢复为隐藏状态。
+*   **Then** 账号应只显示后 4 位。
