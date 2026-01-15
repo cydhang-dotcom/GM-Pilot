@@ -137,6 +137,14 @@ const Work: React.FC = () => {
     }
   };
 
+  // Filter Logic
+  const filteredGroups = serviceGroups.map(group => ({
+    ...group,
+    items: group.items.filter(item => 
+      item.label.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  })).filter(group => group.items.length > 0);
+
   return (
     <div className="pb-8 bg-white min-h-full">
       {/* Search Header */}
@@ -154,40 +162,47 @@ const Work: React.FC = () => {
         </div>
       </div>
 
-      <div className="px-4 py-2 space-y-8">
+      <div className="px-4 py-2 space-y-8 animate-fade-in">
         
         {/* Service Groups - 4 Column Grid */}
-        {serviceGroups.map((group) => {
-            const theme = getThemeStyles(group.themeColor);
-            return (
-                <section key={group.title}>
-                    <div className="flex items-center gap-2 mb-4">
-                        <h2 className="text-sm font-bold text-gray-800">{group.title}</h2>
-                    </div>
-                    <div className="grid grid-cols-4 gap-y-6 gap-x-2">
-                        {group.items.map((item) => (
-                            <div 
-                                key={item.id} 
-                                onClick={() => handleItemClick(item.id)}
-                                className="flex flex-col items-center gap-2 cursor-pointer active:opacity-60 transition-opacity group relative"
-                            >
-                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm border border-gray-100 ${theme.iconBg} ${theme.text} group-hover:scale-105 transition-transform relative`}>
-                                    {renderIcon(item.iconName, 26)}
-                                    {item.badge && (
-                                      <div className={`absolute -top-2 -right-4 px-1.5 py-0.5 rounded-full text-[10px] font-bold shadow-sm border border-white ${item.badge.color}`}>
-                                        {item.badge.text}
-                                      </div>
-                                    )}
+        {filteredGroups.length > 0 ? (
+            filteredGroups.map((group) => {
+                const theme = getThemeStyles(group.themeColor);
+                return (
+                    <section key={group.title}>
+                        <div className="flex items-center gap-2 mb-4">
+                            <h2 className="text-sm font-bold text-gray-800">{group.title}</h2>
+                        </div>
+                        <div className="grid grid-cols-4 gap-y-6 gap-x-2">
+                            {group.items.map((item) => (
+                                <div 
+                                    key={item.id} 
+                                    onClick={() => handleItemClick(item.id)}
+                                    className="flex flex-col items-center gap-2 cursor-pointer active:opacity-60 transition-opacity group relative"
+                                >
+                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm border border-gray-100 ${theme.iconBg} ${theme.text} group-hover:scale-105 transition-transform relative`}>
+                                        {renderIcon(item.iconName, 26)}
+                                        {item.badge && (
+                                          <div className={`absolute -top-2 -right-4 px-1.5 py-0.5 rounded-full text-[10px] font-bold shadow-sm border border-white ${item.badge.color}`}>
+                                            {item.badge.text}
+                                          </div>
+                                        )}
+                                    </div>
+                                    <div className="text-xs font-medium text-gray-700 text-center leading-tight">
+                                        {item.label}
+                                    </div>
                                 </div>
-                                <div className="text-xs font-medium text-gray-700 text-center leading-tight">
-                                    {item.label}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-            );
-        })}
+                            ))}
+                        </div>
+                    </section>
+                );
+            })
+        ) : (
+            <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+                <Search size={32} className="mb-2 opacity-50" />
+                <p className="text-xs">未找到相关功能</p>
+            </div>
+        )}
       </div>
     </div>
   );

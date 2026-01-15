@@ -376,7 +376,7 @@ const Inbox: React.FC = () => {
 
                  {/* 2. Pinned Bill Card - 高优账单卡片 (采用 Dashboard 翡翠绿配色强化成果感) */}
                  <div onClick={() => setSelectedTask(mockTasks[0])} className="bg-gradient-to-b from-white to-emerald-50/60 border border-emerald-100 rounded-[32px] p-6 shadow-[0_8px_30px_rgba(16,185,129,0.08)] active:scale-[0.99] cursor-pointer flex items-center gap-5 group">
-                      <div className="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-200 shrink-0 group-hover:rotate-6 transition-transform">
+                      <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center border border-emerald-200/50 shrink-0 group-hover:rotate-6 transition-transform">
                         <ReceiptText size={24} />
                       </div>
                       <div className="flex-1 min-w-0">

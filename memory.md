@@ -1,3 +1,4 @@
+
 # GM Pilot Project Memory
 
 > **核心决策备忘录**: 记录关键技术选型、核心组件逻辑及文档体系索引。
@@ -19,9 +20,10 @@
 | **docs/DesignStandards.md** | **设计规范**：像素级 UI 准则、隐私脱敏逻辑、AI 交互动效标准。 |
 | **docs/FeatureList.md** | **功能清单**：记录所有功能的开发与验收状态。 |
 | **docs/BusinessMapping.md** | **业务映射索引**：维护 [模块 - 需求文件 - 业务代码 - 业务描述] 的对应关系。 |
+| **docs/requirements/finance_api_list.md** | **API 契约**：财务模块后端接口定义与数据结构规范。 |
 
 ### 1.3 业务需求规格撰写标准 (Requirements Content Standards)
-**所有业务需求子文档 (如 `docs/requirements/*.md`) 必须参考 `01_Dashboard.md` 的结构编写，包含以下核心章节：**
+**所有业务需求子文档 (如 `docs/requirements/*.md`) ，都需包含以下核心章节：**
 
 1.  **Header (模块基本信息)**:
     *   **优先级**: P0/P1/P2。
