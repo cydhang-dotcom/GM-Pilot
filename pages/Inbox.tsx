@@ -48,6 +48,7 @@ interface TimelineItem {
   id: string;
   title: string;
   tag?: string; 
+  monthTag?: string; // New: Belonging Month
   status: 'completed' | 'active' | 'pending';
   dateLabel: string;
   detail: string;
@@ -62,6 +63,7 @@ const timelineData: TimelineItem[] = [
   { 
     id: '1', 
     title: '薪酬发放', 
+    monthTag: '12月',
     status: 'active', 
     dateLabel: '12-10', 
     detail: '',
@@ -74,6 +76,7 @@ const timelineData: TimelineItem[] = [
   { 
     id: '2', 
     title: '税务申报', 
+    monthTag: '12月',
     status: 'active', 
     dateLabel: '12-15', 
     detail: '',
@@ -86,6 +89,7 @@ const timelineData: TimelineItem[] = [
   { 
     id: '3', 
     title: '五险一金', 
+    monthTag: '12月',
     status: 'pending', 
     dateLabel: '12-15', 
     detail: '',
@@ -98,6 +102,7 @@ const timelineData: TimelineItem[] = [
   { 
     id: 'subsidy', 
     title: '政府补贴', 
+    monthTag: 'Q4',
     status: 'pending', 
     dateLabel: '12-20', 
     detail: '',
@@ -112,6 +117,7 @@ const timelineData: TimelineItem[] = [
   { 
     id: '4', 
     title: '增减员', 
+    monthTag: '12月',
     status: 'pending', 
     dateLabel: '12-25', 
     detail: '',
@@ -262,6 +268,17 @@ const Inbox: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <span className="text-[12px] font-mono font-black text-slate-400 tracking-tighter">{item.dateLabel}</span>
                     <h3 className={`text-base font-black ${isActive ? 'text-slate-900' : 'text-slate-500'}`}>{item.title}</h3>
+                    
+                    {/* Month Tag (New Feature) */}
+                    {item.monthTag && (
+                        <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold border ${
+                            isActive 
+                            ? 'bg-indigo-50 text-indigo-600 border-indigo-100' 
+                            : 'bg-slate-50 text-slate-400 border-slate-100'
+                        }`}>
+                            {item.monthTag}
+                        </span>
+                    )}
                   </div>
                   {hasTask && (
                     <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded flex items-center gap-1 border border-emerald-100/50">
@@ -375,19 +392,25 @@ const Inbox: React.FC = () => {
                  </section>
 
                  {/* 2. Pinned Bill Card - 高优账单卡片 (采用 Dashboard 翡翠绿配色强化成果感) */}
-                 <div onClick={() => setSelectedTask(mockTasks[0])} className="bg-gradient-to-b from-white to-emerald-50/60 border border-emerald-100 rounded-[32px] p-6 shadow-[0_8px_30px_rgba(16,185,129,0.08)] active:scale-[0.99] cursor-pointer flex items-center gap-5 group">
-                      <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center border border-emerald-200/50 shrink-0 group-hover:rotate-6 transition-transform">
-                        <ReceiptText size={24} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                          <h3 className="font-black text-slate-900 text-sm truncate">12月平台服务费</h3>
-                          <div className="flex items-center gap-2 mt-1">
-                              <span className="text-xs font-black text-emerald-600 font-mono tracking-tighter">¥5,800.00</span>
-                              <div className="w-1 h-1 rounded-full bg-emerald-200"></div>
-                              <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">PENDING</p>
+                 <div onClick={() => setSelectedTask(mockTasks[0])} className="bg-gradient-to-b from-white to-emerald-50/60 border border-emerald-100 rounded-[32px] p-6 shadow-[0_8px_30px_rgba(16,185,129,0.08)] active:scale-[0.99] cursor-pointer flex items-center justify-between gap-3 group">
+                      <div className="flex items-center gap-4 flex-1 min-w-0">
+                          <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center border border-emerald-200/50 shrink-0 group-hover:rotate-6 transition-transform">
+                            <ReceiptText size={24} />
+                          </div>
+                          <div className="min-w-0">
+                              <h3 className="font-black text-slate-900 text-sm truncate">12月平台服务费</h3>
+                              <div className="flex items-center gap-2 mt-1">
+                                  <span className="text-xs font-black text-emerald-600 font-mono tracking-tighter">¥5,800.00</span>
+                                  <div className="w-1 h-1 rounded-full bg-emerald-200"></div>
+                                  <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">待支付</p>
+                              </div>
                           </div>
                       </div>
-                      <ArrowUpRight size={20} className="text-emerald-300 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"/>
+                      
+                      <div className="bg-emerald-600 text-white px-3.5 py-2 rounded-xl text-[11px] font-black shadow-lg shadow-emerald-200 flex items-center gap-1 group-hover:bg-emerald-700 transition-colors shrink-0">
+                          立即支付
+                          <ArrowUpRight size={12} />
+                      </div>
                  </div>
 
                  {/* 3. Grouped Entry Tasks */}
