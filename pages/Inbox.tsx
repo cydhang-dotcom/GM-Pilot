@@ -299,21 +299,20 @@ const Inbox: React.FC = () => {
                     <div className="flex justify-between items-center">
                         {item.metrics && (
                             <div className="flex items-center justify-between w-full">
-                                <div className="flex gap-8">
+                                <div className="flex gap-4">
                                     {item.metrics.map((m, idx) => (
-                                        <div key={idx}>
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">{m.label}</p>
-                                            <p className={`text-xl font-black font-mono tracking-tighter ${isActive ? 'text-slate-900' : 'text-slate-500'}`}>{m.value}</p>
+                                        <div key={idx} className="flex flex-col justify-center">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-wide mb-1">{m.label}</p>
+                                            <p className={`text-lg font-black font-mono tracking-tighter ${isActive ? 'text-slate-900' : 'text-slate-500'}`}>{m.value}</p>
                                         </div>
                                     ))}
                                 </div>
                                 
-                                {/* Right Side Action (Salary specific style as per visual prompt) */}
+                                {/* Standard Inline Action Button - Aesthetic Refined */}
                                 {hasTask && (
-                                    <div className="flex flex-col items-center gap-1">
-                                        <div className="flex items-center justify-center bg-emerald-600 text-white px-5 py-3 rounded-2xl text-[13px] font-black shadow-[0_8px_20px_rgba(16,185,129,0.25)] active:scale-95 transition-all">
-                                            确认发放
-                                        </div>
+                                    <div className="bg-emerald-600 text-white px-3 py-2 rounded-xl text-[11px] font-bold shadow-md shadow-emerald-200 flex items-center gap-1 shrink-0 hover:bg-emerald-700 transition-colors">
+                                        确认发放
+                                        <ArrowRight size={12} strokeWidth={2.5} />
                                     </div>
                                 )}
                             </div>
