@@ -1,35 +1,35 @@
-# 业务需求: 五险一金 (Social Security)
+# 业务需求: 五险一金 (Social Security & Fund)
 
-## 1. 核心元数据
-*   **入口 ID**: `hr-4`
-*   **优先级**: P2
-*   **设计核心**: 成本预测 (Cost Projection), 变动敏感 (Change Sensitivity)
+> **入口 ID**: `hr-4`
+> **优先级**: P2
+> **设计核心**: 成本预测 (Cost Projection)、变动敏感 (Change Sensitivity)、合规校验 (Compliance)
 
-## 2. 用户故事 (User Story)
-*   **故事**: 我想知道本月公司为员工交了多少社保公积金，以及名单里有没有刚离职的人（不该交的）。
+## 1. 用户故事 (User Stories) 与 数据逻辑
 
-## 3. 详细业务逻辑 (Business Logic)
+### US1: 雇主负担测算 (Employer Cost Projection)
+*   **故事**: 作为总经理，我需要知道本月公司为员工额外承担了多少五险一金成本，以便进行精确的人力预算评估。
+*   **数据业务逻辑**:
+    *   **核心算法**: 
+        *   `Company_Total = SUM(Staff_Social_Company_Part + Staff_Fund_Company_Part)`。
+        *   `Change_Impact = Company_Total_Current - Company_Total_Last`。
+    *   **自动统计**: 系统根据本月 `Payroll_Structure` 中的 `Social_Base` 字段，实时计算并更新首页看板的“公司承担”数值。
 
-### 3.1 费用拆解
-*   **公司承担**: `Base * Company_Rate` (养老/医疗/失业/工伤/生育/公积金)。
-*   **个人承担**: `Base * Personal_Rate` (养老/医疗/失业/公积金)。
-*   **差异对比**: `Diff = Current_Month_Total - Last_Month_Total`。
+### US2: 异动人员监控 (Change Tracking)
+*   **故事**: 我需要清晰看到本月谁新开了社保，谁停交了，确保与入离职情况完全吻合。
+*   **数据业务逻辑**:
+    *   **触发器**: 当 `Employee_Status` 变更或 `Insurance_Enrollment` 状态变化时，自动将名单推送到“增减员明细” Overlay。
 
-### 3.2 变动标记
-*   **新增**: 本月入职或新参保 -> 标记 `NEW` (蓝色)。
-*   **减少**: 本月离职或停保 -> 标记 `STOP` (灰色/红色)。
+## 2. 界面行为规范 (UI Behaviors)
 
-## 4. UI/UX 视觉规范 (UI Specifications)
+*   **视觉对齐 (20px Axis)**: 
+    *   增减员列表中，人员头像的中轴线必须严格对齐左侧 **20px** 轴线。
+*   **交互动效**: 
+    *   缴纳总额采用 `CountUp` 动效，时长 1000ms。
+    *   PDF 凭证预览采用“拟物纸质”阴影效果。
 
-### 4.1 变动概览
-*   使用两个卡片并列展示：
-    *   左卡: 本月新增 N 人 (蓝色图标)。
-    *   右卡: 本月减少 M 人 (灰色图标)。
+## 3. 验收标准 (Acceptance Criteria)
 
-### 4.2 凭证下载
-*   列表项右侧提供 PDF 图标，点击可预览或下载社保局盖章的回单。
-
-## 5. 验收标准 (Acceptance Criteria)
-
-*   **Then** 页面顶部的大数字应为“公司承担部分”与“个人承担部分”的总和（或明确标识为缴纳总额）。
-*   **Then** 增减员名单必须与 HR 系统的入离职记录一致。
+- [x] 首页看板必须拆分显示“公司承担”与“个人承担”金额。
+- [x] 增员 (Add) 需使用蓝色标识，减员 (Remove) 需使用灰色标识。
+- [x] 缴纳记录必须包含“回单下载”入口。
+- [x] 详情页必须展示该账期的缴费基数明细。

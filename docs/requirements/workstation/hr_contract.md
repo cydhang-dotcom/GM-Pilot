@@ -1,41 +1,36 @@
 # 业务需求: 合同管理 (Contract)
 
-## 1. 核心元数据
-*   **入口 ID**: `hr-6`
-*   **优先级**: P2
-*   **设计核心**: 法律风控 (Legal Risk Control), 期限感知 (Deadline Awareness)
+> **入口 ID**: `hr-6`
+> **优先级**: P2
+> **设计核心**: 法律风控 (Legal Risk Control)、期限感知 (Deadline Awareness)
 
-## 2. 用户故事 (User Story)
-*   **故事**: 防止合同到期忘记续签产生赔偿风险，我需要提前 30 天收到提醒。
+## 1. 用户故事 (User Stories) 与 数据逻辑
 
-## 3. 详细业务逻辑 (Business Logic)
+### US1: 续签风险预判 (Renewal Warning)
+*   **故事**: 作为总经理，我希望在合同到期前 30 天收到强提醒，防止因忘记续签而产生法律赔偿风险。
+*   **数据业务逻辑**:
+    *   **倒计时算法**: `Days_Remaining = Contract_End_Date - Today`。
+    *   **状态机映射**: 
+        *   `Safe`: `Days_Remaining > 30` (蓝色)。
+        *   `Expiring`: `30 >= Days_Remaining > 0` (橙色 + 呼吸动效)。
+        *   `Expired`: `Days_Remaining <= 0` (红色)。
+    *   **触发器**: 当进入 `Expiring` 状态，自动在 `Inbox` 推送一条“合同续签待办”。
 
-### 3.1 倒计时算法
-```python
-Days_Left = DateDiff(Contract_End_Date, Today)
-Status = 
-  Days_Left < 0 ? 'EXPIRED' :
-  Days_Left <= 30 ? 'EXPIRING_SOON' :
-  'NORMAL'
-```
+### US2: 决策快速闭环 (Actionable Decision)
+*   **故事**: 查看合同到期提醒后，我需要能一键选择“发起续签”或“不再续签”。
+*   **数据业务逻辑**:
+    *   **操作下发**: 触发 API `POST /contract/action`，同步通知外包 HR 处理法律文书。
 
-### 3.2 预警触发
-*   当 `Status == EXPIRING_SOON` 时，Dashboard 或 Inbox 应有红点提示。
+## 2. 界面行为规范 (UI Behaviors)
 
-## 4. UI/UX 视觉规范 (UI Specifications)
+*   **20px 轴心锁定**: 
+    *   合同列表的左侧彩色侧边条（Indicator Bar）宽度设为 4px，中心点锁定在 **20px** 轴线。
+*   **视觉引导**: 
+    *   `Expiring` 状态的卡片需具备 `Pulse` 阴影，频率 2000ms。
 
-### 4.1 列表状态条
-*   在卡片左边缘设置 4px 宽的彩色状态条：
-    *   橙色: 即将到期。
-    *   红色: 已过期。
-    *   蓝色: 正常。
-*   **倒计时 Badge**: 右侧显著位置显示“剩余 XX 天”。
+## 3. 验收标准 (Acceptance Criteria)
 
-### 4.2 续签操作
-*   详情页底部提供“发起续签”按钮，点击后触发工作流（通知 HR 准备文书）。
-
-## 5. 验收标准 (Acceptance Criteria)
-
-*   **Given** 合同还有 5 天到期
-    *   **Then** 列表卡片应显示橙色状态条，并提示“剩余 5 天”。
-*   **Then** 点击“不再续签”应弹出二次确认警示框。
+- [x] 即将到期的合同必须准确显示剩余天数。
+- [x] 详情页必须包含该员工的入职日期与历史签约次数参考。
+- [x] 点击“发起续签”必须弹出二次确认确认框。
+- [x] 历史合同清单必须按生效日期降序排列。

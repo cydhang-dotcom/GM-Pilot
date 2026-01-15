@@ -1,41 +1,38 @@
 # 业务需求: 薪酬管理 (Payroll)
 
-## 1. 核心元数据
-*   **入口 ID**: `hr-1`
-*   **优先级**: P1
-*   **设计核心**: 成本透明 (Cost Transparency), 发放闭环 (Payment Loop)
+> **入口 ID**: `hr-1`
+> **优先级**: P1
+> **设计核心**: 成本透明 (Cost Transparency)、发放闭环 (Payment Loop)、安全审计 (Security Audit)
 
-## 2. 用户故事 (User Story)
-*   **故事**: 发工资前，我要确认实发总额、公司承担的社保成本，并能导出 Excel 给财务存档。
+## 1. 用户故事 (User Stories) 与 数据逻辑
 
-## 3. 详细业务逻辑 (Business Logic)
+### US1: 薪资构成透视 (Salary Breakdown)
+*   **故事**: 作为总经理，在确认发放前，我需要清晰看到基本工资、绩效、社保扣除和个税的占比，确保成本符合预期。
+*   **数据业务逻辑**:
+    *   **核心算法**: 
+        *   `Gross_Pay = Base_Salary + Performance_Bonus + Allowances`
+        *   `Net_Pay = Gross_Pay - Social_Insurance_Personal - Housing_Fund_Personal - Individual_Income_Tax`
+    *   **状态触发器 (State Trigger)**: 
+        *   若 `Current_Month_Total > Last_Month_Total * 1.1`：高亮显示差异，并标记为“薪资总额异动”。
+        *   若员工状态为 `Probation` (试用期)：在明细行显示橙色“试用”标签。
 
-### 3.1 核心公式
-```python
-Gross_Pay = Base + Merit + Allowance + Overtime
-Personal_Deduction = Social_Personal + Fund_Personal + Tax
-Net_Pay = Gross_Pay - Personal_Deduction
-Company_Cost = Gross_Pay + Social_Company + Fund_Company
-```
+### US2: 发放确认闭环 (Confirmation Loop)
+*   **故事**: 我需要一键确认发放，并能随时导出加密的 Excel 工资条给财务存档。
+*   **数据业务需求**:
+    *   **导出逻辑**: 导出文件需包含 `AES-256` 加密，文件名格式 `Payroll_{Month}_{Company_ShortName}.xlsx`。
+    *   **隐私策略**: 详情页中的个税额度默认打码。
 
-### 3.2 发放状态机
-*   `DRAFT` (草稿/计算中) -> `WAITING_CONFIRM` (待GM确认) -> `PROCESSING` (银行处理中) -> `PAID` (已发放).
+## 2. 界面行为规范 (UI Behaviors)
 
-### 3.3 导出逻辑
-*   **文件名**: `Payroll_{YYYYMM}_{Timestamp}.xlsx`
-*   **加密**: 既然涉及薪资，导出的 Excel 最好提示“文件已加密，密码为...”（视需求而定，App 端通常直接下载）。
+*   **视觉对齐 (Axis Lock)**: 
+    *   薪资详情列表的人员头像中心点需对齐左侧 **20px 轴线**。
+*   **交互动效**: 
+    *   饼图加载采用 `Rotate-in` 动效，时长 800ms。
+    *   确认按钮点击后，需展示 `Processing` 状态 1.5s 以模拟银行链路通讯。
 
-## 4. UI/UX 视觉规范 (UI Specifications)
+## 3. 验收标准 (Acceptance Criteria)
 
-### 4.1 详情页布局
-*   **顶部卡片**: 
-    *   背景: `bg-gradient-to-br from-indigo-600 to-blue-700`。
-    *   内容: 实发总额 (大字)，人数，余额充足性提示。
-*   **列表对齐**:
-    *   员工头像中心对齐 20px 轴线。
-    *   金额列右对齐，使用 `font-mono`。
-
-## 5. 验收标准 (Acceptance Criteria)
-
-*   **Then** 实发总额必须等于列表所有员工 `Net_Pay` 之和。
-*   **Then** 点击“确认发放”后，Inbox 中的对应任务应同步标记为完成。
+- [x] 详情页必须准确计算并展示实发总额（Net Pay Total）。
+- [x] 试用期员工在列表中必须有显著区分标识。
+- [x] 点击“确认并提交”后，对应的 Inbox 任务状态需同步更新为已完成。
+- [x] 导出按钮在“已发放”状态下必须变为可见。

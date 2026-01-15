@@ -1,43 +1,35 @@
 # 业务需求: 员工管理 (Employee)
 
-## 1. 核心元数据
-*   **入口 ID**: `hr-emp`
-*   **优先级**: P1
-*   **设计核心**: 档案完整 (Integrity), 检索高效 (Efficiency)
+> **入口 ID**: `hr-emp`
+> **优先级**: P1
+> **设计核心**: 档案完整 (Integrity)、检索高效 (Efficiency)、隐私合规 (Privacy)
 
-## 2. 用户故事 (User Story)
-*   **故事**: 我需要随时查找员工的入职时间、合同到期日，或者直接拨打电话。
+## 1. 用户故事 (User Stories) 与 数据逻辑
 
-## 3. 详细业务逻辑 (Business Logic)
+### US1: 人才档案速查 (Profile Access)
+*   **故事**: 作为总经理，我需要随时查看员工的合同到期日和基本信息，以便决定人才留存策略。
+*   **数据业务逻辑**:
+    *   **搜索算法**: 采用 `Fuzzy_Match(Keyword, [Name, Dept, Role])`，权重：姓名(1.0) > 部门(0.6) > 职位(0.4)。
+    *   **隐私处理**: 身份证号仅展示前 3 位和后 4 位，中间以 `*` 屏蔽。
+    *   **状态维护**: 实时根据 `Join_Date` 计算司龄，并自动判定 `Probation/Official` 状态。
 
-### 3.1 搜索算法
-```python
-FUNCTION Search(query):
-  targets = ['name', 'department', 'role', 'phone']
-  results = employees.filter(emp => 
-    targets.some(key => emp[key].contains(query))
-  )
-  RETURN results
-```
+### US2: 动态增员 (Onboarding Action)
+*   **故事**: 我需要在手机上快速录入新入职高管的信息，并同步发起入职任务流。
+*   **数据业务需求**:
+    *   **触发器**: 成功录入新员工后，自动向 `Inbox` 推送一条“新员工入职确认”任务。
 
-### 3.2 隐私脱敏
-*   **身份证**: `idCard.replace(/^(.{6})(?:\d+)(.{4})$/, "$1********$2")`。
-*   **手机号**: 视权限而定，通常 GM 权限可见明文，或点击后显示。
+## 2. 界面行为规范 (UI Behaviors)
 
-## 4. UI/UX 视觉规范 (UI Specifications)
+*   **视觉对齐**: 
+    *   列表卡片的“姓名+职位”组合需相对于左侧头像垂直居中。
+*   **加载逻辑**: 
+    *   搜索框输入时，列表应用 `Fade-out/Fade-in` 过滤动画，延迟 200ms 触发。
+*   **Overlay 规范**: 
+    *   员工档案页采用全屏 Overlay，顶部带有毛玻璃背景的导航栏。
 
-### 4.1 列表项
-*   **布局**: 左侧头像，中间[姓名/职位/部门]，右侧状态标签。
-*   **状态标签**:
-    *   正式: `bg-emerald-50 text-emerald-600`。
-    *   试用: `bg-blue-50 text-blue-600`。
-    *   离职: `bg-gray-100 text-gray-400`。
+## 3. 验收标准 (Acceptance Criteria)
 
-### 4.2 档案 Overlay
-*   **头部**: 大头像居中，下方跟随快捷操作栏（呼叫、邮件、微信）。
-
-## 5. 验收标准 (Acceptance Criteria)
-
-*   **Given** 搜索框输入 "技术"
-    *   **Then** 列表应只显示技术部的员工。
-*   **Then** 详情页的身份证号中间 8 位必须显示为星号。
+- [x] 搜索功能必须支持按姓名首字母模糊查询。
+- [x] 详情页的身份证号必须执行脱敏算法。
+- [x] 试用期员工的标签颜色必须与正式员工有视觉区分（Blue vs Emerald）。
+- [x] 点击“呼叫”按钮必须能正确拉起系统拨号盘。

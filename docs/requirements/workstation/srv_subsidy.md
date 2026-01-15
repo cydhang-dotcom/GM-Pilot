@@ -1,31 +1,32 @@
-# 业务需求: 政府补助 (Subsidy)
+# 业务需求: 政府补助 (Government Subsidy)
 
-## 1. 核心元数据
-*   **入口 ID**: `srv-subsidy`
-*   **优先级**: P2
-*   **设计核心**: 节点驱动 (Milestone Driven), 收益透明 (Benefit Visibility)
+> **入口 ID**: `srv-subsidy`
+> **优先级**: P2
+> **设计核心**: 节点驱动 (Milestone Driven)、收益透明 (Benefit Visibility)
 
-## 2. 用户故事 (User Story)
-*   **故事**: 申请的稳岗补贴到哪一步了？今年一共拿了多少钱？
+## 1. 用户故事 (User Stories) 与 数据逻辑
 
-## 3. 详细业务逻辑 (Business Logic)
+### US1: 补助进度追踪 (Milestone Tracking)
+*   **故事**: 作为总经理，我想知道稳岗补贴到底卡在“公示”阶段还是“拨付”阶段了。
+*   **数据业务逻辑**:
+    *   **节点定义**: `Submitted -> Reviewing -> Public_Notifying -> Disbursing -> Received`。
+    *   **同步逻辑**: 每日凌晨同步政府公开平台的申报状态。
 
-### 3.1 进度节点
-*   `SUBMIT` (提交) -> `REVIEW` (审核) -> `PUBLICITY` (公示) -> `PAYMENT` (拨付) -> `RECEIVED` (到账).
+### US2: 收益感知 (ROI Awareness)
+*   **故事**: 我想知道今年一共从政府拿到了多少钱，抵消了多少社保成本。
+*   **数据业务逻辑**:
+    *   **计算字段**: `Annual_Total = SUM(Received_Subsidies_Current_Year)`。
 
-### 3.2 累计收益
-*   `Total_Received = Sum(Subsidies.filter(status == 'RECEIVED').amount)`
+## 2. 界面行为规范 (UI Behaviors)
 
-## 4. UI/UX 视觉规范 (UI Specifications)
+*   **进度轴标准**: 
+    *   垂直时间轴 Marker 中心点对齐 20px 轴线。
+*   **颜色语义**: 
+    *   已到账状态统一使用 `Emerald-500`，审核中统一使用 `Blue-500`。
 
-### 4.1 收益卡片
-*   大字展示“累计已获批/已到账金额”。
-*   背景使用 `bg-indigo-600` 或金色渐变。
+## 3. 验收标准 (Acceptance Criteria)
 
-### 4.2 进度时间轴
-*   垂直时间轴，已完成节点点亮，当前节点高亮，未完成节点灰色。
-
-## 5. 验收标准 (Acceptance Criteria)
-
-*   **Then** 只有状态为“已到账”的金额才会计入“累计已到账”总额。
-*   **Then** 详情页应显示当前处于哪个审核阶段。
+- [x] 首页汇总卡片必须实时累加所有已到账补助。
+- [x] 每个补助项目必须具备独立的状态进度条。
+- [x] 点击政策说明必须能查看完整的 PDF 政策原文。
+- [x] 状态变更为“已到账”时，自动关联对应的“银行流水”条目。

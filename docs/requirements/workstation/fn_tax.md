@@ -1,36 +1,32 @@
 # 业务需求: 税款缴纳 (Tax)
 
-## 1. 核心元数据
-*   **入口 ID**: `fn-2`
-*   **优先级**: P1
-*   **设计核心**: 期限感知 (Deadline Awareness), 支付确认 (Payment Confirmation)
+> **入口 ID**: `fn-2`
+> **优先级**: P1
+> **设计核心**: 期限感知 (Deadline Awareness)、支付确认 (Payment Confirmation)
 
-## 2. 用户故事 (User Story)
-*   **故事**: 每月申报期（通常 15 号前），我要看到还剩几天，并确认税金扣款成功，避免滞纳金。
+## 1. 用户故事 (User Stories) 与 数据逻辑
 
-## 3. 详细业务逻辑 (Business Logic)
+### US1: 申报倒计时提醒 (Deadline Tracking)
+*   **故事**: 我绝对不能接受因为记错申报日期而导致税务逾期罚款。
+*   **数据业务逻辑**:
+    *   **倒计时算法**: `Days_Remaining = Tax_Deadline - Current_Date`。
+    *   **风险触发器**: 当 `Days_Remaining < 3`，Dashboard 顶部需显示红色跑马灯预警。
 
-### 3.1 申报倒计时
-```python
-Deadline = GetTaxDeadline(CurrentMonth) // e.g., 15th
-Days_Remaining = DateDiff(Deadline, Today)
-Alert_Level = Days_Remaining <= 3 ? 'URGENT' : 'NORMAL'
-```
+### US2: 电子扣税确认 (Tax Deduction Confirm)
+*   **故事**: 会计申报完后，我需要在手机上点一下确认，银行账户才允许划转大额税款。
+*   **数据业务逻辑**:
+    *   **安全认证**: 确认操作需绑定设备生物识别（FaceID/指纹）。
 
-### 3.2 状态流转
-*   `PENDING` (未申报) -> `DECLARED` (已申报/待扣款) -> `PAID` (已扣款/完税).
+## 2. 界面行为规范 (UI Behaviors)
 
-## 4. UI/UX 视觉规范 (UI Specifications)
+*   **进度轴标准**: 
+    *   申报进度的 Marker 严格锁定在 20px 轴线。
+*   **加载逻辑**: 
+    *   切换申报所属期时，使用全屏灰度骨架屏以缓解数据加载焦虑。
 
-### 4.1 倒计时卡片
-*   顶部显示大卡片：“距离申报截止还有 X 天”。
-*   若 `URGENT`，背景色使用 `bg-orange-50`，文字 `text-orange-600`。
+## 3. 验收标准 (Acceptance Criteria)
 
-### 4.2 明细列表
-*   列出各税种（增值税、个税、附加税）的金额和状态。
-*   已缴款项显示“完税凭证”下载入口。
-
-## 5. 验收标准 (Acceptance Criteria)
-
-*   **Then** 超过申报截止日且未完成的，必须显示红色“已逾期”警告。
-*   **Then** 各税种加总金额应与账户扣款金额一致。
+- [x] 首页卡片必须显示具体的截止日期倒计时天数。
+- [x] 已缴纳的税款必须显示电子缴款凭证预览。
+- [x] 支持查看各税种（增值税、个税、附加税）的拆解明细。
+- [x] 确认扣款按钮在点击后必须展示“正在通讯中”的加载动画。

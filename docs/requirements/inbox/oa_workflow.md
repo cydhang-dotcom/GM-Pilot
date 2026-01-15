@@ -1,39 +1,26 @@
 # 业务需求: OA 审批工作流 (OA Workflow)
 
-## 1. 核心元数据
-*   **所属模块**: Inbox (02_Inbox.md)
-*   **优先级**: P1
-*   **设计核心**: 极简审批 (Minimalist Approval), 上下文感知 (Context Aware)
+> **所属模块**: Inbox
+> **优先级**: P1
+> **设计核心**: 极简审批 (Minimalist Approval)、上下文感知 (Context Aware)
 
-## 2. 用户故事 (User Story)
-*   **故事**: 员工请假或报销，我需要在手机上快速看一眼事由和金额，直接点“同意”或“驳回”。
+## 1. 用户故事 (User Stories) 与 数据逻辑
 
-## 3. 详细业务逻辑 (Business Logic)
+### US1: 决策闪电化 (Flash Decision)
+*   **故事**: 面对普通员工的请假或日常报销，我需要一眼看到事由、天数/金额并快速点击同意。
+*   **数据业务逻辑**:
+    *   **字段映射**: 强制提取 `Initiator`, `Type`, `Amount/Duration`, `Reason` 四个核心字段。
+    *   **状态同步**: 审批完成后，实时调用 `OA_API` 并将该任务从 `Inbox` 移除。
 
-### 3.1 审批动作
-*   **API**: `POST /api/oa/approve`
-    *   Params: `{ taskId: string, action: 'APPROVE' | 'REJECT', comment?: string }`
-*   **乐观更新 (Optimistic UI)**:
-    *   点击按钮后，立即从列表中移除该任务（UI 层面）。
-    *   若 API 失败，Toast 提示并回滚（恢复任务显示）。
+## 2. 界面行为规范 (UI Behaviors)
 
-### 3.2 字段映射
-*   显示核心字段：`Applicant` (申请人), `Type` (类型: 年假/报销), `Amount/Duration` (数值), `Reason` (事由)。
-
-## 4. UI/UX 视觉规范 (UI Specifications)
-
-### 4.1 列表卡片
-*   **头像**: 显示申请人头像或首字，圆角 `rounded-full`。
-*   **操作区**: 卡片右侧直接提供“审批”按钮（进入详情）或快捷操作。
-
-### 4.2 详情 Overlay
+*   **视觉对齐**: 
+    *   审批人头像在列表中需对齐 **20px 轴线**。
 *   **底部固定栏**: 
-    *   左侧“驳回” (白底红字/灰字)。
-    *   右侧“同意” (蓝底白字，权重更高)。
-    *   使用 `pb-safe` 适配全面屏底部。
+    *   详情 Overlay 底部固定“驳回”与“同意”操作区，使用 `backdrop-filter` 磨砂效果。
 
-## 5. 验收标准 (Acceptance Criteria)
+## 3. 验收标准 (Acceptance Criteria)
 
-*   **When** 点击“同意”按钮
-    *   **Then** 按钮应立即进入 Loading 态，随后页面自动返回或切换至下一条。
-*   **Then** 详情页必须完整展示申请理由，不可截断。
+- [x] 详情页必须显示完整的审批事由说明。
+- [x] 审批按钮点击后需具备“防抖处理”，防止重复提交。
+- [x] 审批通过后的任务在 Timeline 中需标记为“已办结”。
