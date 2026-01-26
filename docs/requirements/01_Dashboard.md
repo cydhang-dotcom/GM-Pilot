@@ -1,3 +1,4 @@
+
 # 模块需求: 经营总览 (Dashboard)
 
 > **优先级**: P0
@@ -31,8 +32,46 @@
 *   **视觉对齐 (Axis Lock)**: 支出列表的进度条起点必须与下方回款条目的图标左边缘严格锁定在 **20px** 轴线上。
 *   **加载逻辑**: 先展示 Hero Card 骨架屏，AI 诊断模块随后平滑入场。
 
-##  acceptance Criteria (验收标准)
+## 3. 验收标准 (Acceptance Criteria)
 
 - [x] 净利润为负时，Hero Card 必须呈现红色视觉警告。
 - [x] 银行余额在初次进入页面时必须处于不可见（打码）状态。
 - [x] AI 诊断文字加载时，下方组件位置不得发生上下位移抖动。
+
+## 4. API 接口 (API Interfaces)
+
+### 4.1 获取经营概览数据 (Dashboard Overview)
+*   **Endpoint**: `GET /api/dashboard/overview`
+*   **输入参数 (Request)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 验证要求 (Validation) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- | :--- |
+| `month` | 查询月份 | String | Required, Format: YYYY-MM | 默认为当前自然月 |
+
+*   **输出参数 (Response)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- |
+| `revenue` | 总营收 | Decimal | 保留2位小数 |
+| `cost` | 总支出 | Decimal | 保留2位小数 |
+| `net_profit` | 净利润 | Decimal | 可为负数 |
+| `profit_margin` | 净利率 | Decimal | 百分比数值 |
+| `headcount` | 在职人数 | Integer | - |
+| `headcount_delta` | 人数环比变动 | Integer | 正负整数 |
+| `bank_balance` | 银行总余额 | Decimal | 敏感字段 |
+
+### 4.2 获取 AI 经营诊断 (AI Diagnosis)
+*   **Endpoint**: `GET /api/dashboard/diagnosis/smart-report`
+*   **输入参数 (Request)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 验证要求 (Validation) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- | :--- |
+| `month` | 查询月份 | String | Required, Format: YYYY-MM | - |
+
+*   **输出参数 (Response)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- |
+| `report_text` | 诊断文本 | String | 包含 Markdown 格式标签 |
+| `risk_level` | 风险等级 | Enum | 'Normal', 'Warning', 'Danger' |
+| `tags` | 关键标签 | Array<String> | 如 ['资金安全', '合规风险'] |

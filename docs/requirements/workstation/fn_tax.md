@@ -1,3 +1,4 @@
+
 # 业务需求: 税款缴纳 (Tax)
 
 > **入口 ID**: `fn-2`
@@ -30,3 +31,11 @@
 - [x] 已缴纳的税款必须显示电子缴款凭证预览。
 - [x] 支持查看各税种（增值税、个税、附加税）的拆解明细。
 - [x] 确认扣款按钮在点击后必须展示“正在通讯中”的加载动画。
+
+## 4. API 接口 (API Interfaces)
+
+| 接口描述 | Method | Endpoint |
+| :--- | :--- | :--- |
+| 获取本期纳税概览 (含倒计时) | `GET` | `/api/finance/tax/current-period` |
+| 获取纳税记录列表 | `GET` | `/api/finance/tax/history` |
+| 确认申报并授权扣款 | `POST` | `/api/finance/tax/{id}/authorize-payment` |

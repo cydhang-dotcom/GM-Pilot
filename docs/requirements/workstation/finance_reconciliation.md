@@ -1,3 +1,4 @@
+
 # 业务需求: 对账中心 (Reconciliation)
 
 > **入口 ID**: `fn-rec`
@@ -32,3 +33,37 @@
 - [x] 紧急差异（Urgent）在列表中必须以红色高亮显示。
 - [x] 沟通详情页必须能够显示关联的流水快照（金额、时间、对手）。
 - [x] 回复消息后，该条差异的状态需从“未处理”自动变更为“处理中”。
+
+## 4. API 接口 (API Interfaces)
+
+### 4.1 获取差异事项列表 (Get Discrepancies)
+*   **Endpoint**: `GET /api/finance/reconciliation/discrepancies`
+*   **输入参数 (Request)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 验证要求 (Validation) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- | :--- |
+| `status` | 状态过滤 | Enum | Optional: 'PENDING', 'RESOLVED' | 默认 'PENDING' |
+
+*   **输出参数 (Response)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- |
+| `items` | 差异项 | Array<Object> | - |
+| `items[].type` | 差异类型 | String | 如 '流水未解释' |
+| `items[].urgent`| 是否紧急 | Boolean | - |
+| `items[].desc` | 描述 | String | - |
+
+### 4.2 发送沟通回复 (Reply Message)
+*   **Endpoint**: `POST /api/finance/reconciliation/items/{id}/reply`
+*   **输入参数 (Request)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 验证要求 (Validation) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- | :--- |
+| `content` | 消息内容 | String | Required, Max 500 chars | - |
+
+*   **输出参数 (Response)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- |
+| `message_id` | 消息ID | String | - |
+| `timestamp` | 发送时间 | String | ISO 8601 |

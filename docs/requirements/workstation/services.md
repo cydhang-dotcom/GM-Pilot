@@ -1,3 +1,4 @@
+
 # 业务需求: 综合服务 (Corporate Services)
 
 > **入口 ID**: `ot-1 ~ ot-5`
@@ -29,3 +30,12 @@
 - [x] 服务矩阵点击后必须能正确携带业务参数跳转至工单系统。
 - [x] 历史记录必须按处理中、已办结进行分层展示。
 - [x] 已回复的工单必须支持点击查看富文本形式的解决方案。
+
+## 4. API 接口 (API Interfaces)
+
+| 接口描述 | Method | Endpoint |
+| :--- | :--- | :--- |
+| 获取专属顾问信息 | `GET` | `/api/services/consultant` |
+| 获取服务工单历史 | `GET` | `/api/services/tickets` |
+| 创建新的服务请求 | `POST` | `/api/services/tickets` |
+| 获取工单详情及回复 | `GET` | `/api/services/tickets/{id}` |

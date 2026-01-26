@@ -1,3 +1,4 @@
+
 # 业务需求: 政府补助 (Government Subsidy)
 
 > **入口 ID**: `srv-subsidy`
@@ -30,3 +31,11 @@
 - [x] 每个补助项目必须具备独立的状态进度条。
 - [x] 点击政策说明必须能查看完整的 PDF 政策原文。
 - [x] 状态变更为“已到账”时，自动关联对应的“银行流水”条目。
+
+## 4. API 接口 (API Interfaces)
+
+| 接口描述 | Method | Endpoint |
+| :--- | :--- | :--- |
+| 获取年度补助汇总数据 | `GET` | `/api/services/subsidies/summary` |
+| 获取补助申请记录列表 | `GET` | `/api/services/subsidies/list` |
+| 获取补助申请进度节点 | `GET` | `/api/services/subsidies/{id}/timeline` |

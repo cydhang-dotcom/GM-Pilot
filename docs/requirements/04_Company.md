@@ -1,3 +1,4 @@
+
 # 模块需求: 我的企业 (Company)
 
 > **优先级**: P1
@@ -25,3 +26,32 @@
 - [x] 余额在页面加载后 100% 处于模糊状态。
 - [x] 点击“复制全部”按钮后，剪贴板内容必须包含换行符分隔的四项核心资料。
 - [x] 电子印章列表必须显示当前“正常”或“异常”的状态标签。
+
+## 4. API 接口 (API Interfaces)
+
+### 4.1 获取企业基础画像 (Company Profile)
+*   **Endpoint**: `GET /api/company/profile`
+*   **输入参数 (Request)**:
+    *   无 (None)
+*   **输出参数 (Response)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- |
+| `name` | 企业全称 | String | - |
+| `tax_id` | 统一信用代码 | String | - |
+| `is_verified` | 认证状态 | Boolean | - |
+| `status` | 经营状态 | Enum | 'Active', 'Abnormal' |
+
+### 4.2 获取对公账户摘要 (Bank Summary)
+*   **Endpoint**: `GET /api/company/bank-accounts/summary`
+*   **输入参数 (Request)**:
+    *   无 (None)
+*   **输出参数 (Response)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- |
+| `bank_name` | 开户行 | String | 如 '招商银行' |
+| `account_last4` | 尾号 | String | - |
+| `balance` | 实时余额 | Decimal | 敏感数据 |
+| `month_income` | 本月流入 | Decimal | - |
+| `month_expense` | 本月流出 | Decimal | - |

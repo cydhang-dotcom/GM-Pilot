@@ -1,3 +1,4 @@
+
 # 业务需求: 资金流水 (Cash Flow)
 
 > **入口 ID**: `fn-flow`
@@ -32,3 +33,39 @@
 - [x] 点击“补充用途”标签后，必须弹出快捷分类选择器。
 - [x] 搜索功能必须能按“交易对手”名称进行实时匹配。
 - [x] 流水列表必须支持按“待解释/待确认”状态进行置顶过滤。
+
+## 4. API 接口 (API Interfaces)
+
+### 4.1 获取资金流水列表 (Get Flows)
+*   **Endpoint**: `GET /api/finance/cashflow`
+*   **输入参数 (Request)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 验证要求 (Validation) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- | :--- |
+| `filter` | 过滤器 | Enum | 'ALL', 'PENDING' | 默认 'ALL' |
+| `page` | 页码 | Integer | Min 1 | - |
+
+*   **输出参数 (Response)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- |
+| `list` | 流水列表 | Array<Object> | - |
+| `list[].type` | 类型 | Enum | 'IN', 'OUT' |
+| `list[].amount` | 金额 | Decimal | - |
+| `list[].status` | 状态 | Enum | 'MATCHED', 'EXPLAIN_NEEDED' |
+| `list[].counterparty` | 交易对手 | String | - |
+
+### 4.2 更新流水用途分类 (Classify)
+*   **Endpoint**: `PUT /api/finance/cashflow/{id}/classification`
+*   **输入参数 (Request)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 验证要求 (Validation) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- | :--- |
+| `category` | 用途分类 | Enum | Required: 'SALES', 'SERVICE', 'RENT', etc. | - |
+| `desc` | 补充说明 | String | Optional, Max 100 chars | - |
+
+*   **输出参数 (Response)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- |
+| `success` | 是否成功 | Boolean | - |

@@ -1,3 +1,4 @@
+
 # 业务需求: 合同管理 (Contract)
 
 > **入口 ID**: `hr-6`
@@ -34,3 +35,11 @@
 - [x] 详情页必须包含该员工的入职日期与历史签约次数参考。
 - [x] 点击“发起续签”必须弹出二次确认确认框。
 - [x] 历史合同清单必须按生效日期降序排列。
+
+## 4. API 接口 (API Interfaces)
+
+| 接口描述 | Method | Endpoint |
+| :--- | :--- | :--- |
+| 获取合同列表 (含到期预警) | `GET` | `/api/hr/contracts?filter=expiring` |
+| 提交续签/终止决策 | `POST` | `/api/hr/contracts/{id}/decision` |
+| 获取合同详细条款 | `GET` | `/api/hr/contracts/{id}` |

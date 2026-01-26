@@ -1,3 +1,4 @@
+
 # 功能需求: 对公账户卡片 (Bank Account)
 
 > **所属模块**: Company
@@ -30,3 +31,19 @@
 ## 5. 验收标准 (Acceptance Criteria)
 - [x] 隐私模式下，无法通过长按复制或查看网页源码获取真实余额文本。
 - [x] 卡片底部必须显示“科技园支行”等网点描述，辅助 GM 区分同银行的多个账户。
+
+## 6. API 接口 (API Interfaces)
+
+### 6.1 获取对公账户余额 (Get Balance)
+*   **Endpoint**: `GET /api/company/bank-accounts`
+*   **输入参数 (Request)**:
+    *   无 (None)
+*   **输出参数 (Response)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- |
+| `accounts` | 账户列表 | Array<Object> | - |
+| `accounts[].bank_name` | 银行名称 | String | - |
+| `accounts[].account_no` | 账号 | String | 建议脱敏 |
+| `accounts[].balance` | 余额 | Decimal | 敏感数据 |
+| `accounts[].currency` | 币种 | String | 'CNY', 'USD' |

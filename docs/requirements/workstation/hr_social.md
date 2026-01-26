@@ -1,3 +1,4 @@
+
 # 业务需求: 五险一金 (Social Security & Fund)
 
 > **入口 ID**: `hr-4`
@@ -33,3 +34,11 @@
 - [x] 增员 (Add) 需使用蓝色标识，减员 (Remove) 需使用灰色标识。
 - [x] 缴纳记录必须包含“回单下载”入口。
 - [x] 详情页必须展示该账期的缴费基数明细。
+
+## 4. API 接口 (API Interfaces)
+
+| 接口描述 | Method | Endpoint |
+| :--- | :--- | :--- |
+| 获取社保公积金月度概览 | `GET` | `/api/hr/social-security/summary?month={YYYY-MM}` |
+| 获取增减员变动明细 | `GET` | `/api/hr/social-security/changes` |
+| 下载缴纳回单/凭证 | `GET` | `/api/hr/social-security/documents/{id}/download` |

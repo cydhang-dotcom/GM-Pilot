@@ -1,3 +1,4 @@
+
 # 业务需求: 财税报表 (Reports)
 
 > **入口 ID**: `fn-5`
@@ -32,3 +33,11 @@
 - [x] 报表预览页必须模拟纸质文件在桌面的阴影效果。
 - [x] 所有的报表文件必须提供 PDF 和 Excel 两种下载格式。
 - [x] 点击报表详情必须能够跳转至对应的“凭证管理”进行明细审计。
+
+## 4. API 接口 (API Interfaces)
+
+| 接口描述 | Method | Endpoint |
+| :--- | :--- | :--- |
+| 获取经营趋势图数据 (近半年) | `GET` | `/api/finance/reports/trends` |
+| 获取月度报表文件列表 | `GET` | `/api/finance/reports/files` |
+| 获取文件临时下载链接 | `GET` | `/api/finance/reports/files/{id}/download-url` |

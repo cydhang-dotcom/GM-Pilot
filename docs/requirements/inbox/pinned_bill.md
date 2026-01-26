@@ -36,3 +36,35 @@
 - [x] 卡片图标必须为 `ReceiptText` 而非通用的 `CreditCard`。
 - [x] 金额文字颜色必须与 Dashboard 的“盈利”颜色保持一致。
 - [x] 卡片必须包含“立即支付”按钮，文案清晰可见。
+
+## 4. API 接口 (API Interfaces)
+
+### 4.1 获取高优置顶账单 (Get Pinned Bills)
+*   **Endpoint**: `GET /api/inbox/bills/pinned`
+*   **输入参数 (Request)**:
+    *   无 (None)
+*   **输出参数 (Response)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- |
+| `bills` | 账单列表 | Array<Object> | 通常只有1条 |
+| `bills[].id` | 账单ID | String | - |
+| `bills[].title` | 标题 | String | 如 '12月平台服务费' |
+| `bills[].amount` | 金额 | Decimal | - |
+| `bills[].due_date` | 截止日 | String | YYYY-MM-DD |
+
+### 4.2 发起账单支付指令 (Pay Bill)
+*   **Endpoint**: `POST /api/inbox/bills/{id}/pay`
+*   **输入参数 (Request)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 验证要求 (Validation) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- | :--- |
+| `id` | 账单ID | String | Required | - |
+| `method` | 支付方式 | Enum | Required: 'BALANCE', 'WECHAT' | - |
+
+*   **输出参数 (Response)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- |
+| `success` | 支付结果 | Boolean | - |
+| `transaction_id`| 交易号 | String | - |

@@ -1,3 +1,4 @@
+
 # 业务需求: 员工管理 (Employee)
 
 > **入口 ID**: `hr-emp`
@@ -33,3 +34,37 @@
 - [x] 详情页的身份证号必须执行脱敏算法。
 - [x] 试用期员工的标签颜色必须与正式员工有视觉区分（Blue vs Emerald）。
 - [x] 点击“呼叫”按钮必须能正确拉起系统拨号盘。
+
+## 4. API 接口 (API Interfaces)
+
+### 4.1 新增员工 (Add Employee)
+*   **Endpoint**: `POST /api/hr/employees`
+*   **输入参数 (Request)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 验证要求 (Validation) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- | :--- |
+| `name` | 姓名 | String | Required, 2-10 chars | - |
+| `department` | 部门 | String | Required | - |
+| `role` | 职位 | String | Required | - |
+| `mobile` | 手机号 | String | Required, Phone Regex | - |
+| `join_date` | 入职日期 | String | Required, YYYY-MM-DD | - |
+
+*   **输出参数 (Response)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- |
+| `id` | 员工ID | String | - |
+| `task_id` | 关联入职任务ID | String | 自动创建的入职流程ID |
+
+### 4.2 获取员工档案 (Get Profile)
+*   **Endpoint**: `GET /api/hr/employees/{id}`
+*   **输入参数 (Request)**:
+    *   `id`: 员工 ID (Required)
+*   **输出参数 (Response)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- |
+| `name` | 姓名 | String | - |
+| `id_card_masked` | 身份证(脱敏) | String | 如 310*********1234 |
+| `contract_end` | 合同截止日 | String | YYYY-MM-DD |
+| `status` | 状态 | Enum | 'PROBATION', 'REGULAR' |

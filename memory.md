@@ -53,6 +53,13 @@
 - **业务映射索引规范 (Business Mapping Standard)**:
   - 列表中的文件路径（需求文档/实现页面）必须为**可点击的相对链接**。
   - 链接显示文本（Label）必须**仅显示文件名**（如 `Inbox.tsx`），严禁显示完整路径，以确保表格整洁与可读性。
+- **API 设计与文档规范 (API Design & Documentation)**:
+  - **RESTful 原则**: 所有后端接口交互必须遵循 RESTful 风格设计。
+  - **文档先行**: 开发前需在 `docs/requirements/*_api_list.md` (如 `finance_api_list.md`) 中定义清晰的接口契约。
+  - **接口定义细则 (Interface Specifications)**:
+    - **输入参数 (Input)**: 必须明确定义 `字段名 (Field)`、`中文名 (Label)`、`格式 (Type)`、`验证要求 (Validation)`、`备注 (Notes)`。
+    - **输出参数 (Output)**: 必须明确定义 `字段名 (Field)`、`中文名 (Label)`、`格式 (Type)`、`备注 (Notes)` (输出无需定义验证要求)。
+  - **数据对齐**: 前端 Mock 数据结构必须严格对应 API 文档定义的 Payload 结构。
 - **隐私保护 (Privacy by Default)**: 敏感数据（余额/薪资）默认高斯模糊。
 - **UI 轴心锁定**: Marker 中心点严格锁定在左侧 **20px** 垂直轴线上。
 - **版本号维护**: 每次部署需递增 `pages/Company.tsx` 底部版本号。

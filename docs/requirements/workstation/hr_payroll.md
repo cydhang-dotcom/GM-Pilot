@@ -1,3 +1,4 @@
+
 # 业务需求: 薪酬管理 (Payroll)
 
 > **入口 ID**: `hr-1`
@@ -36,3 +37,39 @@
 - [x] 试用期员工在列表中必须有显著区分标识。
 - [x] 点击“确认并提交”后，对应的 Inbox 任务状态需同步更新为已完成。
 - [x] 导出按钮在“已发放”状态下必须变为可见。
+
+## 4. API 接口 (API Interfaces)
+
+### 4.1 获取薪资明细 (Get Details)
+*   **Endpoint**: `GET /api/hr/payroll/{month}/details`
+*   **输入参数 (Request)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 验证要求 (Validation) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- | :--- |
+| `month` | 薪资月份 | String | Required, YYYY-MM | - |
+
+*   **输出参数 (Response)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- |
+| `total_amount` | 实发总额 | Decimal | - |
+| `status` | 状态 | Enum | 'PENDING', 'PAID' |
+| `breakdown` | 成本构成 | Array<Object> | 用于饼图渲染 |
+| `employees` | 员工明细 | Array<Object> | - |
+| `employees[].net_pay`| 实发工资 | Decimal | - |
+
+### 4.2 确认并发放薪资 (Confirm & Pay)
+*   **Endpoint**: `POST /api/hr/payroll/{month}/confirm`
+*   **输入参数 (Request)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 验证要求 (Validation) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- | :--- |
+| `month` | 薪资月份 | String | Required, YYYY-MM | - |
+| `payment_channel`| 支付渠道 | Enum | Required: 'BANK', 'ALIPAY' | - |
+
+*   **输出参数 (Response)**:
+
+| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 备注 (Notes) |
+| :--- | :--- | :--- | :--- |
+| `transaction_id` | 交易流水号 | String | - |
+| `estimated_arrival`| 预计到账 | String | ISO Date |

@@ -1,3 +1,4 @@
+
 # 业务需求: 费用报销 (Reimbursement)
 
 > **入口 ID**: `fn-reim`
@@ -32,3 +33,12 @@
 - [x] 详情页必须按分类（交通、住宿等）展示明细条目。
 - [x] 点击“补充缺失材料”必须能直接唤起相机或相册。
 - [x] 审批通过后的单据背景需呈现微弱的绿色渐变。
+
+## 4. API 接口 (API Interfaces)
+
+| 接口描述 | Method | Endpoint |
+| :--- | :--- | :--- |
+| 获取报销单列表 | `GET` | `/api/finance/reimbursements` |
+| 提交新报销申请 | `POST` | `/api/finance/reimbursements` |
+| 补充报销证据材料 | `POST` | `/api/finance/reimbursements/{id}/evidence` |
+| 获取报销单详情及审批进度 | `GET` | `/api/finance/reimbursements/{id}` |
