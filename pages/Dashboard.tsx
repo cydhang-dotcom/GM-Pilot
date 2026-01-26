@@ -5,33 +5,26 @@ import {
   TrendingUp,
   TrendingDown,
   Zap,
-  Calendar,
-  Landmark,
-  ArrowUpRight,
-  ArrowDownRight,
-  ChevronRight,
-  CheckCircle2,
-  AlertCircle,
-  ShieldAlert,
-  Banknote,
-  Clock,
-  Bot,
-  UserPlus,
-  ArrowRight,
   Target,
   BarChart3,
   Search,
   Eye,
   EyeOff,
-  ChevronDown,
-  ChevronUp
+  ChevronRight,
+  CheckCircle2,
+  Bot,
+  UserPlus,
+  ShieldAlert,
+  Clock,
+  ArrowUpRight
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { GoogleGenAI } from "@google/genai";
 import CashFlowComparisonChart from '../components/charts/CashFlowComparisonChart';
 
 // --- Types & Mock Data ---
 
-type MonthKey = '2023-12' | '2024-01';
+type MonthKey = '2023-11' | '2023-12' | '2024-01';
 
 interface FinancialData {
   revenue: number;
@@ -45,6 +38,16 @@ interface FinancialData {
 }
 
 const MOCK_DATA: Record<MonthKey, FinancialData> = {
+  '2023-11': {
+    revenue: 780000,
+    cost: 460000,
+    headcount: 30,
+    lastMonthHeadcount: 28,
+    bankBalance: 1050000,
+    revenueSources: [],
+    costStructure: [],
+    diagnosis: "数据历史归档"
+  },
   '2023-12': {
     revenue: 850000,
     cost: 480000,
@@ -92,85 +95,180 @@ const formatCurrency = (val: number, isVisible: boolean = true) => {
 
 // --- Sub-Component: SmartDiagnosisChat ---
 
-const SmartDiagnosisChat: React.FC<{ content: string; month: string }> = ({ content, month }) => {
+interface HistoryData {
+    month: string;
+    revenue: number;
+    cost: number;
+    profit: number;
+}
+
+const SmartDiagnosisChat: React.FC<{ 
+    data: FinancialData; 
+    month: string; 
+    history: HistoryData[];
+}> = ({ data, month, history }) => {
   const [displayText, setDisplayText] = useState('');
   const [phase, setPhase] = useState<'thinking' | 'typing' | 'done'>('thinking');
   const [isExpanded, setIsExpanded] = useState(false);
-  const timerRef = useRef<any>(null);
+  const streamActive = useRef(false);
+  const typeInterval = useRef<any>(null);
+
+  // Clear typing interval helper
+  const clearTypeInterval = () => {
+    if (typeInterval.current) {
+        clearInterval(typeInterval.current);
+        typeInterval.current = null;
+    }
+  };
 
   useEffect(() => {
+    // Reset state
     setDisplayText('');
     setPhase('thinking');
     setIsExpanded(false);
-    const thinkTimer = setTimeout(() => setPhase('typing'), 1000);
-    return () => {
-      clearTimeout(thinkTimer);
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [content, month]);
+    streamActive.current = true;
+    clearTypeInterval();
 
-  useEffect(() => {
-    if (phase === 'typing') {
-      let index = 0;
-      timerRef.current = setInterval(() => {
-        if (index < content.length) {
-          setDisplayText(content.substring(0, index + 1));
-          index++;
-        } else {
-          setPhase('done');
-          if (timerRef.current) clearInterval(timerRef.current);
+    const generateWithAI = async () => {
+        try {
+            if (!process.env.API_KEY) throw new Error("API Key missing");
+
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            
+            // Construct History Context String
+            const historyContext = history.length > 0 
+                ? history.map(h => `- ${h.month}: Rev ${h.revenue}, Cost ${h.cost}, Profit ${h.profit}`).join('\n')
+                : "No historical data available.";
+
+            const prompt = `
+              You are a CFO assistant for a SME. 
+              
+              Current Month (${month}):
+              - Revenue: ${data.revenue}
+              - Cost: ${data.cost}
+              - Net Profit: ${data.revenue - data.cost}
+              - Bank Balance: ${data.bankBalance}
+              - Headcount: ${data.headcount} (Prev: ${data.lastMonthHeadcount})
+              - Cost Breakdown: ${data.costStructure.map(c => `${c.category}: ${c.amount}`).join(', ')}
+
+              Previous 2 Months History (For Trend Analysis):
+              ${historyContext}
+
+              Task: Generate 4-5 concise, high-value business insights.
+              Requirement:
+              1. **Must include specific comparative analysis** (e.g., "Compared to last month...", "Continuing the 3-month trend...").
+              2. Strictly use the format "[Tag] Content" for each line.
+              3. Tags must be 4 Chinese chars like: 资金安全, 趋势分析, 盈利对比, 成本控制, 经营提效.
+              
+              Language: Chinese (Simplified).
+              Tone: Professional, direct, actionable.
+              DO NOT use markdown code blocks. Just return the lines.
+            `;
+
+            const response = await ai.models.generateContentStream({
+                model: 'gemini-3-flash-preview',
+                contents: prompt,
+            });
+
+            setPhase('typing');
+            
+            for await (const chunk of response) {
+                if (!streamActive.current) break;
+                const text = chunk.text;
+                if (text) {
+                    setDisplayText(prev => prev + text);
+                }
+            }
+            if (streamActive.current) setPhase('done');
+
+        } catch (error) {
+            console.warn("AI Stream failed, using fallback mock data.", error);
+            simulateTyping(data.diagnosis);
         }
-      }, 30); 
-    }
-  }, [phase, content]);
+    };
+
+    // Fallback simulation
+    const simulateTyping = (content: string) => {
+        setPhase('typing');
+        let index = 0;
+        clearTypeInterval();
+        typeInterval.current = setInterval(() => {
+            if (!streamActive.current) return;
+            if (index < content.length) {
+                setDisplayText(content.substring(0, index + 1));
+                index++;
+            } else {
+                setPhase('done');
+                clearTypeInterval();
+            }
+        }, 30);
+    };
+
+    // Start with a small delay for "thinking" effect
+    const timer = setTimeout(() => {
+        generateWithAI();
+    }, 800);
+
+    return () => {
+        clearTimeout(timer);
+        clearTypeInterval();
+        streamActive.current = false;
+    };
+  }, [data, month, history]); // Re-run if month or history changes
 
   const renderFormattedText = (text: string) => {
-    const danger = ['合规风险', '亏损预警'];
-    const warning = ['人效预警', '异常支出'];
+    const danger = ['合规风险', '亏损预警', '资金风险', '下降趋势'];
+    const warning = ['人效预警', '异常支出', '流动性', '成本分析', '趋势分析', '盈利对比'];
 
-    return text.split('\n').filter(line => line.trim()).map((line, i) => {
+    // Handle partial streaming lines cleanly
+    const lines = text.split('\n').filter(line => line.trim());
+    
+    return lines.map((line, i) => {
       const parts = line.match(/^\[(.*?)\](.*)/);
       if (parts) {
         const tag = parts[1];
-        const isDanger = danger.includes(tag);
-        const isWarning = warning.includes(tag);
+        const isDanger = danger.some(d => tag.includes(d));
+        const isWarning = warning.some(w => tag.includes(w));
+        const colorClass = isDanger ? 'text-rose-600' : isWarning ? 'text-amber-600' : 'text-emerald-600';
+        const bgClass = isDanger ? 'bg-rose-500' : isWarning ? 'bg-amber-500' : 'bg-emerald-500';
         
         return (
-          <div key={i} className="mb-2.5 last:mb-0 flex items-start gap-2">
-            <div className={`mt-2 shrink-0 w-1.5 h-1.5 rounded-full ${isDanger ? 'bg-rose-500' : isWarning ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
+          <div key={i} className="mb-2.5 last:mb-0 flex items-start gap-2 animate-fade-in">
+            <div className={`mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full ${bgClass}`}></div>
             <p className="text-[12px] leading-relaxed text-slate-700">
-                <span className={`font-bold mr-1 ${isDanger ? 'text-rose-600' : isWarning ? 'text-amber-600' : 'text-emerald-600'}`}>{tag}</span>
+                <span className={`font-bold mr-1 ${colorClass}`}>[{tag}]</span>
                 {parts[2].trim()}
             </p>
           </div>
         );
       }
-      return <p key={i} className="mb-1.5 last:mb-0 text-[12px] leading-relaxed text-slate-500/80 pl-3.5">{line}</p>;
+      // Fallback for plain text or thinking phase partials
+      return <p key={i} className="mb-1.5 last:mb-0 text-[12px] leading-relaxed text-slate-600 pl-3.5">{line}</p>;
     });
   };
 
-  // 严格控制在 4 行高度（约 88px）
-  const needsTruncation = displayText.split('\n').length > 3 || displayText.length > 80;
+  // Keep strictly 4 lines (approx 88px) initially
+  const needsTruncation = displayText.split('\n').length > 4 || displayText.length > 120;
 
   return (
     <div className="flex items-start gap-3 px-1">
         <div className="shrink-0">
             <div className="w-10 h-10 rounded-2xl bg-slate-900 flex items-center justify-center shadow-lg shadow-slate-200 border border-slate-800 relative">
                 <Bot size={22} className="text-white" />
-                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-sm"></div>
+                <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white shadow-sm transition-colors duration-500 ${phase === 'thinking' ? 'bg-amber-400 animate-pulse' : 'bg-emerald-500'}`}></div>
             </div>
         </div>
 
         <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1.5 pl-1">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">AI 智能经营诊断</span>
-                {phase === 'done' && <div className="flex items-center gap-1 bg-emerald-50 px-1.5 py-0.5 rounded-md"><CheckCircle2 size={8} className="text-emerald-500"/><span className="text-[9px] text-emerald-600 font-bold uppercase">诊断就绪</span></div>}
+                {phase === 'done' && <div className="flex items-center gap-1 bg-emerald-50 px-1.5 py-0.5 rounded-md animate-fade-in"><CheckCircle2 size={8} className="text-emerald-500"/><span className="text-[9px] text-emerald-600 font-bold uppercase">诊断就绪</span></div>}
             </div>
             
             <div className={`bg-white rounded-[24px] rounded-tl-none p-5 shadow-[0_2px_20px_rgba(0,0,0,0.03)] border border-slate-100 relative overflow-hidden transition-all duration-500`}>
                 {phase === 'thinking' ? (
                     <div className="flex items-center gap-2 py-1 h-[88px]">
-                        <span className="text-[12px] text-slate-400 font-medium">深度扫描账务数据中</span>
+                        <span className="text-[12px] text-slate-400 font-medium">对比历史账期数据中</span>
                         <div className="flex gap-1">
                             <div className="w-1 h-1 bg-slate-300 rounded-full animate-bounce"></div>
                             <div className="w-1 h-1 bg-slate-300 rounded-full animate-bounce [animation-delay:0.2s]"></div>
@@ -178,38 +276,28 @@ const SmartDiagnosisChat: React.FC<{ content: string; month: string }> = ({ cont
                         </div>
                     </div>
                 ) : (
-                    <div className="animate-fade-in relative">
-                        {/* 默认与最大高度锁定在 88px (约4行)，防止打字时页面抖动 */}
-                        <div className={`transition-all duration-500 ease-in-out relative ${!isExpanded ? 'h-[88px] overflow-hidden select-none' : 'min-h-[88px] max-h-[1000px]'}`}>
+                    <div className="relative">
+                        {/* Height Lock / Expansion Logic */}
+                        <div className={`transition-all duration-500 ease-in-out relative ${!isExpanded ? 'h-[88px] overflow-hidden' : 'min-h-[88px]'}`}>
                             {renderFormattedText(displayText)}
                             
-                            {/* 打字机光标 */}
+                            {/* Cursor */}
                             {phase === 'typing' && (
-                                <span className="inline-block w-1.5 h-4 bg-indigo-500/50 ml-1 animate-pulse rounded-full align-middle"></span>
+                                <span className="inline-block w-1.5 h-3.5 bg-indigo-500/50 ml-1 animate-pulse rounded-full align-middle"></span>
                             )}
 
-                            {/* 闪烁省略号：替代按钮作为展开入口 */}
+                            {/* Expand Trigger - Flashing Ellipsis */}
                             {!isExpanded && needsTruncation && (
                                 <div 
                                     onClick={() => setIsExpanded(true)}
-                                    className="absolute bottom-0 right-0 h-10 pl-16 pr-1 bg-gradient-to-l from-white via-white/95 to-transparent flex items-end justify-end cursor-pointer group"
+                                    className="absolute bottom-0 right-0 h-12 pl-20 pr-2 bg-gradient-to-l from-white via-white/95 to-transparent flex items-end justify-end cursor-pointer group z-10"
                                 >
-                                    <div className="flex items-center gap-1.5 text-indigo-500 font-black text-xl pb-1.5 animate-pulse group-hover:scale-125 transition-transform">
-                                        <span>...</span>
+                                    <div className="flex items-center justify-center w-8 h-6 mb-1 rounded text-indigo-500 group-hover:scale-125 transition-transform origin-bottom">
+                                        <span className="text-2xl leading-none font-bold animate-pulse pb-2">...</span>
                                     </div>
                                 </div>
                             )}
                         </div>
-
-                        {/* 展开后提供一个微妙的收起入口，不占据大空间 */}
-                        {isExpanded && (
-                            <div 
-                                onClick={() => setIsExpanded(false)}
-                                className="mt-4 pt-3 border-t border-slate-50 flex justify-center cursor-pointer hover:text-indigo-500 transition-colors"
-                            >
-                                <ChevronUp size={16} className="text-slate-300" />
-                            </div>
-                        )}
                     </div>
                 )}
             </div>
@@ -227,6 +315,26 @@ const Dashboard: React.FC = () => {
   const isProfit = netProfit >= 0;
   const margin = (netProfit / currentData.revenue) * 100;
   const headcountDiff = currentData.headcount - currentData.lastMonthHeadcount;
+
+  // Retrieve History (Previous 2 Months)
+  const getHistoryData = (currentKey: string): HistoryData[] => {
+      const keys = Object.keys(MOCK_DATA).sort();
+      const currentIndex = keys.indexOf(currentKey);
+      if (currentIndex <= 0) return [];
+      
+      const historyKeys = keys.slice(Math.max(0, currentIndex - 2), currentIndex);
+      return historyKeys.map(k => {
+          const d = MOCK_DATA[k as MonthKey];
+          return {
+              month: k,
+              revenue: d.revenue,
+              cost: d.cost,
+              profit: d.revenue - d.cost
+          };
+      });
+  };
+
+  const historyData = getHistoryData(month);
 
   return (
     <div className="min-h-full bg-[#F8F9FB] pb-12 animate-fade-in font-sans">
@@ -334,8 +442,8 @@ const Dashboard: React.FC = () => {
             </div>
         </div>
 
-        {/* 2. 智能诊断 AI 顾问 */}
-        <SmartDiagnosisChat content={currentData.diagnosis} month={month} />
+        {/* 2. 智能诊断 AI 顾问 (Stream Enabled + History Aware) */}
+        <SmartDiagnosisChat data={currentData} month={month} history={historyData} />
 
         {/* 3. 银行结余走势 (资金心脏) */}
         <section className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-100 relative overflow-hidden">

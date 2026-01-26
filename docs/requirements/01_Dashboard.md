@@ -19,7 +19,11 @@
 ### US2: 智能洞察 (Smart AI Diagnosis)
 *   **故事**: 我需要 AI 直接指出账目背后的风险。
 *   **数据业务逻辑**:
-    *   **展示逻辑**: 支持 `Typewriter_Effect` (打字机特效)，容器必须具备 `Height_Lock` (高度锁定) 属性，防止 AI 思考过程中页面布局跳动。
+    *   **技术实现**: 采用 **Gemini Streaming API** 实现实时流式输出。
+    *   **展示逻辑**: 
+        *   **Thinking Phase**: 显示“深度扫描中...”的脉冲动画。
+        *   **Streaming Phase**: 文字逐字上屏，实时解析 `[Tag]` 格式。
+        *   **Height Lock**: 容器高度锁定，防止内容流式加载时页面抖动。
 
 ### US3: 隐私敏感度管理
 *   **故事**: 在公开场合，我不希望别人看到我的银行余额。
@@ -36,7 +40,7 @@
 
 - [x] 净利润为负时，Hero Card 必须呈现红色视觉警告。
 - [x] 银行余额在初次进入页面时必须处于不可见（打码）状态。
-- [x] AI 诊断文字加载时，下方组件位置不得发生上下位移抖动。
+- [x] AI 诊断必须以打字机流式效果呈现，且支持 markdown 格式解析。
 
 ## 4. API 接口 (API Interfaces)
 
@@ -60,18 +64,53 @@
 | `headcount_delta` | 人数环比变动 | Integer | 正负整数 |
 | `bank_balance` | 银行总余额 | Decimal | 敏感字段 |
 
-### 4.2 获取 AI 经营诊断 (AI Diagnosis)
-*   **Endpoint**: `GET /api/dashboard/diagnosis/smart-report`
-*   **输入参数 (Request)**:
-
-| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 验证要求 (Validation) | 备注 (Notes) |
-| :--- | :--- | :--- | :--- | :--- |
-| `month` | 查询月份 | String | Required, Format: YYYY-MM | - |
-
-*   **输出参数 (Response)**:
-
-| 字段名 (Field) | 中文名 (Label) | 格式 (Type) | 备注 (Notes) |
-| :--- | :--- | :--- | :--- |
-| `report_text` | 诊断文本 | String | 包含 Markdown 格式标签 |
-| `risk_level` | 风险等级 | Enum | 'Normal', 'Warning', 'Danger' |
-| `tags` | 关键标签 | Array<String> | 如 ['资金安全', '合规风险'] |
+### 4.2 获取 AI 经营诊断 (Smart Diagnosis - GenAI)
+*   **交互模式**: Client-side Streaming (Serverless) via `@google/genai`
+*   **模型**: `gemini-3-flash-preview`
+*   **输入上下文 (Input Context Object)**:
+    ```json
+    {
+      "month": "YYYY-MM",
+      "financials": {
+        "revenue": 100000.00,
+        "cost": 80000.00,
+        "net_profit": 20000.00,
+        "bank_balance": 500000.00
+      },
+      "hr_data": {
+        "headcount": 32,
+        "prev_headcount": 30
+      },
+      "cost_structure": ["R&D: 50k", "Admin: 20k", ...],
+      "history": [
+         { "month": "YYYY-MM-1", "revenue": ..., "profit": ... },
+         { "month": "YYYY-MM-2", "revenue": ..., "profit": ... }
+      ]
+    }
+    ```
+*   **提示词模板 (Prompt Template)**:
+    > "You are a CFO assistant for a SME. 
+    > 
+    > Current Month ({month}): {Current_Data}
+    > 
+    > Previous 2 Months History (For Trend Analysis):
+    > {History_Data_String}
+    >
+    > Task: Generate 4-5 concise, high-value business insights.
+    > Requirement:
+    > 1. **Must include specific comparative analysis** (e.g., "Compared to last month...", "Continuing the 3-month trend...").
+    > 2. Strictly use the format "[Tag] Content" for each line.
+    > 3. Tags must be 4 Chinese chars like: 资金安全, 趋势分析, 盈利对比, 成本控制, 经营提效.
+    >
+    > Language: Chinese (Simplified).
+    > Tone: Professional, direct, actionable.
+    > DO NOT use markdown code blocks. Just return the lines."
+*   **输出流格式 (Output Stream)**:
+    *   **Format**: Plain Text (Line delimited).
+    *   **Parsing Logic**: Frontend uses Regex `/^\[(.*?)\](.*)/` to extract Tag and Content.
+    *   **Example Stream**:
+        ```text
+        [盈利对比] 净利润环比增长 15%，主要得益于技术服务收入的稳步提升。
+        [趋势分析] 连续 3 个月研发成本占比上升，需评估产出效率。
+        [资金安全] 余额充足，本月净流入 ¥37w，预计可覆盖未来 4 个月运营开支。
+        ```
