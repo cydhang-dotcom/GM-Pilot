@@ -27,48 +27,35 @@
 
 1.  **Header (模块基本信息)**:
     *   **优先级**: P0/P1/P2。
-    *   **设计核心**: 三个关键词定义该模块的视觉或业务重心（如：盈亏视角、隐私至上）。
+    *   **设计核心**: 三个关键词定义该模块的视觉或业务重心。
 2.  **User Stories & Data Logic (用户故事与数据逻辑)**:
-    *   **User Story**: GM 视角的故事背景（“作为...我希望...以便于...”）。
-    *   **数据业务需求 (Data Requirements)**: 
-        *   **数据聚合逻辑**: 数据来源、维度定义。
-        *   **核心算法**: 公式化的计算逻辑（如 `Net_Profit = Revenue - Cost`）。
-        *   **状态触发器 (State Trigger)**: 触发 UI 变色或预警的阈值逻辑。
-        *   **刷新/隐私策略**: 刷新频率及字段级的隐私敏感度标记。
+    *   **User Story**: GM 视角的故事背景。
+    *   **数据业务需求 (Data Requirements)**: 数据聚合、核心算法、状态触发器。
 3.  **UI/UX Behaviors (界面行为规范)**:
-    *   **加载/动效逻辑**: 如骨架屏、打字机速度、列表 Stagger 动画。
-    *   **手势与交互**: 穿透跳转逻辑、侧滑、长按等非显性交互。
-    *   **像素级标准**: 轴心锁定要求（如 20px 轴心）、容器高度锁定等。
-4.  **Acceptance Criteria (验收标准)**:
-    *   量化的 Checkbox 清单，作为代码 Review 和功能验收的唯一基准。
+    *   加载/动效逻辑、手势、像素级标准（如 20px 轴心）。
+4.  **Acceptance Criteria (验收标准)**: 量化的 Checkbox 清单。
 
 ## 2. 核心架构与交互原则 (Architecture)
 - **三级导航架构**: App Shell -> 业务看板 -> 全屏覆盖层 (Overlay)。
+- **页面拆分准则 (Separation Principle)**: 
+  - **强制要求**: 任何业务的功能扩展（如：查询列表 vs 发起录入）必须拆分为独立的页面组件 (.tsx) 和需求文档 (.md)。
+  - 严禁在单个文件中通过复杂的内部状态切换承载两个截然不同的业务流。
 - **布局约束**: 全局容器限制 `max-w-md mx-auto`，拇指操作区优化。
 
 ## 3. 开发习惯与工程化规范 (Engineering Standards)
 - **需求变更全量同步 (Requirement Change Sync)**: 
   - **强制要求**: 任何代码 (.tsx) 的变动或需求变更，必须同步更新对应的所有 .md 文档。
-  - 严禁出现“代码已改但文档未更”的情况，文档即代码的灵魂。
 - **业务映射索引规范 (Business Mapping Standard)**:
-  - 列表中的文件路径（需求文档/实现页面）必须为**可点击的相对链接**。
-  - 链接显示文本（Label）必须**仅显示文件名**（如 `Inbox.tsx`），严禁显示完整路径，以确保表格整洁与可读性。
+  - 链接显示文本（Label）必须**仅显示文件名**。
 - **API 设计与文档规范 (API Design & Documentation)**:
   - **RESTful 原则**: 所有后端接口交互必须遵循 RESTful 风格设计。
-  - **文档先行**: 开发前需在 `docs/requirements/*_api_list.md` (如 `finance_api_list.md`) 中定义清晰的接口契约。
-  - **接口定义细则 (Interface Specifications)**:
-    - **输入参数 (Input)**: 必须明确定义 `字段名 (Field)`、`中文名 (Label)`、`格式 (Type)`、`验证要求 (Validation)`、`备注 (Notes)`。
-    - **输出参数 (Output)**: 必须明确定义 `字段名 (Field)`、`中文名 (Label)`、`格式 (Type)`、`备注 (Notes)` (输出无需定义验证要求)。
-  - **数据对齐**: 前端 Mock 数据结构必须严格对应 API 文档定义的 Payload 结构。
 - **隐私保护 (Privacy by Default)**: 敏感数据（余额/薪资）默认高斯模糊。
 - **UI 轴心锁定**: Marker 中心点严格锁定在左侧 **20px** 垂直轴线上。
-- **版本号维护**: 每次部署需递增 `pages/Company.tsx` 底部版本号。
 
 ## 4. 关键组件逻辑 (Core Components)
 ### AI 智能诊断 (SmartDiagnosisChat)
 - **打字机动效**: 40ms/char。
 - **高度锁定**: 固定容器高度防止抖动。
-- **轻量展开**: 文末闪烁省略号 `...` 触发。
 
 ### 结构化列表 (Unified Lists)
 - **线性进度条**: 统一采用 `h-1.5` 圆角进度条。

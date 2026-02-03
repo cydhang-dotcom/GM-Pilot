@@ -1,6 +1,7 @@
+
 # GM Pilot 产品需求文档 (Master PRD)
 
-> **版本**: v1.6.0  
+> **版本**: v1.6.2
 > **状态**: 内部试运行 (Internal Pilot)  
 > **更新日期**: 2024-01  
 > **同步原则**: 遵循 `memory.md` 规范，任何功能变动均需同步此文档。
@@ -18,7 +19,7 @@
 | 优先级 | 功能范畴 | 关键点 |
 | :--- | :--- | :--- |
 | **P0 (高)** | **核心决策闭环** | 经营盈亏看板、AI 风险诊断、交付进度时间轴、对公账户隐私卡片 |
-| **P1 (中)** | **业务穿透能力** | 薪酬明细查询、资金流水解释、发票管理、对账差异沟通 |
+| **P1 (中)** | **业务穿透能力** | 入职办理(扫码/补全)、薪酬明细查询、资金流水解释、发票管理 |
 | **P2 (低)** | **辅助与增强** | 政府补助追踪、操作日志、消息通知配置 |
 
 ## 4. 详细需求规范索引 (Detailed Requirements)
@@ -32,6 +33,7 @@
 - [02_Inbox.md](./requirements/02_Inbox.md)
 - [交付进度时间轴](./requirements/dashboard/timeline.md)
 - [账单置顶卡片](./requirements/inbox/pinned_bill.md)
+- [入职办理流程](./requirements/inbox/onboarding_process.md) (含扫码识别与参数化办理)
 
 ### 4.3 事务工作台 (Workstation)
 - [03_Workstation.md](./requirements/03_Workstation.md)

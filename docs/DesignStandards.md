@@ -1,6 +1,7 @@
+
 # GM Pilot 设计规范 (Design Standards)
 
-> **版本**: v1.6 (Latest Update)
+> **版本**: v1.6.2 (Latest Update)
 > **适用范围**: 移动端 Web App
 
 ## 1. 核心布局原则
@@ -35,3 +36,15 @@
 | **亏损/支出** | `rose-500` / `bg-rose-50` | 经营成果 -、费用支出 |
 | **风险/预警** | `orange-500` / `bg-orange-50` | 合规风险、即将到期、待办红点 |
 | **进行中** | `indigo-500` / `blue-500` | 申报中、AI 交互、中轴连接线 |
+
+## 6. 模态与浮层规范 (Modal & Overlay)
+
+*   **三级详情页 (Level 3 Detail)**:
+    *   **形式**: 全屏覆盖层 (Full-screen Overlay)。
+    *   **动效**: `Slide-up` 或 `Slide-in-Right`。
+    *   **组件**: 必须使用统一的 `DetailLayout` 组件，包含顶部固定导航栏与底部固定操作区。
+*   **参数配置/确认 (Configuration/Confirmation)**:
+    *   **形式**: 中心浮层 (Center Modal)。
+    *   **背景**: 必须应用 `backdrop-blur-sm` (磨砂玻璃效果) 与深色遮罩 `bg-slate-900/60`。
+    *   **动效**: `Scale-up` (缩放淡入)。
+    *   **场景**: 合同期限选择、个税基数修改、二维码展示。
