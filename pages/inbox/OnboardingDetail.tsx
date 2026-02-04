@@ -10,7 +10,7 @@ interface OnboardingDetailProps {
     onUpdate: (emp: OnboardingEmployee) => void;
 }
 
-const InfoSection = ({ title, children, onEdit, isUrgent }: { title: string, children: React.ReactNode, onEdit?: () => void, isUrgent?: boolean }) => (
+const InfoSection = ({ title, children, onEdit, isUrgent }: { title: string, children?: React.ReactNode, onEdit?: () => void, isUrgent?: boolean }) => (
     <div className={`bg-white rounded-3xl p-5 shadow-sm border transition-colors ${isUrgent ? 'border-rose-200 ring-4 ring-rose-50' : 'border-slate-100'}`}>
         <div className="flex justify-between items-center mb-4 ml-1">
             <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{title}</h4>

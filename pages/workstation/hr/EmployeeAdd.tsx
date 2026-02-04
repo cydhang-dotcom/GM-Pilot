@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Briefcase, Banknote, FileSignature, Calculator, ShieldCheck, Check, X, ChevronRight, UserPlus, QrCode, Smartphone } from 'lucide-react';
+import { Briefcase, Banknote, FileSignature, Calculator, ShieldCheck, Check, X, ChevronRight, UserPlus, QrCode, Smartphone, Building2 } from 'lucide-react';
 import { DetailLayout } from '../../../components/DetailLayout';
 
 const SectionHeader = ({ icon: Icon, title, extra }: { icon: any, title: string, extra?: React.ReactNode }) => (
@@ -181,11 +181,20 @@ const EmployeeAdd: React.FC<EmployeeAddProps> = ({ onBack, onSave }) => {
                             <button onClick={() => setShowQrModal(false)} className="text-gray-300 hover:text-gray-500 transition-colors"><X size={24}/></button>
                         </div>
                         
-                        <div className="bg-indigo-50/50 rounded-3xl p-8 mb-6 border border-indigo-100 relative">
-                            <div className="bg-white p-4 rounded-2xl shadow-xl shadow-indigo-100/50 border border-indigo-50">
-                                <QrCode size={180} className="text-indigo-900 mx-auto" strokeWidth={1.5} />
+                        <div className="bg-indigo-50/50 rounded-3xl p-6 mb-6 border border-indigo-100 relative">
+                            {/* Company Info Header */}
+                            <div className="flex flex-col items-center mb-5">
+                                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm border border-indigo-50 mb-2">
+                                    <Building2 size={24} className="text-indigo-600" />
+                                </div>
+                                <h4 className="text-sm font-black text-slate-900">上海千机网络科技有限公司</h4>
+                                <span className="text-[10px] text-indigo-400 font-bold mt-0.5">入职登记 · 身份核验</span>
                             </div>
-                            <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-black px-4 py-1.5 rounded-full shadow-lg">
+
+                            <div className="bg-white p-3 rounded-2xl shadow-xl shadow-indigo-100/50 border border-indigo-50 w-fit mx-auto">
+                                <QrCode size={160} className="text-indigo-900" strokeWidth={1.5} />
+                            </div>
+                            <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-black px-4 py-1.5 rounded-full shadow-lg whitespace-nowrap">
                                 有效期 24 小时
                             </div>
                         </div>

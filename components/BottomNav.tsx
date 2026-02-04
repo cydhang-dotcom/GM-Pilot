@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, Inbox, Briefcase, Building2 } from 'lucide-react';
@@ -5,7 +6,7 @@ import { LayoutDashboard, Inbox, Briefcase, Building2 } from 'lucide-react';
 const BottomNav: React.FC = () => {
   const navItemClass = (isActive: boolean) =>
     `flex flex-col items-center justify-center w-full h-full space-y-1 ${
-      isActive ? 'text-blue-600' : 'text-gray-400 hover:text-gray-500'
+      isActive ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-500'
     }`;
 
   return (

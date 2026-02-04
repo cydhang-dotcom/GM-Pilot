@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Users,
@@ -343,7 +344,7 @@ const Dashboard: React.FC = () => {
       <header className="sticky top-0 z-40 px-6 pt-12 pb-5 bg-[#F8F9FB]/90 backdrop-blur-xl border-b border-slate-100 flex justify-between items-end">
         <div>
            <div className="flex items-center gap-1.5 mb-1.5 opacity-60">
-              <Target size={14} className="text-slate-500"/>
+              <Target size={14} className="text-slate-400"/>
               <span className="text-[10px] font-bold text-slate-500 font-mono tracking-widest uppercase">CEO Cockpit Control</span>
            </div>
            <div className="flex items-center gap-2">
@@ -449,7 +450,7 @@ const Dashboard: React.FC = () => {
         <section className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-100 relative overflow-hidden">
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 shadow-sm">
+                    <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center border border-blue-100 shadow-sm">
                         <Wallet size={18} strokeWidth={2.5} />
                     </div>
                     <div>
@@ -483,7 +484,7 @@ const Dashboard: React.FC = () => {
         <div className="bg-white rounded-[32px] p-7 shadow-sm border border-slate-100">
              <div className="flex justify-between items-center mb-8">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100 shadow-sm">
+                    <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center border border-indigo-100 shadow-sm">
                         <Zap size={18} strokeWidth={2.5} />
                     </div>
                     <h3 className="text-sm font-black text-slate-900">经营总支出构成</h3>
@@ -497,10 +498,10 @@ const Dashboard: React.FC = () => {
                 {currentData.costStructure.map((item, idx) => {
                     const percentage = (item.amount / currentData.cost) * 100;
                     const colors: Record<string, string> = {
-                        'R&D': 'bg-indigo-500',
-                        'Admin': 'bg-purple-500',
-                        'Ops': 'bg-amber-500',
-                        'Tax': 'bg-slate-500'
+                        'R&D': 'bg-indigo-400',
+                        'Admin': 'bg-purple-400',
+                        'Ops': 'bg-amber-400',
+                        'Tax': 'bg-slate-400'
                     };
                     const labels: Record<string, string> = {
                         'R&D': '研发人力',
@@ -513,12 +514,12 @@ const Dashboard: React.FC = () => {
                             <div className="flex justify-between items-end">
                                 <div className="flex items-center gap-2">
                                     <div className={`w-2 h-2 rounded-full ${colors[item.category]}`}></div>
-                                    <span className="text-xs font-bold text-slate-700">{labels[item.category]}</span>
+                                    <span className="text-xs font-bold text-slate-600">{labels[item.category]}</span>
                                     <span className="text-[10px] text-slate-400/80 font-medium">({item.items[0]}等)</span>
                                 </div>
-                                <span className="text-sm font-black font-mono text-slate-900">{formatCurrency(item.amount)}</span>
+                                <span className="text-sm font-black font-mono text-slate-700">{formatCurrency(item.amount)}</span>
                             </div>
-                            <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden">
+                            <div className="h-1.5 w-full bg-slate-50 rounded-full overflow-hidden">
                                 <div 
                                     className={`h-full rounded-full transition-all duration-1000 shadow-sm ${colors[item.category]}`}
                                     style={{ width: `${percentage}%` }}
@@ -534,7 +535,7 @@ const Dashboard: React.FC = () => {
         <div className="bg-white rounded-[32px] p-7 shadow-sm border border-slate-100">
             <div className="flex justify-between items-center mb-7">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100 shadow-sm">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center border border-emerald-100 shadow-sm">
                         <TrendingUp size={18} strokeWidth={2.5} />
                     </div>
                     <h3 className="text-sm font-black text-slate-900">收入回款构成</h3>
@@ -544,18 +545,20 @@ const Dashboard: React.FC = () => {
 
             <div className="space-y-4">
                 {currentData.revenueSources.map((source, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50/50 border border-slate-100 hover:border-indigo-100 hover:bg-white hover:shadow-md hover:shadow-indigo-50/50 transition-all duration-300 group">
+                    <div key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50/30 border border-slate-100 hover:border-emerald-100 hover:bg-emerald-50/10 transition-all duration-300 group">
                         <div className="flex items-center gap-4 min-w-0">
-                            <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 shadow-sm transition-colors ${
-                                source.status === '已入账' ? 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white' : 'bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white'
+                            <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border transition-colors duration-300 ${
+                                source.status === '已入账' 
+                                ? 'bg-emerald-50 border-emerald-100 text-emerald-500 group-hover:bg-emerald-100 group-hover:border-emerald-200' 
+                                : 'bg-amber-50 border-amber-100 text-amber-500 group-hover:bg-amber-100 group-hover:border-amber-200'
                             }`}>
-                                {source.status === '已入账' ? <CheckCircle2 size={20}/> : <Clock size={20}/>}
+                                {source.status === '已入账' ? <CheckCircle2 size={18} strokeWidth={2.5}/> : <Clock size={18} strokeWidth={2.5}/>}
                             </div>
                             <div className="min-w-0">
-                                <h4 className="text-sm font-black text-slate-800 truncate leading-tight">{source.name}</h4>
+                                <h4 className="text-sm font-black text-slate-700 truncate leading-tight group-hover:text-emerald-700 transition-colors">{source.name}</h4>
                                 <div className="flex items-center gap-2 mt-1.5">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase">{source.date}</span>
-                                    <div className="w-1 h-1 rounded-full bg-slate-200"></div>
+                                    <div className="w-1 h-1 rounded-full bg-slate-300"></div>
                                     <span className={`text-[10px] font-bold uppercase ${source.status === '已入账' ? 'text-emerald-500' : 'text-amber-500'}`}>
                                         {source.status}
                                     </span>
@@ -563,7 +566,7 @@ const Dashboard: React.FC = () => {
                             </div>
                         </div>
                         <div className="text-right ml-2">
-                            <p className="text-base font-black font-mono text-slate-900 group-hover:text-indigo-600 transition-colors">{formatCurrency(source.amount)}</p>
+                            <p className="text-base font-black font-mono text-slate-700 group-hover:text-emerald-600 transition-colors">{formatCurrency(source.amount)}</p>
                         </div>
                     </div>
                 ))}

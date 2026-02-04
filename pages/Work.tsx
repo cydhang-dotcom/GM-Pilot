@@ -24,7 +24,8 @@ import {
   Activity,
   Scale,
   Wallet2,
-  HeartHandshake
+  HeartHandshake,
+  Briefcase
 } from 'lucide-react';
 
 // Define the structure for categorized menu items
@@ -100,7 +101,7 @@ const Work: React.FC = () => {
   };
 
   const renderIcon = (name: string, size: number = 24) => {
-    const props = { size };
+    const props = { size, strokeWidth: 1.5 }; // Lighter stroke
     switch (name) {
       case 'Banknote': return <Banknote {...props} />;
       case 'FileCheck': return <FileCheck {...props} />;
@@ -130,10 +131,10 @@ const Work: React.FC = () => {
 
   const getThemeStyles = (theme: string) => {
     switch (theme) {
-      case 'blue': return { bg: 'bg-blue-50', text: 'text-blue-600', iconBg: 'bg-blue-50' };
-      case 'emerald': return { bg: 'bg-emerald-50', text: 'text-emerald-600', iconBg: 'bg-emerald-50' };
-      case 'purple': return { bg: 'bg-purple-50', text: 'text-purple-600', iconBg: 'bg-purple-50' };
-      default: return { bg: 'bg-gray-50', text: 'text-gray-600', iconBg: 'bg-gray-50' };
+      case 'blue': return { text: 'text-blue-600', shadow: 'shadow-blue-100', border: 'border-blue-50 hover:border-blue-200' };
+      case 'emerald': return { text: 'text-emerald-600', shadow: 'shadow-emerald-100', border: 'border-emerald-50 hover:border-emerald-200' };
+      case 'purple': return { text: 'text-purple-600', shadow: 'shadow-purple-100', border: 'border-purple-50 hover:border-purple-200' };
+      default: return { text: 'text-slate-600', shadow: 'shadow-slate-100', border: 'border-slate-50 hover:border-slate-200' };
     }
   };
 
@@ -146,49 +147,54 @@ const Work: React.FC = () => {
   })).filter(group => group.items.length > 0);
 
   return (
-    <div className="pb-8 bg-white min-h-full">
-      {/* Search Header */}
-      <div className="bg-white px-4 pt-4 pb-2 sticky top-0 z-10">
-        <h1 className="text-xl font-bold text-gray-900 mb-3">工作台</h1>
-        <div className="relative">
+    <div className="flex flex-col h-full bg-[#F8F9FB]">
+      {/* Header */}
+      <header className="sticky top-0 z-40 px-6 pt-12 pb-4 bg-[#F8F9FB]/90 backdrop-blur-xl border-b border-slate-100/50">
+        <div className="flex items-center gap-2 mb-2 opacity-60">
+            <Briefcase size={14} className="text-slate-400"/>
+            <span className="text-[10px] font-bold text-slate-400 font-mono tracking-widest uppercase">Workspace & Tools</span>
+        </div>
+        <h1 className="text-2xl font-bold text-slate-800 tracking-tight mb-4">事务工作台</h1>
+        
+        {/* Search Bar - Cleaner & Softer */}
+        <div className="relative group">
             <input 
                 type="text" 
                 placeholder="查找功能或事务..." 
-                className="w-full h-10 pl-10 pr-4 rounded-xl bg-gray-100 border-none text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 transition-all text-sm"
+                className="w-full h-11 pl-11 pr-4 rounded-2xl bg-white border border-slate-200 text-slate-700 placeholder-slate-400 focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50/50 transition-all text-sm shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
+            <Search className="absolute left-4 top-3 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} strokeWidth={2} />
         </div>
-      </div>
+      </header>
 
-      <div className="px-4 py-2 space-y-8 animate-fade-in">
-        
-        {/* Service Groups - 4 Column Grid */}
+      <div className="px-6 py-6 space-y-8 pb-24 overflow-y-auto no-scrollbar">
         {filteredGroups.length > 0 ? (
             filteredGroups.map((group) => {
                 const theme = getThemeStyles(group.themeColor);
                 return (
                     <section key={group.title}>
-                        <div className="flex items-center gap-2 mb-4">
-                            <h2 className="text-sm font-bold text-gray-800">{group.title}</h2>
+                        <div className="flex items-center gap-2 mb-5">
+                            <div className={`w-1 h-3 rounded-full ${group.themeColor === 'blue' ? 'bg-blue-400' : group.themeColor === 'emerald' ? 'bg-emerald-400' : 'bg-purple-400'}`}></div>
+                            <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider">{group.title}</h2>
                         </div>
                         <div className="grid grid-cols-4 gap-y-6 gap-x-2">
                             {group.items.map((item) => (
                                 <div 
                                     key={item.id} 
                                     onClick={() => handleItemClick(item.id)}
-                                    className="flex flex-col items-center gap-2 cursor-pointer active:opacity-60 transition-opacity group relative"
+                                    className="flex flex-col items-center gap-3 cursor-pointer active:opacity-60 transition-opacity group relative"
                                 >
-                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm border border-gray-100 ${theme.iconBg} ${theme.text} group-hover:scale-105 transition-transform relative`}>
+                                    <div className={`w-[60px] h-[60px] rounded-[24px] bg-white flex items-center justify-center border shadow-sm group-hover:-translate-y-1 transition-all duration-300 ${theme.border} ${theme.text} ${theme.shadow}`}>
                                         {renderIcon(item.iconName, 26)}
                                         {item.badge && (
-                                          <div className={`absolute -top-2 -right-4 px-1.5 py-0.5 rounded-full text-[10px] font-bold shadow-sm border border-white ${item.badge.color}`}>
+                                          <div className={`absolute -top-1.5 -right-3 px-1.5 py-0.5 rounded-full text-[9px] font-bold shadow-sm border-2 border-white ${item.badge.color}`}>
                                             {item.badge.text}
                                           </div>
                                         )}
                                     </div>
-                                    <div className="text-xs font-medium text-gray-700 text-center leading-tight">
+                                    <div className="text-[11px] font-medium text-slate-600 text-center leading-tight group-hover:text-slate-900 transition-colors">
                                         {item.label}
                                     </div>
                                 </div>
@@ -198,8 +204,8 @@ const Work: React.FC = () => {
                 );
             })
         ) : (
-            <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-                <Search size={32} className="mb-2 opacity-50" />
+            <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+                <Search size={32} className="mb-3 opacity-20" />
                 <p className="text-xs">未找到相关功能</p>
             </div>
         )}
