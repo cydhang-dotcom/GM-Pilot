@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Search, ChevronRight, Plus } from 'lucide-react';
+import { Search, ChevronRight, Plus, Users, UserPlus, UserMinus, Filter, Briefcase } from 'lucide-react';
 import EmployeeAdd from './EmployeeAdd';
 import EmployeeDetail from './EmployeeDetail';
 
@@ -25,51 +25,106 @@ const Employee: React.FC = () => {
         setIsAdding(false);
     };
 
+    const probationCount = employees.filter(e => e.status === '试用').length;
+
     if (isAdding) return <EmployeeAdd onBack={() => setIsAdding(false)} onSave={handleAddEmployee} />;
     if (selectedEmp) return <EmployeeDetail employee={selectedEmp} onBack={() => setSelectedEmp(null)} />;
 
     return (
-        <div className="space-y-5 animate-fade-in pb-20">
-            {/* Stats Grid */}
-            <div className="grid grid-cols-3 gap-3">
-                <div className="bg-white p-4 rounded-[24px] border border-slate-100 shadow-sm text-center flex flex-col justify-center">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">在职员工</p>
-                    <p className="text-2xl font-black font-mono text-slate-900">{employees.length}</p>
+        <div className="space-y-6 animate-fade-in pb-24">
+            {/* 1. Stats Overview Card (Redesigned) */}
+            <div className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] relative overflow-hidden">
+                {/* Watermark */}
+                <div className="absolute top-0 right-0 p-6 opacity-[0.03] text-indigo-900 pointer-events-none transform rotate-12">
+                    <Users size={140} />
                 </div>
-                <div className="bg-white p-4 rounded-[24px] border border-slate-100 shadow-sm text-center flex flex-col justify-center">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">本月入职</p>
-                    <p className="text-2xl font-black font-mono text-emerald-600">+{3 + (employees.length - MOCK_EMPLOYEES.length)}</p>
-                </div>
-                <div className="bg-white p-4 rounded-[24px] border border-slate-100 shadow-sm text-center flex flex-col justify-center">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">本月离职</p>
-                    <p className="text-2xl font-black font-mono text-rose-600">-1</p>
+
+                <div className="relative z-10">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100 shadow-sm">
+                            <Briefcase size={18} strokeWidth={2.5} />
+                        </div>
+                        <div>
+                            <h2 className="text-sm font-black text-slate-900">人力资源概览</h2>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Human Resources</p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-baseline gap-2 mb-8 pl-1">
+                        <span className="text-5xl font-black font-mono text-slate-900 tracking-tighter">{employees.length}</span>
+                        <span className="text-xs font-bold text-slate-400 mb-1">在职员工 (人)</span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-3">
+                        <div className="bg-emerald-50 rounded-2xl p-3 border border-emerald-100 flex flex-col items-center justify-center gap-1">
+                            <div className="text-emerald-600"><UserPlus size={16} strokeWidth={2.5}/></div>
+                            <p className="text-[10px] font-bold text-emerald-800/70 uppercase">本月入职</p>
+                            <p className="text-base font-black font-mono text-emerald-700">+3</p>
+                        </div>
+                        <div className="bg-rose-50 rounded-2xl p-3 border border-rose-100 flex flex-col items-center justify-center gap-1">
+                            <div className="text-rose-600"><UserMinus size={16} strokeWidth={2.5}/></div>
+                            <p className="text-[10px] font-bold text-rose-800/70 uppercase">本月离职</p>
+                            <p className="text-base font-black font-mono text-rose-700">-1</p>
+                        </div>
+                        <div className="bg-blue-50 rounded-2xl p-3 border border-blue-100 flex flex-col items-center justify-center gap-1">
+                            <div className="text-blue-600"><Users size={16} strokeWidth={2.5}/></div>
+                            <p className="text-[10px] font-bold text-blue-800/70 uppercase">试用期</p>
+                            <p className="text-base font-black font-mono text-blue-700">{probationCount}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Search */}
-            <div className="bg-white px-4 py-3 rounded-2xl border border-slate-200 shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex items-center gap-3">
-                <Search size={18} className="text-slate-300" />
-                <input type="text" placeholder="搜索姓名、部门..." className="flex-1 text-sm outline-none text-slate-700 placeholder-slate-300 font-medium"/>
+            {/* 2. Search & Filter Bar */}
+            <div className="flex gap-3 px-1">
+                <div className="bg-white flex-1 p-3 rounded-[20px] border border-slate-200 shadow-sm flex items-center gap-3 transition-all focus-within:border-indigo-300 focus-within:ring-4 focus-within:ring-indigo-50/50">
+                    <Search size={18} className="text-slate-300 ml-1" strokeWidth={2.5} />
+                    <input 
+                        type="text" 
+                        placeholder="搜索姓名、部门..." 
+                        className="flex-1 text-sm outline-none text-slate-700 placeholder-slate-300 font-bold bg-transparent"
+                    />
+                </div>
+                <button className="bg-white w-12 rounded-[20px] border border-slate-200 shadow-sm flex items-center justify-center text-slate-400 active:scale-95 active:bg-slate-50 transition-all">
+                    <Filter size={18} strokeWidth={2.5} />
+                </button>
             </div>
 
-            {/* List */}
-            <div className="space-y-3 pb-4">
+            {/* 3. Employee List */}
+            <div className="space-y-3">
                 {employees.map(emp => (
-                    <div key={emp.id} onClick={() => setSelectedEmp(emp)} className="bg-white rounded-[24px] p-5 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-center gap-4 active:scale-[0.99] transition-all cursor-pointer group hover:border-indigo-100">
+                    <div 
+                        key={emp.id} 
+                        onClick={() => setSelectedEmp(emp)} 
+                        className="bg-white rounded-[24px] p-5 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-center gap-4 active:scale-[0.98] transition-all cursor-pointer group hover:border-indigo-100 relative overflow-hidden"
+                    >
                         {/* Avatar */}
-                        <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-sm shrink-0 border border-indigo-100 shadow-sm">
+                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-sm shrink-0 border shadow-sm transition-colors ${
+                            emp.status === '正式' 
+                            ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                            : 'bg-blue-50 text-blue-600 border-blue-100'
+                        }`}>
                             {emp.name.charAt(0)}
                         </div>
+
                         <div className="flex-1 min-w-0">
-                            <div className="flex justify-between items-start mb-0.5">
-                                <h4 className="text-sm font-black text-slate-900">{emp.name}</h4>
-                                <span className={`text-[10px] px-2 py-0.5 rounded-md font-black ${emp.status === '正式' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}`}>
+                            <div className="flex justify-between items-center mb-1">
+                                <h4 className="text-sm font-black text-slate-900 truncate">{emp.name}</h4>
+                                <span className={`text-[10px] px-2 py-0.5 rounded-md font-black border ${
+                                    emp.status === '正式' 
+                                    ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                                    : 'bg-blue-50 text-blue-600 border-blue-100'
+                                }`}>
                                     {emp.status}
                                 </span>
                             </div>
                             <div className="flex flex-col gap-0.5">
-                                <p className="text-xs font-bold text-slate-400 truncate">{emp.dept} · {emp.role}</p>
-                                <p className="text-[10px] font-bold font-mono text-slate-300">{emp.phone}</p>
+                                <p className="text-xs font-bold text-slate-500 truncate">{emp.dept} · {emp.role}</p>
+                                <p className="text-[10px] font-bold font-mono text-slate-300 flex items-center gap-2">
+                                    <span>{emp.phone}</span>
+                                    <span className="w-0.5 h-2 bg-slate-200 rounded-full"></span>
+                                    <span>{emp.joinDate} 入职</span>
+                                </p>
                             </div>
                         </div>
                         <ChevronRight size={18} className="text-slate-300 group-hover:text-indigo-400 transition-colors" />
@@ -81,9 +136,9 @@ const Employee: React.FC = () => {
             <div className="fixed bottom-24 right-6 z-40">
                 <button 
                     onClick={() => setIsAdding(true)}
-                    className="bg-indigo-600 text-white pl-4 pr-6 py-3.5 rounded-full flex items-center gap-3 shadow-xl shadow-indigo-600/30 active:scale-95 transition-all group hover:bg-indigo-700"
+                    className="bg-indigo-600 text-white pl-5 pr-6 py-4 rounded-full flex items-center gap-3 shadow-xl shadow-indigo-600/30 active:scale-95 transition-all group hover:bg-indigo-700 hover:shadow-indigo-600/40"
                 >
-                    <div className="bg-white/20 p-1.5 rounded-full backdrop-blur-md">
+                    <div className="bg-white/20 p-1 rounded-full backdrop-blur-md">
                         <Plus size={18} strokeWidth={3} />
                     </div>
                     <span className="text-sm font-black tracking-tight">新增员工</span>

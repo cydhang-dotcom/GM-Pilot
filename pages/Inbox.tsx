@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Task, TaskType } from '../types';
 import InboxSalaryDetail from './inbox/InboxSalaryDetail';
 import OnboardingProcess from './inbox/OnboardingProcess';
+import InboxReimbursement from './inbox/InboxReimbursement';
 import { 
   CheckCircle2, Clock, Play, Activity, ArrowRight,
   ChevronDown, MoreHorizontal, UserPlus, Stamp, ReceiptText, ArrowUpRight, QrCode
@@ -53,7 +54,7 @@ const timelineData: TimelineItem[] = [
 ];
 
 const Inbox: React.FC = () => {
-    const [viewMode, setViewMode] = useState<'main' | 'salary' | 'onboarding'>('main');
+    const [viewMode, setViewMode] = useState<'main' | 'salary' | 'onboarding' | 'reimbursement'>('main');
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [isTimelineExpanded, setIsTimelineExpanded] = useState(false);
 
@@ -64,6 +65,7 @@ const Inbox: React.FC = () => {
 
     if (viewMode === 'salary' && selectedTask) return <InboxSalaryDetail task={selectedTask} onBack={() => setViewMode('main')} />;
     if (viewMode === 'onboarding') return <OnboardingProcess onBack={() => setViewMode('main')} />;
+    if (viewMode === 'reimbursement') return <InboxReimbursement onBack={() => setViewMode('main')} />;
 
     const renderTimelineItem = (item: TimelineItem, index: number, isLast: boolean) => {
         const isActive = item.status === 'active';
@@ -170,7 +172,7 @@ const Inbox: React.FC = () => {
                     </div>
                  </section>
                  
-                 {/* Bill Card - Emerald Theme (P0 Requirement) */}
+                 {/* Bill Card - Emerald Theme */}
                  <div onClick={() => handleOpenSalary(mockTasks[0])} className="bg-gradient-to-br from-white via-white to-emerald-50/40 border border-emerald-100/60 rounded-[32px] p-6 shadow-[0_8px_30px_rgba(16,185,129,0.06)] active:scale-[0.99] cursor-pointer flex items-center justify-between gap-4 group transition-all duration-300 hover:shadow-lg hover:shadow-emerald-100/30">
                       <div className="flex items-center gap-4 flex-1 min-w-0">
                           <div className="w-14 h-14 rounded-[24px] bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0 border border-emerald-100 shadow-sm"><ReceiptText size={24} strokeWidth={2}/></div>
@@ -198,11 +200,14 @@ const Inbox: React.FC = () => {
                       </div>
                  </div>
 
-                 {/* OA Card */}
-                 <div className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-sm flex items-center gap-5 cursor-pointer group hover:border-purple-100 active:scale-[0.99] transition-all">
-                      <div className="w-14 h-14 rounded-[24px] bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 border border-purple-100/50 shadow-sm"><Stamp size={24} strokeWidth={2}/></div>
-                      <div className="flex-1"><h4 className="text-sm font-black text-slate-800">OA 流程审批</h4><p className="text-[10px] font-bold text-slate-400 mt-1">1 笔待处理 · 张伟 (年假)</p></div>
-                      <div className="w-8 h-8 rounded-xl bg-rose-500 text-white text-[10px] flex items-center justify-center font-bold shadow-lg shadow-rose-200 border-2 border-white animate-pulse">1</div>
+                 {/* OA / Reimbursement Card */}
+                 <div onClick={() => setViewMode('reimbursement')} className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-sm flex items-center gap-5 cursor-pointer group hover:border-orange-100 active:scale-[0.99] transition-all">
+                      <div className="w-14 h-14 rounded-[24px] bg-orange-50 text-orange-600 flex items-center justify-center shrink-0 border border-orange-100/50 shadow-sm"><Stamp size={24} strokeWidth={2}/></div>
+                      <div className="flex-1">
+                          <h4 className="text-sm font-black text-slate-800">OA 流程审批</h4>
+                          <p className="text-[10px] font-bold text-slate-400 mt-1">2 笔待处理 · 张伟 (差旅费)</p>
+                      </div>
+                      <div className="w-8 h-8 rounded-xl bg-rose-500 text-white text-[10px] flex items-center justify-center font-bold shadow-lg shadow-rose-200 border-2 border-white animate-pulse">2</div>
                  </div>
             </div>
         </div>
