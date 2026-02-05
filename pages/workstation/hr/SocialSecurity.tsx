@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ArrowUpRight, ArrowDownLeft, ChevronRight, UserPlus, UserMinus, FileText, Download } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, ChevronRight, UserPlus, UserMinus, FileText, Download, Umbrella } from 'lucide-react';
 import { DetailLayout } from '../../../components/DetailLayout';
 
 // --- Data ---
@@ -28,27 +28,27 @@ const MOCK_DOCS = [
 
 const SocialDocDetail = ({ doc, onBack }: { doc: any, onBack: () => void }) => {
     return (
-        <DetailLayout title={doc.title} onBack={onBack} tag={{ label: 'PDF', color: 'text-gray-500', bg: 'bg-gray-100' }}>
+        <DetailLayout title={doc.title} onBack={onBack} tag={{ label: 'PDF', color: 'text-slate-500', bg: 'bg-slate-100' }}>
              <div className="flex-1 flex flex-col items-center justify-center py-8">
-                 <div className="w-48 aspect-[3/4] bg-white shadow-xl border border-gray-200 rounded-lg flex flex-col items-center justify-center mb-8 relative overflow-hidden group">
-                     <div className="absolute inset-0 bg-[#FAFAFA] opacity-50"></div>
-                     <FileText size={48} className="text-gray-300 relative z-10" />
-                     <p className="text-xs text-gray-400 mt-2 relative z-10 font-bold">PREVIEW</p>
+                 <div className="w-48 aspect-[3/4] bg-white shadow-xl shadow-slate-200/50 border border-slate-200 rounded-xl flex flex-col items-center justify-center mb-8 relative overflow-hidden group">
+                     <div className="absolute inset-0 bg-gradient-to-b from-white to-slate-50"></div>
+                     <FileText size={48} className="text-slate-300 relative z-10" strokeWidth={1.5} />
+                     <p className="text-xs font-black text-slate-300 mt-3 relative z-10 tracking-widest">PREVIEW</p>
                  </div>
                  
-                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 w-full overflow-hidden px-6 py-2 mb-6">
-                     <div className="flex justify-between py-3 border-b border-gray-50">
-                        <span className="text-sm text-gray-500">文件大小</span>
-                        <span className="text-sm font-bold font-mono text-gray-900">{doc.size}</span>
+                 <div className="bg-white rounded-[24px] shadow-sm border border-slate-100 w-full overflow-hidden px-6 py-2 mb-6">
+                     <div className="flex justify-between py-4 border-b border-slate-50">
+                        <span className="text-xs font-bold text-slate-400">文件大小</span>
+                        <span className="text-sm font-black font-mono text-slate-900">{doc.size}</span>
                      </div>
-                     <div className="flex justify-between py-3">
-                        <span className="text-sm text-gray-500">生成时间</span>
-                        <span className="text-sm font-bold font-mono text-gray-900">{doc.date}</span>
+                     <div className="flex justify-between py-4">
+                        <span className="text-xs font-bold text-slate-400">生成时间</span>
+                        <span className="text-sm font-black font-mono text-slate-900">{doc.date}</span>
                      </div>
                  </div>
 
-                 <button className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-200 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-                    <Download size={18} /> 下载文件
+                 <button className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-indigo-200 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                    <Download size={18} strokeWidth={2.5} /> 下载文件
                  </button>
             </div>
         </DetailLayout>
@@ -60,46 +60,46 @@ const SocialChangeDetail = ({ onBack }: { onBack: () => void }) => {
         <DetailLayout
             title="本月社保变动明细"
             onBack={onBack}
-            bgColor="bg-gray-50"
+            bgColor="bg-[#F8F9FB]"
         >
-            <div className="flex gap-3 mb-4">
-                 <div className="flex-1 bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-center gap-3">
-                     <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
-                         <UserPlus size={20} />
+            <div className="flex gap-4 mb-4">
+                 <div className="flex-1 bg-white p-5 rounded-[24px] border border-slate-100 shadow-sm flex items-center gap-4">
+                     <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
+                         <UserPlus size={22} strokeWidth={2} />
                      </div>
                      <div>
-                         <p className="text-xs text-gray-400">本月新增</p>
-                         <p className="text-lg font-bold text-gray-900">{MOCK_SOCIAL_DATA.changes.add} 人</p>
+                         <p className="text-[10px] font-bold text-slate-400 uppercase">本月新增</p>
+                         <p className="text-xl font-black text-slate-900">{MOCK_SOCIAL_DATA.changes.add} 人</p>
                      </div>
                  </div>
-                 <div className="flex-1 bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-center gap-3">
-                     <div className="w-10 h-10 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center">
-                         <UserMinus size={20} />
+                 <div className="flex-1 bg-white p-5 rounded-[24px] border border-slate-100 shadow-sm flex items-center gap-4">
+                     <div className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-500 flex items-center justify-center border border-slate-100">
+                         <UserMinus size={22} strokeWidth={2} />
                      </div>
                      <div>
-                         <p className="text-xs text-gray-400">本月减少</p>
-                         <p className="text-lg font-bold text-gray-900">{MOCK_SOCIAL_DATA.changes.remove} 人</p>
+                         <p className="text-[10px] font-bold text-slate-400 uppercase">本月减少</p>
+                         <p className="text-xl font-black text-slate-900">{MOCK_SOCIAL_DATA.changes.remove} 人</p>
                      </div>
                  </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="px-5 py-3 border-b border-gray-100 bg-gray-50/50">
-                    <h4 className="text-xs font-bold text-gray-700">变动人员清单</h4>
+            <div className="bg-white rounded-[32px] shadow-sm border border-slate-100 overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-50 bg-slate-50/50">
+                    <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest">变动人员清单</h4>
                 </div>
                 <div>
                     {MOCK_SOCIAL_DATA.records.map((item) => (
-                        <div key={item.id} className="p-4 border-b border-gray-50 last:border-0">
-                            <div className="flex justify-between items-center mb-2">
+                        <div key={item.id} className="p-5 border-b border-slate-50 last:border-0">
+                            <div className="flex justify-between items-center mb-3">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-sm font-bold text-gray-900">{item.name}</span>
-                                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
-                                        item.type === '新增' ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-500'
+                                    <span className="text-sm font-black text-slate-900">{item.name}</span>
+                                    <span className={`text-[10px] px-2 py-0.5 rounded-md font-black ${
+                                        item.type === '新增' ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-500'
                                     }`}>{item.type}</span>
                                 </div>
-                                <span className="text-xs font-mono text-gray-400">申报日: {item.date}</span>
+                                <span className="text-[10px] font-mono font-bold text-slate-400">申报日: {item.date}</span>
                             </div>
-                            <div className="flex justify-between text-xs text-gray-500 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                            <div className="flex justify-between text-[10px] font-bold text-slate-500 bg-slate-50 p-3 rounded-xl border border-slate-100">
                                 <span className="font-mono">基数: {item.base}</span>
                                 <span className="font-mono">公司: ¥{item.company}</span>
                                 <span className="font-mono">个人: ¥{item.personal}</span>
@@ -122,71 +122,79 @@ const SocialSecurity: React.FC = () => {
     if (selectedDoc) return <SocialDocDetail doc={selectedDoc} onBack={() => setSelectedDoc(null)} />;
 
     return (
-        <div className="space-y-6 animate-fade-in">
-            {/* Main Card */}
-            <div className="bg-indigo-600 rounded-2xl p-6 text-white shadow-lg shadow-indigo-200 relative overflow-hidden">
+        <div className="space-y-6 animate-fade-in pb-20">
+            {/* Main Card - Airy Gradient */}
+            <div className="bg-gradient-to-br from-white via-white to-indigo-50/60 rounded-[32px] p-7 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-slate-100 relative overflow-hidden">
                  <div className="relative z-10">
-                    <p className="text-xs text-indigo-100 mb-1">12月缴纳总额 (预计)</p>
-                    <h2 className="text-4xl font-bold font-mono tracking-tight mb-6">¥{MOCK_SOCIAL_DATA.total}</h2>
-                    <div className="grid grid-cols-2 gap-4 border-t border-indigo-500/30 pt-4">
+                    <div className="flex justify-between items-center mb-4">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">12月缴纳总额 (预计)</p>
+                        <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center border border-indigo-100/50">
+                            <Umbrella size={16} strokeWidth={2.5}/>
+                        </div>
+                    </div>
+                    
+                    <h2 className="text-4xl font-black font-mono tracking-tighter mb-8 text-slate-900">¥{MOCK_SOCIAL_DATA.total}</h2>
+                    
+                    <div className="grid grid-cols-2 gap-6 border-t border-slate-100 pt-5">
                         <div>
-                            <p className="text-[10px] text-indigo-200 mb-0.5">公司承担</p>
-                            <p className="text-sm font-bold font-mono">¥{MOCK_SOCIAL_DATA.companyPart}</p>
+                            <p className="text-[9px] font-bold text-slate-400 uppercase mb-1">公司承担</p>
+                            <p className="text-base font-black font-mono text-indigo-600">¥{MOCK_SOCIAL_DATA.companyPart}</p>
                         </div>
                         <div>
-                            <p className="text-[10px] text-indigo-200 mb-0.5">个人承担</p>
-                            <p className="text-sm font-bold font-mono">¥{MOCK_SOCIAL_DATA.personalPart}</p>
+                            <p className="text-[9px] font-bold text-slate-400 uppercase mb-1">个人承担</p>
+                            <p className="text-base font-black font-mono text-slate-900">¥{MOCK_SOCIAL_DATA.personalPart}</p>
                         </div>
                     </div>
                  </div>
-                 {/* Decorative */}
-                 <div className="absolute -right-4 top-4 w-24 h-24 bg-indigo-500 rounded-full blur-2xl opacity-50"></div>
-                 <div className="absolute -left-4 bottom-4 w-32 h-32 bg-indigo-400 rounded-full blur-2xl opacity-20"></div>
+                 {/* Watermark */}
+                 <div className="absolute -right-6 -bottom-6 opacity-[0.03] text-indigo-900 pointer-events-none transform -rotate-12">
+                     <Umbrella size={160} />
+                 </div>
             </div>
 
             {/* Changes Trigger */}
             <div 
                 onClick={() => setShowDetail(true)}
-                className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm flex items-center justify-between cursor-pointer active:scale-[0.99] transition-transform"
+                className="bg-white rounded-[24px] p-5 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-center justify-between cursor-pointer active:scale-[0.99] transition-all group hover:border-indigo-100"
             >
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
-                        <ArrowUpRight size={20} />
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 shadow-sm shrink-0">
+                        <ArrowUpRight size={22} strokeWidth={2} />
                     </div>
                     <div>
-                        <h3 className="text-sm font-bold text-gray-900">本月人员变动</h3>
-                        <p className="text-xs text-gray-400 mt-0.5">
-                            新增 <span className="text-blue-600 font-bold">{MOCK_SOCIAL_DATA.changes.add}</span> 人，
-                            减少 <span className="text-gray-600 font-bold">{MOCK_SOCIAL_DATA.changes.remove}</span> 人
+                        <h4 className="text-sm font-black text-slate-900">本月增减员变动</h4>
+                        <p className="text-[11px] font-bold text-slate-400 mt-1">
+                            新增 <span className="text-blue-600">{MOCK_SOCIAL_DATA.changes.add}</span> 人，
+                            减少 <span className="text-slate-600">{MOCK_SOCIAL_DATA.changes.remove}</span> 人
                         </p>
                     </div>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center">
-                    <ChevronRight size={18} className="text-gray-400" />
-                </div>
+                <ChevronRight size={18} className="text-slate-300 group-hover:text-indigo-400 transition-colors" />
             </div>
 
-            {/* Documents */}
+            {/* Docs List */}
             <div>
-                 <h3 className="text-sm font-bold text-gray-900 mb-3 px-1">缴纳凭证</h3>
-                 <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-                     {MOCK_DOCS.map((doc, idx) => (
-                         <div 
-                            key={doc.id}
+                <h3 className="text-sm font-black text-slate-900 mb-4 px-1">缴纳回单</h3>
+                <div className="space-y-4">
+                    {MOCK_DOCS.map(doc => (
+                        <div 
+                            key={doc.id} 
                             onClick={() => setSelectedDoc(doc)}
-                            className="p-4 border-b border-gray-50 last:border-0 flex items-center justify-between active:bg-gray-50 transition-colors cursor-pointer"
-                         >
-                             <div className="flex items-center gap-3">
-                                 <FileText size={18} className="text-gray-400" />
-                                 <div>
-                                     <p className="text-sm font-medium text-gray-700">{doc.title}</p>
-                                     <p className="text-[10px] text-gray-400">{doc.size}</p>
-                                 </div>
-                             </div>
-                             <ChevronRight size={16} className="text-gray-300" />
-                         </div>
-                     ))}
-                 </div>
+                            className="bg-white rounded-[24px] p-5 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-center justify-between cursor-pointer active:scale-[0.99] transition-all group hover:border-indigo-100"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-500 flex items-center justify-center border border-slate-100 shadow-sm shrink-0">
+                                    <FileText size={22} strokeWidth={2} />
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-black text-slate-900 line-clamp-1">{doc.title}</h4>
+                                    <p className="text-[11px] font-bold text-slate-400 mt-1">{doc.date} · {doc.size}</p>
+                                </div>
+                            </div>
+                            <Download size={18} className="text-slate-300 group-hover:text-indigo-400 transition-colors" />
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );

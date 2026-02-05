@@ -28,7 +28,6 @@ import {
   Briefcase
 } from 'lucide-react';
 
-// Define the structure for categorized menu items
 interface ServiceItem {
   id: string;
   label: string;
@@ -61,7 +60,6 @@ const serviceGroups: ServiceGroup[] = [
       { id: 'fn-reim', label: '报销', iconName: 'Wallet2' },
       { id: 'fn-3', label: '凭证', iconName: 'FileUp' }, 
       { id: 'fn-5', label: '报表', iconName: 'BarChart3' }, 
-      // Tax (fn-2) kept as it was in previous version, though distinct from ops
       { id: 'fn-2', label: '税款', iconName: 'Calculator' }, 
     ]
   },
@@ -85,7 +83,7 @@ const serviceGroups: ServiceGroup[] = [
     themeColor: 'purple',
     items: [
       { id: 'ot-1', label: '政策咨询', iconName: 'HelpCircle' },
-      { id: 'ot-5', label: '员工服务', iconName: 'HeartHandshake' }, // Replaced Proof with Employee Service
+      { id: 'ot-5', label: '员工服务', iconName: 'HeartHandshake' }, 
       { id: 'ot-3', label: '口径确认', iconName: 'MessageSquare' },
       { id: 'ot-4', label: '异常处理', iconName: 'AlertOctagon' },
     ]
@@ -101,7 +99,7 @@ const Work: React.FC = () => {
   };
 
   const renderIcon = (name: string, size: number = 24) => {
-    const props = { size, strokeWidth: 1.5 }; // Lighter stroke
+    const props = { size, strokeWidth: 1.5 };
     switch (name) {
       case 'Banknote': return <Banknote {...props} />;
       case 'FileCheck': return <FileCheck {...props} />;
@@ -138,7 +136,6 @@ const Work: React.FC = () => {
     }
   };
 
-  // Filter Logic
   const filteredGroups = serviceGroups.map(group => ({
     ...group,
     items: group.items.filter(item => 
@@ -148,15 +145,13 @@ const Work: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full bg-[#F8F9FB]">
-      {/* Header */}
       <header className="sticky top-0 z-40 px-6 pt-12 pb-4 bg-[#F8F9FB]/90 backdrop-blur-xl border-b border-slate-100/50">
         <div className="flex items-center gap-2 mb-2 opacity-60">
             <Briefcase size={16} className="text-slate-400"/>
             <span className="text-xs font-bold text-slate-400 font-mono tracking-widest uppercase">Workspace & Tools</span>
         </div>
-        <h1 className="text-2xl font-bold text-slate-800 tracking-tight mb-4">事务工作台</h1>
+        <h1 className="text-2xl font-black text-slate-800 tracking-tight mb-4">事务工作台</h1>
         
-        {/* Search Bar - Larger Font & Height */}
         <div className="relative group">
             <input 
                 type="text" 
@@ -189,12 +184,12 @@ const Work: React.FC = () => {
                                     <div className={`w-[64px] h-[64px] rounded-[26px] bg-white flex items-center justify-center border shadow-sm group-hover:-translate-y-1 transition-all duration-300 ${theme.border} ${theme.text} ${theme.shadow}`}>
                                         {renderIcon(item.iconName, 28)}
                                         {item.badge && (
-                                          <div className={`absolute -top-1.5 -right-3 px-2 py-0.5 rounded-full text-[10px] font-bold shadow-sm border-2 border-white ${item.badge.color}`}>
+                                          <div className={`absolute -top-1.5 -right-3 px-2 py-0.5 rounded-full text-[10px] font-black shadow-sm border-2 border-white z-10 ${item.badge.color}`}>
                                             {item.badge.text}
                                           </div>
                                         )}
                                     </div>
-                                    <div className="text-xs font-medium text-slate-700 text-center leading-tight group-hover:text-slate-900 transition-colors">
+                                    <div className="text-xs font-bold text-slate-700 text-center leading-tight group-hover:text-slate-900 transition-colors">
                                         {item.label}
                                     </div>
                                 </div>
@@ -206,7 +201,7 @@ const Work: React.FC = () => {
         ) : (
             <div className="flex flex-col items-center justify-center py-20 text-slate-400">
                 <Search size={36} className="mb-3 opacity-20" />
-                <p className="text-sm">未找到相关功能</p>
+                <p className="text-sm font-bold">未找到相关功能</p>
             </div>
         )}
       </div>

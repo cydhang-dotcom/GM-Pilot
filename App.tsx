@@ -10,7 +10,7 @@ import BottomNav from './components/BottomNav';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 text-slate-900 pb-20 max-w-md mx-auto shadow-2xl overflow-hidden border-x border-gray-200">
+    <div className="flex flex-col min-h-screen bg-[#F8F9FB] text-slate-900 pb-20 max-w-md mx-auto shadow-[0_0_40px_-10px_rgba(0,0,0,0.1)] overflow-hidden border-x border-slate-100">
       <main className="flex-1 overflow-y-auto no-scrollbar">
         {children}
       </main>

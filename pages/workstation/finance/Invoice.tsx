@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { QrCode, FilePlus, Filter, Clock, ArrowUpRight, MessageSquare, ScanLine } from 'lucide-react';
 import { InvoiceDetail } from './FinanceDetails';
@@ -20,121 +21,120 @@ const Invoice: React.FC = () => {
         return <InvoiceDetail item={selectedItem} onBack={() => setSelectedItem(null)} />;
     }
 
-    // Merged mock data for demonstration: Combining Received (Input) and Issued (Output/Application) invoices
     const unifiedInvoices = [
         ...MOCK_INVOICES.map(i => ({...i, direction: 'IN', actionLabel: i.status === '待归属' ? '补归属' : ''})),
         ...MOCK_INVOICE_APPS.map(i => ({
             id: i.id,
-            name: i.customer, // Map customer to name for unified display
+            name: i.customer, 
             amount: i.amount,
             date: i.date,
             type: i.type,
-            status: i.status, // e.g. '待开票', '已开具', '待补充'
+            status: i.status, 
             source: '开票申请',
-            project: i.content, // reuse field or map appropriately
+            project: i.content, 
             direction: 'OUT',
             actionLabel: i.status === '待补充' ? '补资料' : (i.status === '已开具' ? '查看' : i.status === '待开票' ? '催办' : '')
         }))
     ].sort((a, b) => {
-        // Priority: 待开票 > others
         if (a.status === '待开票' && b.status !== '待开票') return -1;
         if (a.status !== '待开票' && b.status === '待开票') return 1;
-        // Secondary: Date Desc
         return new Date(b.date).getTime() - new Date(a.date).getTime();
     });
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-6 animate-fade-in pb-20">
              {/* Functional Actions */}
-             <div className="grid grid-cols-2 gap-3">
-                 <button className="flex flex-col items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 py-4 rounded-xl shadow-sm hover:bg-gray-50 active:scale-[0.99] transition-all">
-                     <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
-                        <QrCode size={20} />
+             <div className="grid grid-cols-2 gap-4">
+                 <button className="flex flex-col items-center justify-center gap-3 bg-white border border-slate-100 py-6 rounded-[32px] shadow-sm hover:shadow-md hover:border-indigo-100 active:scale-[0.98] transition-all group">
+                     <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                        <QrCode size={24} strokeWidth={2} />
                      </div>
-                     <span className="text-xs font-bold">扫码收票</span>
+                     <span className="text-xs font-black text-slate-700">扫码收票</span>
                  </button>
-                 <button className="flex flex-col items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 py-4 rounded-xl shadow-sm hover:bg-gray-50 active:scale-[0.99] transition-all">
-                     <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                        <FilePlus size={20} />
+                 <button className="flex flex-col items-center justify-center gap-3 bg-white border border-slate-100 py-6 rounded-[32px] shadow-sm hover:shadow-md hover:border-indigo-100 active:scale-[0.98] transition-all group">
+                     <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
+                        <FilePlus size={24} strokeWidth={2} />
                      </div>
-                     <span className="text-xs font-bold">发起开票</span>
+                     <span className="text-xs font-black text-slate-700">发起开票</span>
                  </button>
              </div>
 
-             {/* Filter/Header */}
+             {/* Header */}
              <div className="flex justify-between items-center px-1">
-                 <h3 className="text-sm font-bold text-gray-900">发票记录</h3>
-                 <button className="flex items-center gap-1 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">
+                 <h3 className="text-sm font-black text-slate-900">发票记录</h3>
+                 <button className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 bg-white border border-slate-200 px-3 py-1.5 rounded-xl active:bg-slate-50">
                      <Filter size={12} /> 筛选
                  </button>
              </div>
 
              {/* Unified List */}
-             <div className="space-y-3">
+             <div className="space-y-4">
                 {unifiedInvoices.map((inv) => {
                     const isPendingIssue = inv.status === '待开票';
                     return (
                         <div 
                             key={inv.id} 
                             onClick={() => setSelectedItem(inv)}
-                            className={`rounded-xl p-4 border shadow-sm relative cursor-pointer active:scale-[0.99] transition-transform ${
+                            className={`rounded-[24px] p-5 border shadow-[0_4px_20px_rgba(0,0,0,0.02)] relative cursor-pointer active:scale-[0.99] transition-all ${
                                 isPendingIssue 
-                                ? 'bg-blue-50/50 border-blue-200 ring-1 ring-blue-100' 
-                                : 'bg-white border-gray-100'
+                                ? 'bg-blue-50/40 border-blue-200 ring-1 ring-blue-100' 
+                                : 'bg-white border-slate-100 hover:border-indigo-100'
                             }`}
                         >
                             {/* Header: Source & Amount */}
-                            <div className="flex justify-between items-start mb-2">
+                            <div className="flex justify-between items-start mb-3">
                                 <div className="flex items-center gap-2">
-                                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold border ${
+                                    <span className={`text-[10px] px-2 py-1 rounded-lg font-black border ${
                                         inv.direction === 'IN' 
                                         ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
                                         : 'bg-indigo-50 text-indigo-600 border-indigo-100'
                                     }`}>
-                                        {inv.direction === 'IN' ? '收' : '开'}
+                                        {inv.direction === 'IN' ? '进项' : '销项'}
                                     </span>
                                     {isPendingIssue ? (
-                                        <span className="text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded font-bold animate-pulse">
-                                            处理中
+                                        <span className="text-[10px] bg-blue-100 text-blue-600 px-2 py-1 rounded-lg font-bold animate-pulse flex items-center gap-1">
+                                            <Clock size={10} /> 处理中
                                         </span>
                                     ) : (
-                                        <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">
+                                        <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-1 rounded-lg font-bold">
                                             {inv.source}
                                         </span>
                                     )}
                                 </div>
-                                <span className={`text-lg font-mono font-bold ${inv.direction === 'IN' ? 'text-gray-900' : 'text-indigo-600'}`}>
+                                <span className={`text-lg font-black font-mono tracking-tight ${inv.direction === 'IN' ? 'text-slate-900' : 'text-indigo-600'}`}>
                                     {inv.direction === 'IN' ? '-' : '+'}{inv.amount}
                                 </span>
                             </div>
                             
                             {/* Body: Name & Meta */}
-                            <h3 className="text-sm font-bold text-gray-900 mb-1">{inv.name}</h3>
-                            <p className="text-xs text-gray-400 mb-3">{inv.date} · {inv.type} · {inv.project}</p>
+                            <h3 className="text-sm font-black text-slate-900 mb-1.5">{inv.name}</h3>
+                            <p className="text-[11px] text-slate-400 font-medium mb-4 flex items-center gap-2">
+                                <span className="font-mono">{inv.date}</span>
+                                <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                                <span>{inv.type}</span>
+                                <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                                <span>{inv.project}</span>
+                            </p>
                             
                             {/* Footer: Status & Action */}
-                            <div className={`border-t pt-2 flex justify-between items-center ${isPendingIssue ? 'border-blue-100' : 'border-gray-50'}`}>
-                                <span className={`text-[10px] font-medium ${
+                            <div className={`border-t pt-3 flex justify-between items-center ${isPendingIssue ? 'border-blue-100' : 'border-slate-50'}`}>
+                                <span className={`text-[10px] font-black ${
                                     inv.status === '已开具' || inv.status === '已归属' || inv.status === '已匹配' ? 'text-emerald-600' : 
-                                    inv.status.includes('待') || inv.status.includes('补') ? 'text-orange-600' : 'text-gray-400'
+                                    inv.status.includes('待') || inv.status.includes('补') ? 'text-orange-600' : 'text-slate-400'
                                 }`}>
-                                    {isPendingIssue ? (
-                                        <span className="flex items-center gap-1 text-blue-600 font-bold">
-                                            <Clock size={10} className="animate-spin-slow" /> 待开票
-                                        </span>
-                                    ) : inv.status}
+                                    {isPendingIssue ? '等待税务接口返回...' : inv.status}
                                 </span>
                                 
                                 {inv.actionLabel && (
-                                    <button className={`text-[10px] font-bold px-2 py-1 rounded border flex items-center gap-1 ${
+                                    <button className={`text-[10px] font-black px-3 py-1.5 rounded-lg border flex items-center gap-1.5 transition-all ${
                                         inv.actionLabel.includes('补') 
-                                        ? 'bg-orange-50 text-orange-600 border-orange-100 animate-pulse' 
-                                        : 'bg-white text-blue-600 border-gray-200'
+                                        ? 'bg-orange-50 text-orange-600 border-orange-100 animate-pulse shadow-sm' 
+                                        : 'bg-white text-indigo-600 border-slate-200 hover:bg-indigo-50 hover:border-indigo-100'
                                     }`}>
                                         {inv.actionLabel}
-                                        {inv.actionLabel === '查看' ? <ArrowUpRight size={10} /> : 
-                                         inv.actionLabel === '催办' ? <MessageSquare size={10} /> :
-                                         <ScanLine size={10} />}
+                                        {inv.actionLabel === '查看' ? <ArrowUpRight size={10} strokeWidth={3} /> : 
+                                         inv.actionLabel === '催办' ? <MessageSquare size={10} strokeWidth={3} /> :
+                                         <ScanLine size={10} strokeWidth={3} />}
                                     </button>
                                 )}
                             </div>

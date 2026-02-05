@@ -11,13 +11,13 @@ interface OnboardingDetailProps {
 }
 
 const InfoSection = ({ title, children, onEdit, isUrgent }: { title: string, children?: React.ReactNode, onEdit?: () => void, isUrgent?: boolean }) => (
-    <div className={`bg-white rounded-3xl p-5 shadow-sm border transition-colors ${isUrgent ? 'border-rose-200 ring-4 ring-rose-50' : 'border-slate-100'}`}>
+    <div className={`bg-white rounded-[24px] p-6 shadow-sm border transition-colors ${isUrgent ? 'border-rose-200 ring-4 ring-rose-50' : 'border-slate-100'}`}>
         <div className="flex justify-between items-center mb-4 ml-1">
             <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{title}</h4>
             {onEdit && (
                 <button 
                     onClick={onEdit}
-                    className={`flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-lg border transition-all active:scale-95 ${
+                    className={`flex items-center gap-1 text-[10px] font-bold px-2.5 py-1.5 rounded-lg border transition-all active:scale-95 ${
                         isUrgent ? 'bg-rose-600 text-white border-rose-600 shadow-md' : 'bg-indigo-50 text-indigo-600 border-indigo-100'
                     }`}
                 >
@@ -104,7 +104,7 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
     };
 
     const StatusCard = ({ icon: Icon, title, desc, done, stepKey }: any) => (
-        <div className={`bg-white rounded-[28px] p-5 border shadow-sm transition-all ${done ? 'border-emerald-100' : 'border-slate-100'} ${!done && isMissingInfo && stepKey !== 'info' ? 'opacity-60 grayscale-[0.5]' : ''}`}>
+        <div className={`bg-white rounded-[24px] p-5 border shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all ${done ? 'border-emerald-100' : 'border-slate-100'} ${!done && isMissingInfo && stepKey !== 'info' ? 'opacity-60 grayscale-[0.5]' : ''}`}>
             <div className="flex items-start gap-4">
                 <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border transition-colors ${
                     done ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-indigo-50 text-indigo-600 border-indigo-100'
@@ -115,22 +115,22 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
                     <div className="flex justify-between items-center mb-1">
                         <h5 className="text-sm font-black text-slate-900">{title}</h5>
                         {done ? (
-                            <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md flex items-center gap-1">
+                            <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md flex items-center gap-1 border border-emerald-100">
                                 <CheckCircle2 size={10} strokeWidth={3} /> 已办结
                             </span>
                         ) : (
-                            <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md flex items-center gap-1">
+                            <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md flex items-center gap-1 border border-amber-100">
                                 <Circle size={8} fill="currentColor" /> 待办理
                             </span>
                         )}
                     </div>
-                    <p className="text-[11px] text-slate-400 leading-relaxed">{desc}</p>
+                    <p className="text-[11px] text-slate-400 leading-relaxed font-medium">{desc}</p>
                     
                     {!done && stepKey !== 'info' && (
                         <button 
                             onClick={() => handleStepClick(stepKey)}
                             disabled={!!loadingStep}
-                            className={`mt-4 w-full py-2.5 rounded-xl text-[10px] font-black shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all ${
+                            className={`mt-4 w-full py-3 rounded-xl text-[10px] font-black shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all ${
                                 isMissingInfo 
                                 ? 'bg-gray-100 text-gray-400 shadow-none cursor-not-allowed' 
                                 : 'bg-indigo-600 text-white shadow-indigo-100'
@@ -138,7 +138,7 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
                         >
                             {loadingStep === stepKey ? <Loader2 size={14} className="animate-spin" /> : 
                              isMissingInfo ? <span className="flex items-center gap-1"><AlertCircle size={12}/> 请先补全档案</span> : 
-                             <>立即发起办理 <ChevronRight size={12} /></>
+                             <>立即发起办理 <ChevronRight size={12} strokeWidth={3} /></>
                             }
                         </button>
                     )}
@@ -149,7 +149,7 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
 
     if (isEditing) {
         return (
-            <DetailLayout title="完善核心档案" onBack={() => setIsEditing(false)} bgColor="bg-gray-50">
+            <DetailLayout title="完善核心档案" onBack={() => setIsEditing(false)} bgColor="bg-[#F8F9FB]">
                 <div className="space-y-6 pb-24">
                     {/* Read-Only Info */}
                     <div className="bg-slate-100 rounded-[28px] p-6 border border-slate-200">
@@ -231,16 +231,16 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
                     </div>
                 </div>
 
-                <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-slate-100 max-w-md mx-auto flex gap-3">
+                <div className="fixed bottom-0 left-0 right-0 p-6 bg-white/90 backdrop-blur-xl border-t border-slate-100 max-w-md mx-auto flex gap-3 pb-8">
                     <button 
                         onClick={() => setIsEditing(false)}
-                        className="flex-1 py-4 rounded-2xl font-black text-sm bg-white border border-slate-200 text-slate-500 active:scale-[0.98] transition-all"
+                        className="flex-1 py-3.5 rounded-2xl font-black text-sm bg-white border border-slate-200 text-slate-500 active:scale-[0.98] transition-all"
                     >
                         取消
                     </button>
                     <button 
                         onClick={handleSaveInfo}
-                        className="flex-[2] py-4 rounded-2xl font-black text-sm bg-indigo-600 text-white shadow-xl shadow-indigo-100 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                        className="flex-[2] py-3.5 rounded-2xl font-black text-sm bg-indigo-600 text-white shadow-xl shadow-indigo-100 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                     >
                         <Save size={18} /> 保存并更新
                     </button>
@@ -254,22 +254,22 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
             <DetailLayout 
                 title="入职办理详情" 
                 onBack={onBack}
-                bgColor="bg-gray-50"
+                bgColor="bg-[#F8F9FB]"
                 tag={{ label: '拟入职核验', color: 'text-indigo-600', bg: 'bg-indigo-50' }}
             >
                 <div className="space-y-5 pb-24">
                     {isMissingInfo && (
                         <div className="bg-rose-50 border border-rose-200 rounded-[24px] p-4 flex gap-3 items-start animate-pulse shadow-sm cursor-pointer" onClick={() => setIsEditing(true)}>
-                            <AlertCircle className="text-rose-600 shrink-0 mt-0.5" size={18} />
+                            <AlertCircle className="text-rose-600 shrink-0 mt-0.5" size={18} strokeWidth={2.5} />
                             <div>
                                 <h4 className="text-xs font-black text-rose-700">扫码入职：核心信息缺失</h4>
-                                <p className="text-[10px] text-rose-600/80 leading-relaxed mt-1">该员工通过二维码自主完善了基础信息，请您核实并补足其部门、岗位及核定薪资标准。点击此处立即补充。</p>
+                                <p className="text-[10px] text-rose-600/80 leading-relaxed mt-1 font-bold">该员工通过二维码自主完善了基础信息，请您核实并补足其部门、岗位及核定薪资标准。点击此处立即补充。</p>
                             </div>
                         </div>
                     )}
 
                     {/* Employee Header */}
-                    <div className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-100 relative overflow-hidden">
+                    <div className="bg-white rounded-[32px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-slate-100 relative overflow-hidden">
                         <div className="absolute right-0 top-0 opacity-[0.03] transform translate-x-1/4 -translate-y-1/4 text-indigo-900">
                             {isQR ? <QrCode size={160} /> : <User size={160} />}
                         </div>
@@ -297,7 +297,7 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
                             <div className="text-right">
                                 <button 
                                     onClick={() => setShowSalary(!showSalary)}
-                                    className="inline-flex items-center gap-1.5 text-[9px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg border border-indigo-100"
+                                    className="inline-flex items-center gap-1.5 text-[9px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg border border-indigo-100 active:scale-95 transition-transform"
                                 >
                                     {showSalary ? <EyeOff size={10}/> : <Eye size={10}/>} {showSalary ? '隐藏薪资' : '查看薪资'}
                                 </button>
@@ -354,10 +354,10 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
                     </div>
                 </div>
 
-                <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-slate-100 max-w-md mx-auto">
+                <div className="fixed bottom-0 left-0 right-0 p-6 bg-white/80 backdrop-blur-xl border-t border-slate-100 max-w-md mx-auto pb-8">
                      <button 
                         onClick={onBack}
-                        className="w-full py-4 rounded-2xl font-black text-sm bg-gray-900 text-white shadow-xl active:scale-[0.98] transition-all"
+                        className="w-full py-3.5 rounded-2xl font-black text-sm bg-gray-900 text-white shadow-xl active:scale-[0.98] transition-all"
                      >
                         不再显示
                      </button>
@@ -385,7 +385,7 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
                                         <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block">合同期限</label>
                                         <div className="grid grid-cols-3 gap-2">
                                             {['1年', '3年', '5年'].map(t => (
-                                                <button key={t} onClick={() => setContractForm({...contractForm, term: t.replace('年', '')})} className={`py-2.5 rounded-xl text-xs font-bold border transition-all ${contractForm.term === t.replace('年', '') ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-slate-50 text-slate-600 border-slate-100'}`}>{t}</button>
+                                                <button key={t} onClick={() => setContractForm({...contractForm, term: t.replace('年', '')})} className={`py-3 rounded-2xl text-xs font-bold border transition-all ${contractForm.term === t.replace('年', '') ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-slate-50 text-slate-600 border-slate-100'}`}>{t}</button>
                                             ))}
                                         </div>
                                     </div>
@@ -393,7 +393,7 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
                                         <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block">试用期</label>
                                         <div className="grid grid-cols-3 gap-2">
                                             {['无', '3个月', '6个月'].map(t => (
-                                                <button key={t} onClick={() => setContractForm({...contractForm, probation: t === '无' ? '0' : t.replace('个月', '')})} className={`py-2.5 rounded-xl text-xs font-bold border transition-all ${contractForm.probation === (t === '无' ? '0' : t.replace('个月', '')) ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-slate-50 text-slate-600 border-slate-100'}`}>{t}</button>
+                                                <button key={t} onClick={() => setContractForm({...contractForm, probation: t === '无' ? '0' : t.replace('个月', '')})} className={`py-3 rounded-2xl text-xs font-bold border transition-all ${contractForm.probation === (t === '无' ? '0' : t.replace('个月', '')) ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-slate-50 text-slate-600 border-slate-100'}`}>{t}</button>
                                             ))}
                                         </div>
                                     </div>
@@ -409,7 +409,7 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
                                             type="number" 
                                             value={taxForm.base}
                                             onChange={(e) => setTaxForm({...taxForm, base: e.target.value})}
-                                            className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 pl-8 pr-4 text-lg font-black font-mono outline-none focus:bg-white focus:border-indigo-500 transition-all"
+                                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 pl-8 pr-4 text-lg font-black font-mono outline-none focus:bg-white focus:border-indigo-500 transition-all"
                                         />
                                     </div>
                                     <p className="text-[10px] text-slate-400 mt-2 ml-1">* 默认为核定月薪，如有差异请修改。</p>
@@ -426,7 +426,7 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
                                                 type="number" 
                                                 value={socialForm.socialBase}
                                                 onChange={(e) => setSocialForm({...socialForm, socialBase: e.target.value})}
-                                                className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 pl-8 pr-4 text-sm font-black font-mono outline-none focus:bg-white focus:border-indigo-500 transition-all"
+                                                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-8 pr-4 text-sm font-black font-mono outline-none focus:bg-white focus:border-indigo-500 transition-all"
                                             />
                                         </div>
                                     </div>
@@ -438,7 +438,7 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
                                                 type="number" 
                                                 value={socialForm.fundBase}
                                                 onChange={(e) => setSocialForm({...socialForm, fundBase: e.target.value})}
-                                                className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 pl-8 pr-4 text-sm font-black font-mono outline-none focus:bg-white focus:border-indigo-500 transition-all"
+                                                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-8 pr-4 text-sm font-black font-mono outline-none focus:bg-white focus:border-indigo-500 transition-all"
                                             />
                                         </div>
                                     </div>
@@ -450,7 +450,7 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
                             onClick={confirmAction}
                             className="w-full mt-8 bg-indigo-600 text-white font-black py-4 rounded-2xl shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                         >
-                            <Check size={18} /> 确认并办理
+                            <Check size={18} strokeWidth={3} /> 确认并办理
                         </button>
                     </div>
                 </div>

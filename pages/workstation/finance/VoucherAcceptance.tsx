@@ -13,43 +13,47 @@ const VoucherAcceptance = ({ onBack, onConfirm }: { onBack: () => void, onConfir
     const isAllChecked = items.every(i => checkedItems[i.id]);
 
     return (
-        <div className="fixed inset-0 z-[60] flex flex-col bg-white max-w-md mx-auto w-full h-full border-x border-gray-200 overflow-hidden animate-fade-in-up">
-             <div className="px-5 pt-10 pb-4 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
-                <div className="flex items-center gap-3">
-                    <button onClick={onBack} className="p-1 -ml-1 hover:bg-gray-50 rounded-full text-gray-500"><X size={24} /></button>
-                    <h2 className="text-lg font-bold text-gray-900">月结验收</h2>
+        <div className="fixed inset-0 z-[60] flex flex-col bg-[#F8F9FB] max-w-md mx-auto w-full h-full border-x border-slate-100 overflow-hidden animate-slide-in-right font-sans">
+             <div className="px-6 pt-12 pb-4 border-b border-slate-100 flex items-center justify-between bg-white/90 backdrop-blur-xl sticky top-0 z-10">
+                <div className="flex items-center gap-4">
+                    <button onClick={onBack} className="p-2 -ml-2 hover:bg-slate-50 rounded-full transition-colors text-slate-800 active:scale-90"><X size={24} strokeWidth={2.5}/></button>
+                    <h2 className="text-xl font-black text-slate-900 tracking-tight">月结验收</h2>
                 </div>
-                <div className="text-xs font-bold font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-100">2023-12</div>
+                <div className="text-xs font-black font-mono text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-100 shadow-sm">2023-12</div>
             </div>
+            
             <div className="flex-1 overflow-y-auto p-6">
-                 <div className="mb-10 text-center">
-                     <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-5 border border-indigo-100">
-                         <ScrollText size={32} strokeWidth={1.5} />
+                 <div className="mb-10 text-center mt-4">
+                     <div className="w-24 h-24 bg-gradient-to-br from-blue-50 to-indigo-50 text-indigo-600 rounded-[32px] flex items-center justify-center mx-auto mb-6 border border-indigo-100 shadow-lg shadow-indigo-100/50">
+                         <ScrollText size={40} strokeWidth={1.5} />
                      </div>
-                     <h3 className="text-xl font-bold text-gray-900 mb-2">财务关账确认</h3>
-                     <p className="text-sm text-gray-500 leading-relaxed px-4">请总经理确认以下关键交付事项。验收后数据将锁定为 <span className="font-mono text-gray-900 font-bold">V1.0</span> 版本并归档。</p>
+                     <h3 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">财务关账确认</h3>
+                     <p className="text-sm text-slate-500 leading-relaxed px-4 font-medium">请总经理确认以下关键交付事项。验收后数据将锁定为 <span className="font-mono text-slate-900 font-black bg-slate-100 px-1 rounded">V1.0</span> 版本并归档。</p>
                  </div>
+                 
                  <div className="space-y-4 mb-8">
                      {items.map(item => (
-                        <div key={item.id} onClick={() => setCheckedItems(prev => ({...prev, [item.id]: !prev[item.id]}))} className={`p-4 rounded-2xl flex gap-4 border-2 transition-all cursor-pointer select-none relative overflow-hidden group ${checkedItems[item.id] ? 'bg-blue-50/30 border-blue-500' : 'bg-white border-gray-100 hover:border-gray-200'}`}>
-                            <div className={`shrink-0 mt-0.5 w-6 h-6 rounded-full border-2 flex items-center justify-center ${checkedItems[item.id] ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-200'}`}>
-                                {checkedItems[item.id] && <CheckCircle2 size={14} className="text-white" />}
+                        <div key={item.id} onClick={() => setCheckedItems(prev => ({...prev, [item.id]: !prev[item.id]}))} className={`p-5 rounded-[24px] flex gap-4 border-2 transition-all cursor-pointer select-none relative overflow-hidden group active:scale-[0.99] ${checkedItems[item.id] ? 'bg-blue-50/40 border-blue-500 shadow-md' : 'bg-white border-slate-100 hover:border-slate-200 shadow-sm'}`}>
+                            <div className={`shrink-0 mt-0.5 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${checkedItems[item.id] ? 'bg-blue-500 border-blue-500' : 'bg-white border-slate-200'}`}>
+                                {checkedItems[item.id] && <CheckCircle2 size={14} className="text-white" strokeWidth={3} />}
                             </div>
                             <div>
-                                <h4 className={`text-sm font-bold mb-1 ${item.theme === 'orange' ? 'text-orange-900' : 'text-gray-900'}`}>{item.title}</h4>
-                                <p className={`text-xs leading-relaxed ${item.theme === 'orange' ? 'text-orange-700/70' : 'text-gray-400'}`}>{item.desc}</p>
+                                <h4 className={`text-sm font-black mb-1.5 ${item.theme === 'orange' ? 'text-orange-900' : 'text-slate-900'}`}>{item.title}</h4>
+                                <p className={`text-xs leading-relaxed font-medium ${item.theme === 'orange' ? 'text-orange-800/80' : 'text-slate-400'}`}>{item.desc}</p>
                             </div>
                         </div>
                      ))}
                  </div>
-                 <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                     <Lock size={16} className="text-gray-400 shrink-0 mt-0.5" />
-                     <div className="text-xs text-gray-500 leading-relaxed"><span className="font-bold text-gray-700 block mb-1">数据不可篡改</span>一旦确认验收，所有凭证将被加盖电子时间戳。</div>
+                 
+                 <div className="flex items-start gap-3 p-5 bg-slate-50 rounded-[24px] border border-slate-100">
+                     <Lock size={18} className="text-slate-400 shrink-0 mt-0.5" />
+                     <div className="text-xs text-slate-500 leading-relaxed font-medium"><span className="font-black text-slate-700 block mb-1">数据不可篡改</span>一旦确认验收，所有凭证将被加盖电子时间戳，后续修改需走红冲流程。</div>
                  </div>
             </div>
-            <div className="p-4 border-t border-gray-100 bg-white pb-8">
-                <button onClick={isAllChecked ? onConfirm : undefined} className={`w-full font-bold py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-sm ${isAllChecked ? 'bg-indigo-600 text-white shadow-indigo-200 active:scale-[0.98]' : 'bg-gray-100 text-gray-400 shadow-none cursor-not-allowed'}`}>
-                    <CheckSquare size={18} /> {isAllChecked ? '确认验收并锁版' : `请确认 (${Object.values(checkedItems).filter(Boolean).length}/${items.length})`}
+            
+            <div className="p-6 border-t border-slate-100 bg-white/90 backdrop-blur-xl pb-10">
+                <button onClick={isAllChecked ? onConfirm : undefined} className={`w-full font-black py-4 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2 text-sm ${isAllChecked ? 'bg-indigo-600 text-white shadow-indigo-200 active:scale-[0.98]' : 'bg-slate-100 text-slate-400 shadow-none cursor-not-allowed'}`}>
+                    <CheckSquare size={20} strokeWidth={2.5} /> {isAllChecked ? '确认验收并锁版' : `请确认 (${Object.values(checkedItems).filter(Boolean).length}/${items.length})`}
                 </button>
             </div>
         </div>
