@@ -151,21 +151,21 @@ const Work: React.FC = () => {
       {/* Header */}
       <header className="sticky top-0 z-40 px-6 pt-12 pb-4 bg-[#F8F9FB]/90 backdrop-blur-xl border-b border-slate-100/50">
         <div className="flex items-center gap-2 mb-2 opacity-60">
-            <Briefcase size={14} className="text-slate-400"/>
-            <span className="text-[10px] font-bold text-slate-400 font-mono tracking-widest uppercase">Workspace & Tools</span>
+            <Briefcase size={16} className="text-slate-400"/>
+            <span className="text-xs font-bold text-slate-400 font-mono tracking-widest uppercase">Workspace & Tools</span>
         </div>
         <h1 className="text-2xl font-bold text-slate-800 tracking-tight mb-4">事务工作台</h1>
         
-        {/* Search Bar - Cleaner & Softer */}
+        {/* Search Bar - Larger Font & Height */}
         <div className="relative group">
             <input 
                 type="text" 
                 placeholder="查找功能或事务..." 
-                className="w-full h-11 pl-11 pr-4 rounded-2xl bg-white border border-slate-200 text-slate-700 placeholder-slate-400 focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50/50 transition-all text-sm shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
+                className="w-full h-12 pl-11 pr-4 rounded-2xl bg-white border border-slate-200 text-slate-700 placeholder-slate-400 focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50/50 transition-all text-base shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Search className="absolute left-4 top-3 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} strokeWidth={2} />
+            <Search className="absolute left-4 top-3.5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={20} strokeWidth={2} />
         </div>
       </header>
 
@@ -176,8 +176,8 @@ const Work: React.FC = () => {
                 return (
                     <section key={group.title}>
                         <div className="flex items-center gap-2 mb-5">
-                            <div className={`w-1 h-3 rounded-full ${group.themeColor === 'blue' ? 'bg-blue-400' : group.themeColor === 'emerald' ? 'bg-emerald-400' : 'bg-purple-400'}`}></div>
-                            <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider">{group.title}</h2>
+                            <div className={`w-1 h-3.5 rounded-full ${group.themeColor === 'blue' ? 'bg-blue-400' : group.themeColor === 'emerald' ? 'bg-emerald-400' : 'bg-purple-400'}`}></div>
+                            <h2 className="text-sm font-bold text-slate-600 uppercase tracking-wider">{group.title}</h2>
                         </div>
                         <div className="grid grid-cols-4 gap-y-6 gap-x-2">
                             {group.items.map((item) => (
@@ -186,15 +186,15 @@ const Work: React.FC = () => {
                                     onClick={() => handleItemClick(item.id)}
                                     className="flex flex-col items-center gap-3 cursor-pointer active:opacity-60 transition-opacity group relative"
                                 >
-                                    <div className={`w-[60px] h-[60px] rounded-[24px] bg-white flex items-center justify-center border shadow-sm group-hover:-translate-y-1 transition-all duration-300 ${theme.border} ${theme.text} ${theme.shadow}`}>
-                                        {renderIcon(item.iconName, 26)}
+                                    <div className={`w-[64px] h-[64px] rounded-[26px] bg-white flex items-center justify-center border shadow-sm group-hover:-translate-y-1 transition-all duration-300 ${theme.border} ${theme.text} ${theme.shadow}`}>
+                                        {renderIcon(item.iconName, 28)}
                                         {item.badge && (
-                                          <div className={`absolute -top-1.5 -right-3 px-1.5 py-0.5 rounded-full text-[9px] font-bold shadow-sm border-2 border-white ${item.badge.color}`}>
+                                          <div className={`absolute -top-1.5 -right-3 px-2 py-0.5 rounded-full text-[10px] font-bold shadow-sm border-2 border-white ${item.badge.color}`}>
                                             {item.badge.text}
                                           </div>
                                         )}
                                     </div>
-                                    <div className="text-[11px] font-medium text-slate-600 text-center leading-tight group-hover:text-slate-900 transition-colors">
+                                    <div className="text-xs font-medium text-slate-700 text-center leading-tight group-hover:text-slate-900 transition-colors">
                                         {item.label}
                                     </div>
                                 </div>
@@ -205,8 +205,8 @@ const Work: React.FC = () => {
             })
         ) : (
             <div className="flex flex-col items-center justify-center py-20 text-slate-400">
-                <Search size={32} className="mb-3 opacity-20" />
-                <p className="text-xs">未找到相关功能</p>
+                <Search size={36} className="mb-3 opacity-20" />
+                <p className="text-sm">未找到相关功能</p>
             </div>
         )}
       </div>
