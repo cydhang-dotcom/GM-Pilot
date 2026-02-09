@@ -74,11 +74,19 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 interface Props {
   className?: string;
+  loading?: boolean;
 }
 
-const CashFlowComparisonChart: React.FC<Props> = ({ className }) => {
+const CashFlowComparisonChart: React.FC<Props> = ({ className, loading = false }) => {
   return (
-    <div className={`w-full ${className || 'h-48'}`}>
+    <div className={`w-full relative ${className || 'h-48'}`}>
+      {/* Subtle Overlay while Syncing */}
+      {loading && (
+        <div className="absolute inset-0 bg-white/5 backdrop-blur-[1px] z-10 animate-fade-in flex items-center justify-center pointer-events-none">
+            {/* Minimal line animation could go here if needed */}
+        </div>
+      )}
+      
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
           <defs>
@@ -119,7 +127,7 @@ const CashFlowComparisonChart: React.FC<Props> = ({ className }) => {
             dataKey="current" 
             stroke="#3B82F6" 
             strokeWidth={3} 
-            fillOpacity={1} 
+            fillOpacity={loading ? 0.3 : 1} 
             fill="url(#colorCurrent)" 
             name="current"
             activeDot={{ r: 6, strokeWidth: 3, stroke: '#FFFFFF', fill: '#2563EB', className: 'shadow-lg' }}

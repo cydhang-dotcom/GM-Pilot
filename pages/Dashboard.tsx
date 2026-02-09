@@ -16,7 +16,9 @@ import {
   UserPlus,
   ShieldAlert,
   Clock,
-  ArrowUpRight
+  ArrowUpRight,
+  RefreshCw,
+  Loader2
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { GoogleGenAI } from "@google/genai";
@@ -282,12 +284,30 @@ const SmartDiagnosisChat: React.FC<{
 const Dashboard: React.FC = () => {
   const [month, setMonth] = useState<MonthKey>('2023-12');
   const [showBalance, setShowBalance] = useState<boolean>(false); 
+  const [syncStatus, setSyncStatus] = useState<'cache' | 'syncing' | 'live'>('cache');
+  const [currentBalance, setCurrentBalance] = useState<number>(MOCK_DATA['2023-12'].bankBalance);
 
   const currentData = MOCK_DATA[month];
   const netProfit = currentData.revenue - currentData.cost;
   const isProfit = netProfit >= 0;
   const margin = (netProfit / currentData.revenue) * 100;
   const headcountDiff = currentData.headcount - currentData.lastMonthHeadcount;
+
+  // Simulate two-step data syncing logic
+  useEffect(() => {
+    // 1. Initial cached value
+    setCurrentBalance(currentData.bankBalance);
+    setSyncStatus('syncing');
+
+    // 2. Secondary loading trigger to fetch "live" bank data
+    const syncTimer = setTimeout(() => {
+        // Mocking a live data update (e.g. some late transactions or interest)
+        setCurrentBalance(currentData.bankBalance + 125.80);
+        setSyncStatus('live');
+    }, 1800);
+
+    return () => clearTimeout(syncTimer);
+  }, [month, currentData]);
 
   const getHistoryData = (currentKey: string): HistoryData[] => {
       const keys = Object.keys(MOCK_DATA).sort();
@@ -417,11 +437,22 @@ const Dashboard: React.FC = () => {
         <section className="bg-gradient-to-br from-white via-[#f8fbff] to-[#eef6ff] rounded-[32px] p-7 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-slate-100 relative overflow-hidden">
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-2xl bg-white text-blue-500 flex items-center justify-center border border-blue-100 shadow-sm">
-                        <Wallet size={20} strokeWidth={2} />
+                    <div className="w-11 h-11 rounded-2xl bg-white text-blue-500 flex items-center justify-center border border-blue-100 shadow-sm relative overflow-hidden">
+                        {syncStatus === 'syncing' ? (
+                            <RefreshCw size={20} className="animate-spin text-blue-400" />
+                        ) : (
+                            <Wallet size={20} strokeWidth={2} />
+                        )}
                     </div>
                     <div>
-                        <h3 className="text-sm font-black text-slate-900 tracking-tight">银行账户余额走势</h3>
+                        <div className="flex items-center gap-2">
+                             <h3 className="text-sm font-black text-slate-900 tracking-tight">银行账户余额走势</h3>
+                             {syncStatus === 'live' && (
+                                <span className="text-[8px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded-full font-black border border-emerald-100 animate-fade-in flex items-center gap-0.5 shadow-sm">
+                                    <CheckCircle2 size={8} strokeWidth={3} /> LIVE
+                                </span>
+                             )}
+                        </div>
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Cash Flow MoM Trend</p>
                     </div>
                 </div>
@@ -431,18 +462,32 @@ const Dashboard: React.FC = () => {
             </div>
             
             <div className="relative">
-                <div className="flex items-center gap-3 mb-6">
-                    <span className={`text-[32px] font-black text-slate-900 font-mono tracking-tighter transition-all duration-300 ${!showBalance ? 'blur-[8px] opacity-25 select-none' : ''}`}>
-                      {showBalance ? `¥${(currentData.bankBalance/10000).toFixed(1)}w` : '••••••'}
-                    </span>
-                    <button 
-                      onClick={() => setShowBalance(!showBalance)}
-                      className="p-2 rounded-full hover:bg-white text-slate-300 transition-all active:scale-90"
-                    >
-                      {showBalance ? <Eye size={18} /> : <EyeOff size={18} className="text-indigo-500" />}
-                    </button>
+                <div className="flex flex-col mb-6">
+                    <div className="flex items-center gap-3">
+                        <span className={`text-[32px] font-black text-slate-900 font-mono tracking-tighter transition-all duration-300 ${!showBalance ? 'blur-[8px] opacity-25 select-none' : ''} ${syncStatus === 'live' ? 'animate-fade-in' : ''}`}>
+                          {showBalance ? `¥${(currentBalance/10000).toFixed(2)}w` : '••••••'}
+                        </span>
+                        <button 
+                          onClick={() => setShowBalance(!showBalance)}
+                          className="p-2 rounded-full hover:bg-white text-slate-300 transition-all active:scale-90"
+                        >
+                          {showBalance ? <Eye size={18} /> : <EyeOff size={18} className="text-indigo-500" />}
+                        </button>
+                    </div>
+                    
+                    {/* Syncing Status Bar */}
+                    <div className="h-4 flex items-center gap-2">
+                        {syncStatus === 'syncing' ? (
+                             <div className="flex items-center gap-1.5 bg-blue-50 px-2 py-0.5 rounded-md animate-fade-in">
+                                <Loader2 size={10} className="animate-spin text-blue-500" />
+                                <span className="text-[9px] font-bold text-blue-600 uppercase tracking-tighter">正在同步银行实时数据...</span>
+                             </div>
+                        ) : syncStatus === 'live' ? (
+                             <span className="text-[9px] font-bold text-slate-300 uppercase pl-1">数据已更新于: {new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                        ) : null}
+                    </div>
                 </div>
-                <CashFlowComparisonChart className="h-48" />
+                <CashFlowComparisonChart className="h-48" loading={syncStatus === 'syncing'} />
             </div>
         </section>
 

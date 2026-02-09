@@ -1,5 +1,5 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Clock, AlertTriangle, CheckCircle2, FileSignature, ChevronRight, History, Calendar, Award, AlertCircle, FileWarning } from 'lucide-react';
 import { DetailLayout } from '../../../components/DetailLayout';
 
@@ -66,7 +66,7 @@ const MOCK_CONTRACTS = [
     },
 ];
 
-// --- Level 3 Detail ---
+// --- Level 3 Detail (完美还原图片中的“合同全景档案”) ---
 const ContractDetail = ({ employee, onBack }: { employee: typeof MOCK_CONTRACTS[0], onBack: () => void }) => {
     const isExpiring = employee.status === 'expiring';
     const isOverdue = employee.status === 'overdue';
@@ -83,40 +83,52 @@ const ContractDetail = ({ employee, onBack }: { employee: typeof MOCK_CONTRACTS[
             bgColor="bg-[#F8F9FB]"
         >
              {/* Header Profile Card */}
-             <div className="bg-white rounded-[32px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-slate-100 relative overflow-hidden">
-                 {/* Decorative Tenure Badge */}
-                 <div className="absolute -top-2 -right-2 w-24 h-24 bg-indigo-50/50 rounded-full flex items-center justify-center -rotate-12 border border-indigo-100/50">
+             <div className="bg-white rounded-[40px] p-8 shadow-[0_10px_40px_rgba(0,0,0,0.02)] border border-slate-100 relative overflow-hidden">
+                 {/* Decorative Tenure Circle (图片中的右侧勋章) */}
+                 <div className="absolute top-6 right-6 w-24 h-24 bg-indigo-50/40 rounded-full flex items-center justify-center border border-indigo-100/50 shadow-inner">
                     <div className="text-center">
-                        <p className="text-[8px] font-black text-indigo-400 uppercase tracking-tighter">Tenure</p>
+                        <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-0.5">Tenure</p>
                         <p className="text-xs font-black text-indigo-600">{employee.tenure}</p>
                     </div>
                  </div>
 
-                 <div className="flex items-center gap-5 mb-8">
-                     <div className="w-16 h-16 bg-slate-900 text-white rounded-2xl flex items-center justify-center text-xl font-black shadow-lg border-2 border-white">
+                 <div className="flex items-center gap-6 mb-10">
+                     <div className="w-16 h-16 bg-slate-900 text-white rounded-[20px] flex items-center justify-center text-xl font-black shadow-xl border-4 border-white">
                          {employee.name.charAt(0)}
                      </div>
                      <div>
-                         <h2 className="text-xl font-black text-slate-900">{employee.name}</h2>
+                         <h2 className="text-2xl font-black text-slate-900 tracking-tight">{employee.name}</h2>
                          <p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-wider">{employee.dept} · 在职员工</p>
                      </div>
                  </div>
                  
-                 <div className="grid grid-cols-2 gap-4 border-t border-slate-50 pt-6">
-                     <div className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
-                         <p className="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">入职日期</p>
+                 <div className="grid grid-cols-2 gap-4 border-t border-slate-50 pt-8">
+                     <div className="bg-slate-50/50 p-5 rounded-3xl border border-slate-100 group hover:bg-white transition-all">
+                         <p className="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">入职日期</p>
                          <div className="flex items-center gap-2">
-                            <Calendar size={14} className="text-slate-400" />
+                            <Calendar size={16} className="text-slate-300" />
                             <p className="text-sm font-black font-mono text-slate-900">{employee.joinDate}</p>
                          </div>
                      </div>
-                     <div className={`p-4 rounded-2xl border ${isOverdue ? 'bg-rose-50 border-rose-100' : isExpiring ? 'bg-orange-50 border-orange-100' : 'bg-emerald-50 border-emerald-100'}`}>
-                         <p className={`text-[10px] font-bold mb-1 uppercase tracking-wider ${isOverdue ? 'text-rose-600' : isExpiring ? 'text-orange-600' : 'text-emerald-600'}`}>
+                     <div className={`p-5 rounded-3xl border transition-all ${
+                         isOverdue ? 'bg-rose-50 border-rose-100' : 
+                         isExpiring ? 'bg-orange-50 border-orange-100' : 
+                         'bg-emerald-50/50 border-emerald-100 group hover:bg-emerald-50'
+                     }`}>
+                         <p className={`text-[10px] font-black mb-2 uppercase tracking-widest ${
+                             isOverdue ? 'text-rose-600' : 
+                             isExpiring ? 'text-orange-600' : 
+                             'text-emerald-600'
+                         }`}>
                              {isOverdue ? '逾期天数' : isExpiring ? '剩余天数' : '到期日期'}
                          </p>
                          <div className="flex items-center gap-2">
-                            <Clock size={14} className={isOverdue ? 'text-rose-400' : isExpiring ? 'text-orange-400' : 'text-emerald-400'} />
-                            <p className={`text-sm font-black font-mono ${isOverdue ? 'text-rose-700' : isExpiring ? 'text-orange-700' : 'text-emerald-700'}`}>
+                            <Clock size={16} className={isOverdue ? 'text-rose-400' : isExpiring ? 'text-orange-400' : 'text-emerald-400'} />
+                            <p className={`text-sm font-black font-mono ${
+                                isOverdue ? 'text-rose-700' : 
+                                isExpiring ? 'text-orange-700' : 
+                                'text-emerald-700'
+                            }`}>
                                 {isOverdue ? `${Math.abs(employee.daysLeft)} 天` : isExpiring ? `${employee.daysLeft} 天` : employee.endDate}
                             </p>
                          </div>
@@ -124,48 +136,42 @@ const ContractDetail = ({ employee, onBack }: { employee: typeof MOCK_CONTRACTS[
                  </div>
              </div>
 
-             {/* Action Reminder for Expiring/Overdue */}
-             {(isExpiring || isOverdue) && (
-                 <div className={`border rounded-[24px] p-5 flex items-start gap-4 shadow-sm animate-pulse ${isOverdue ? 'bg-rose-50 border-rose-100' : 'bg-orange-50 border-orange-100'}`}>
-                     <div className={`w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm border ${isOverdue ? 'text-rose-600 border-rose-100' : 'text-orange-600 border-orange-100'}`}>
-                        <AlertTriangle size={20} strokeWidth={2.5} />
-                     </div>
-                     <div>
-                         <h4 className={`text-sm font-black ${isOverdue ? 'text-rose-800' : 'text-orange-800'}`}>
-                            {isOverdue ? '合同已过期警告' : '合同续签紧急提醒'}
-                         </h4>
-                         <p className={`text-xs font-medium mt-1 leading-relaxed ${isOverdue ? 'text-rose-700/80' : 'text-orange-700/80'}`}>
-                             {isOverdue ? `该员工合同已于 ${employee.endDate} 到期，目前处于无合同用工状态，法律风险极高。` : `当前合同即将于 ${employee.endDate} 到期。请尽快发起续签意向确认。`}
-                         </p>
-                     </div>
-                 </div>
-             )}
-             
-             {/* Contract History Timeline */}
-             <div className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-100">
-                 <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                     <History size={14} strokeWidth={2.5} /> 合同演进历史 (Timeline)
+             {/* Contract Evolution History (图片中的 Timeline 部分) */}
+             <div className="bg-white rounded-[40px] p-8 shadow-[0_10px_40px_rgba(0,0,0,0.02)] border border-slate-100">
+                 <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.25em] mb-10 flex items-center gap-3">
+                     <History size={16} strokeWidth={2.5} className="text-slate-300" /> 合同演进历史 (Timeline)
                  </h3>
                  
                  <div className="relative pl-2">
-                     <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-slate-100 rounded-full"></div>
-                     <div className="space-y-8">
+                     {/* 20px Axis Connector */}
+                     <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-slate-100 rounded-full"></div>
+                     
+                     <div className="space-y-10">
                          {employee.history.map((h, idx) => (
-                             <div key={h.id} className="relative pl-8">
-                                 <div className={`absolute left-0 top-1 w-5 h-5 rounded-full border-2 bg-white z-10 flex items-center justify-center shadow-sm ${h.current ? (isOverdue ? 'border-rose-500' : 'border-indigo-500') : 'border-slate-200'}`}>
-                                     <div className={`w-2 h-2 rounded-full ${h.current ? (isOverdue ? 'bg-rose-500 animate-pulse' : 'bg-indigo-500 animate-pulse') : 'bg-slate-200'}`}></div>
+                             <div key={h.id} className="relative pl-10">
+                                 {/* 20px Axis Marker */}
+                                 <div className={`absolute left-0 top-1.5 w-6 h-6 rounded-full border-[3px] bg-white z-10 flex items-center justify-center shadow-sm ${
+                                     h.current ? (isOverdue ? 'border-rose-500' : 'border-indigo-500 shadow-indigo-100') : 'border-slate-200'
+                                 }`}>
+                                     <div className={`w-2 h-2 rounded-full ${
+                                         h.current ? (isOverdue ? 'bg-rose-500 animate-pulse' : 'bg-indigo-500 animate-pulse') : 'bg-slate-200'
+                                     }`}></div>
                                  </div>
                                  
-                                 <div className={`p-4 rounded-2xl border transition-all ${h.current ? 'bg-slate-50 border-slate-200 shadow-sm' : 'bg-white border-transparent opacity-60'}`}>
-                                     <div className="flex justify-between items-center mb-1">
-                                         <h4 className="text-xs font-black text-slate-900">{h.type}</h4>
-                                         <span className={`text-[9px] font-black px-2 py-0.5 rounded-md border ${
+                                 <div className={`p-5 rounded-3xl border transition-all ${
+                                     h.current 
+                                     ? 'bg-white border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] scale-[1.02]' 
+                                     : 'bg-slate-50/50 border-transparent opacity-60'
+                                 }`}>
+                                     <div className="flex justify-between items-center mb-2">
+                                         <h4 className="text-sm font-black text-slate-900">{h.type}</h4>
+                                         <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg border ${
                                              h.status === '履行中' ? 'bg-indigo-50 text-indigo-600 border-indigo-100' : 
                                              h.status === '已逾期' ? 'bg-rose-50 text-rose-600 border-rose-100' :
                                              'bg-slate-100 text-slate-500 border-slate-200'
                                          }`}>{h.status}</span>
                                      </div>
-                                     <p className="text-[10px] font-mono font-bold text-slate-400">{h.period}</p>
+                                     <p className="text-[11px] font-mono font-bold text-slate-400">{h.period}</p>
                                  </div>
                              </div>
                          ))}
@@ -174,12 +180,14 @@ const ContractDetail = ({ employee, onBack }: { employee: typeof MOCK_CONTRACTS[
              </div>
 
              {/* Footer Actions */}
-             <div className="flex gap-3 pt-2">
-                 <button className="flex-1 py-4 rounded-2xl border border-slate-200 bg-white font-black text-xs text-slate-500 active:bg-slate-50 transition-all shadow-sm">
+             <div className="flex gap-4 pt-4">
+                 <button className="flex-1 py-4 rounded-2xl border border-slate-200 bg-white font-black text-sm text-slate-500 active:bg-slate-50 transition-all shadow-sm">
                      不再续签
                  </button>
-                 <button className={`flex-[2] py-4 rounded-2xl font-black text-xs text-white shadow-xl active:scale-[0.98] transition-transform flex items-center justify-center gap-2 ${isOverdue ? 'bg-rose-600 shadow-rose-200' : 'bg-indigo-600 shadow-indigo-200'}`}>
-                     <FileSignature size={18} /> {isOverdue ? '立即补签合同' : '发起合同续签'}
+                 <button className={`flex-[2.5] py-4 rounded-2xl font-black text-sm text-white shadow-2xl active:scale-[0.98] transition-transform flex items-center justify-center gap-2 ${
+                     isOverdue ? 'bg-rose-600 shadow-rose-200' : 'bg-indigo-600 shadow-indigo-300'
+                 }`}>
+                     <FileSignature size={20} /> {isOverdue ? '立即补签合同' : '发起合同续签'}
                  </button>
              </div>
         </DetailLayout>
@@ -189,8 +197,17 @@ const ContractDetail = ({ employee, onBack }: { employee: typeof MOCK_CONTRACTS[
 // --- Level 2 Dashboard ---
 
 const Contract: React.FC = () => {
+    const location = useLocation();
     const [selectedEmployee, setSelectedEmployee] = useState<typeof MOCK_CONTRACTS[0] | null>(null);
     
+    // 处理深度链接逻辑
+    useEffect(() => {
+        if (location.state?.employeeId) {
+            const emp = MOCK_CONTRACTS.find(c => c.id === location.state.employeeId);
+            if (emp) setSelectedEmployee(emp);
+        }
+    }, [location.state]);
+
     if (selectedEmployee) return <ContractDetail employee={selectedEmployee} onBack={() => setSelectedEmployee(null)} />;
 
     const normalCount = MOCK_CONTRACTS.filter(c => c.status === 'normal').length;
@@ -200,9 +217,8 @@ const Contract: React.FC = () => {
 
     return (
         <div className="space-y-6 animate-fade-in pb-20">
-            {/* Integrated Stats Card (Matching HR Overview Style) */}
+            {/* Integrated Stats Card */}
             <div className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] relative overflow-hidden">
-                {/* Watermark */}
                 <div className="absolute top-0 right-0 p-6 opacity-[0.03] text-indigo-900 pointer-events-none transform rotate-12">
                     <FileSignature size={140} />
                 </div>
@@ -257,7 +273,6 @@ const Contract: React.FC = () => {
                              onClick={() => setSelectedEmployee(emp)}
                              className="bg-white rounded-[24px] p-5 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex justify-between items-center relative overflow-hidden active:scale-[0.99] transition-transform cursor-pointer group hover:border-indigo-100"
                          >
-                             {/* Status Indicator Bar */}
                              <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${
                                 emp.status === 'overdue' ? 'bg-rose-500' :
                                 emp.status === 'expiring' ? 'bg-orange-500' : 
@@ -306,7 +321,6 @@ const Contract: React.FC = () => {
                  </div>
             </div>
             
-            {/* Footer Legend */}
             <div className="text-center py-4 opacity-30">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">GM Pilot Contract Insight v2.0</p>
             </div>
