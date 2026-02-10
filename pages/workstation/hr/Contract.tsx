@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Clock, AlertTriangle, CheckCircle2, FileSignature, ChevronRight, History, Calendar, Award, AlertCircle, FileWarning } from 'lucide-react';
+import { Clock, AlertTriangle, CheckCircle2, FileSignature, ChevronRight, History, Calendar, Award, AlertCircle, FileWarning, XCircle, Filter, Check } from 'lucide-react';
 import { DetailLayout } from '../../../components/DetailLayout';
 
 // --- Mock Data ---
@@ -199,6 +199,9 @@ const ContractDetail = ({ employee, onBack }: { employee: typeof MOCK_CONTRACTS[
 const Contract: React.FC = () => {
     const location = useLocation();
     const [selectedEmployee, setSelectedEmployee] = useState<typeof MOCK_CONTRACTS[0] | null>(null);
+    const [filterMode, setFilterMode] = useState<'all' | 'normal' | 'expiring' | 'overdue'>('all');
+    const [selectedYear, setSelectedYear] = useState(2023);
+    const [isYearPickerOpen, setIsYearPickerOpen] = useState(false);
     
     // 处理深度链接逻辑
     useEffect(() => {
@@ -208,12 +211,24 @@ const Contract: React.FC = () => {
         }
     }, [location.state]);
 
+    const filteredContracts = useMemo(() => {
+        if (filterMode === 'all') return MOCK_CONTRACTS;
+        return MOCK_CONTRACTS.filter(c => c.status === filterMode);
+    }, [filterMode]);
+
     if (selectedEmployee) return <ContractDetail employee={selectedEmployee} onBack={() => setSelectedEmployee(null)} />;
 
     const normalCount = MOCK_CONTRACTS.filter(c => c.status === 'normal').length;
     const expiringCount = MOCK_CONTRACTS.filter(c => c.status === 'expiring').length;
     const overdueCount = MOCK_CONTRACTS.filter(c => c.status === 'overdue').length;
     const totalCount = MOCK_CONTRACTS.length;
+
+    const filterLabels: Record<string, string> = {
+        'all': '全部合同',
+        'normal': '生效中合同',
+        'expiring': '即将到期合同',
+        'overdue': '已逾期合同'
+    };
 
     return (
         <div className="space-y-6 animate-fade-in pb-20">
@@ -234,40 +249,125 @@ const Contract: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="flex items-baseline gap-2 mb-8 pl-1">
+                    <div 
+                        onClick={() => setFilterMode('all')}
+                        className={`flex items-baseline gap-2 mb-8 pl-1 cursor-pointer transition-all active:scale-95 ${filterMode === 'all' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
+                    >
                         <span className="text-5xl font-black font-mono text-slate-900 tracking-tighter">{totalCount}</span>
                         <span className="text-xs font-bold text-slate-400 mb-1">合同总数 (份)</span>
+                        {filterMode === 'all' && <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse ml-1 mb-2"></div>}
                     </div>
 
                     <div className="grid grid-cols-3 gap-3">
-                        <div className="bg-emerald-50 rounded-2xl p-3 border border-emerald-100 flex flex-col items-center justify-center gap-1">
-                            <div className="text-emerald-600"><CheckCircle2 size={16} strokeWidth={2.5}/></div>
-                            <p className="text-[10px] font-bold text-emerald-800/70 uppercase">生效中</p>
-                            <p className="text-base font-black font-mono text-emerald-700">{normalCount}</p>
+                        <div 
+                            onClick={() => setFilterMode('normal')}
+                            className={`rounded-2xl p-3 border transition-all cursor-pointer active:scale-95 flex flex-col items-center justify-center gap-1 ${
+                                filterMode === 'normal' 
+                                ? 'bg-emerald-500 text-white border-emerald-600 shadow-lg shadow-emerald-100' 
+                                : 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                            }`}
+                        >
+                            <div className={filterMode === 'normal' ? 'text-white' : 'text-emerald-600'}><CheckCircle2 size={16} strokeWidth={2.5}/></div>
+                            <p className={`text-[10px] font-bold uppercase ${filterMode === 'normal' ? 'text-emerald-50' : 'text-emerald-800/70'}`}>生效中</p>
+                            <p className={`text-base font-black font-mono ${filterMode === 'normal' ? 'text-white' : 'text-emerald-700'}`}>{normalCount}</p>
                         </div>
-                        <div className="bg-orange-50 rounded-2xl p-3 border border-orange-100 flex flex-col items-center justify-center gap-1">
-                            <div className="text-orange-600"><Clock size={16} strokeWidth={2.5}/></div>
-                            <p className="text-[10px] font-bold text-orange-800/70 uppercase">即将到期</p>
-                            <p className="text-base font-black font-mono text-orange-700">{expiringCount}</p>
+                        <div 
+                            onClick={() => setFilterMode('expiring')}
+                            className={`rounded-2xl p-3 border transition-all cursor-pointer active:scale-95 flex flex-col items-center justify-center gap-1 ${
+                                filterMode === 'expiring' 
+                                ? 'bg-orange-500 text-white border-orange-600 shadow-lg shadow-orange-100' 
+                                : 'bg-orange-50 text-orange-600 border-orange-100'
+                            }`}
+                        >
+                            <div className={filterMode === 'expiring' ? 'text-white' : 'text-orange-600'}><Clock size={16} strokeWidth={2.5}/></div>
+                            <p className={`text-[10px] font-bold uppercase ${filterMode === 'expiring' ? 'text-orange-50' : 'text-orange-800/70'}`}>即将到期</p>
+                            <p className={`text-base font-black font-mono ${filterMode === 'expiring' ? 'text-white' : 'text-orange-700'}`}>{expiringCount}</p>
                         </div>
-                        <div className="bg-rose-50 rounded-2xl p-3 border border-rose-100 flex flex-col items-center justify-center gap-1">
-                            <div className="text-rose-600"><AlertCircle size={16} strokeWidth={2.5}/></div>
-                            <p className="text-[10px] font-bold text-rose-800/70 uppercase">已逾期</p>
-                            <p className="text-base font-black font-mono text-rose-700">{overdueCount}</p>
+                        <div 
+                            onClick={() => setFilterMode('overdue')}
+                            className={`rounded-2xl p-3 border transition-all cursor-pointer active:scale-95 flex flex-col items-center justify-center gap-1 ${
+                                filterMode === 'overdue' 
+                                ? 'bg-rose-500 text-white border-rose-600 shadow-lg shadow-rose-100' 
+                                : 'bg-rose-50 text-rose-600 border-rose-100'
+                            }`}
+                        >
+                            <div className={filterMode === 'overdue' ? 'text-white' : 'text-rose-600'}><AlertCircle size={16} strokeWidth={2.5}/></div>
+                            <p className={`text-[10px] font-bold uppercase ${filterMode === 'overdue' ? 'text-rose-50' : 'text-rose-800/70'}`}>已逾期</p>
+                            <p className={`text-base font-black font-mono ${filterMode === 'overdue' ? 'text-white' : 'text-rose-700'}`}>{overdueCount}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
+            {/* Filter Result Header */}
+            {filterMode !== 'all' && (
+                <div className="px-2 flex items-center justify-between animate-fade-in">
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest">正在查看:</span>
+                        <span className={`text-xs font-black px-2 py-1 rounded-lg border shadow-sm ${
+                            filterMode === 'normal' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                            filterMode === 'expiring' ? 'bg-orange-50 text-orange-600 border-orange-100' :
+                            'bg-rose-50 text-rose-600 border-rose-100'
+                        }`}>
+                            {filterLabels[filterMode]} ({filteredContracts.length})
+                        </span>
+                    </div>
+                    <button 
+                        onClick={() => setFilterMode('all')}
+                        className="text-[10px] font-black text-slate-400 flex items-center gap-1 hover:text-slate-600 transition-colors"
+                    >
+                        <XCircle size={12} /> 清空筛选
+                    </button>
+                </div>
+            )}
+
             {/* Contract List */}
             <div>
-                 <div className="flex items-center gap-2 mb-4 px-1">
-                    <div className="w-1 h-3.5 bg-indigo-600 rounded-full"></div>
-                    <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest">合同管理名单</h3>
+                 <div className="flex justify-between items-center mb-4 px-1">
+                    <div className="flex items-center gap-2">
+                        <div className="w-1 h-3.5 bg-indigo-600 rounded-full"></div>
+                        <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest">合同管理名单</h3>
+                    </div>
+                    
+                    <div className="relative">
+                        <button 
+                            onClick={() => setIsYearPickerOpen(!isYearPickerOpen)}
+                            className={`p-2 rounded-xl border transition-all flex items-center gap-2 ${
+                                isYearPickerOpen 
+                                ? 'bg-slate-900 text-white border-slate-900 shadow-lg scale-105' 
+                                : 'bg-white text-slate-400 border-slate-200 shadow-sm active:scale-95'
+                            }`}
+                        >
+                            <Filter size={14} strokeWidth={2.5} />
+                        </button>
+
+                        {isYearPickerOpen && (
+                            <>
+                                <div className="fixed inset-0 z-[80]" onClick={() => setIsYearPickerOpen(false)}></div>
+                                <div className="absolute right-0 top-full mt-2 w-32 bg-white rounded-2xl shadow-[0_12px_48px_rgba(0,0,0,0.12)] border border-slate-100 p-1.5 z-[90] animate-scale-up origin-top-right overflow-hidden">
+                                    <div className="text-[9px] font-black text-slate-400 uppercase px-3 py-2 border-b border-slate-50 mb-1 tracking-widest">选择年份</div>
+                                    {[2024, 2023, 2022].map(y => (
+                                        <button 
+                                            key={y}
+                                            onClick={() => { setSelectedYear(y); setIsYearPickerOpen(false); }}
+                                            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-black transition-all ${
+                                                selectedYear === y 
+                                                ? 'bg-indigo-50 text-indigo-600' 
+                                                : 'text-slate-500 hover:bg-slate-50'
+                                            }`}
+                                        >
+                                            {y}年
+                                            {selectedYear === y && <Check size={14} strokeWidth={3} />}
+                                        </button>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                    </div>
                  </div>
                  
                  <div className="space-y-4">
-                     {MOCK_CONTRACTS.map(emp => (
+                     {filteredContracts.length > 0 ? filteredContracts.map(emp => (
                          <div 
                              key={emp.id} 
                              onClick={() => setSelectedEmployee(emp)}
@@ -317,7 +417,12 @@ const Contract: React.FC = () => {
                                  <ChevronRight size={18} className="text-slate-300 group-hover:text-indigo-400 transition-colors" />
                              </div>
                          </div>
-                     ))}
+                     )) : (
+                        <div className="py-20 text-center space-y-3 opacity-30">
+                            <div className="flex justify-center"><FileSignature size={48} className="text-slate-300" /></div>
+                            <p className="text-sm font-bold text-slate-400">暂无符合条件的合同</p>
+                        </div>
+                     )}
                  </div>
             </div>
             
