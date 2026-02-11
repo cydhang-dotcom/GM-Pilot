@@ -1,8 +1,9 @@
-
 import React, { useState } from 'react';
-import { Search, CheckCircle2, Circle, AlertCircle, QrCode, ChevronRight } from 'lucide-react';
+import { Search, CheckCircle2, Circle, AlertCircle, QrCode, ChevronRight, Loader2 } from 'lucide-react';
 import { DetailLayout } from '../../components/DetailLayout';
 import OnboardingDetail from './OnboardingDetail';
+
+export type StepStatus = 'pending' | 'processing' | 'done';
 
 export interface OnboardingEmployee {
     id: string;
@@ -15,24 +16,28 @@ export interface OnboardingEmployee {
     salary: string;
     source: 'qr' | 'manual';
     steps: {
-        info: boolean;
-        contract: boolean;
-        tax: boolean;
-        social: boolean;
+        info: StepStatus;
+        contract: StepStatus;
+        tax: StepStatus;
+        social: StepStatus;
     };
 }
 
 const MOCK_ONBOARDING_LIST: OnboardingEmployee[] = [
-    { id: 'o1', name: '王强', dept: '技术部', role: '前端开发', joinDate: '2023-12-15', idCard: '32050119950808****', phone: '15000000000', salary: '25,000.00', source: 'manual', steps: { info: true, contract: false, tax: false, social: false } },
-    { id: 'o2', name: '张三', dept: '设计部', role: 'UI设计师', joinDate: '2023-12-20', idCard: '31011519961212****', phone: '13711112222', salary: '18,000.00', source: 'manual', steps: { info: true, contract: false, tax: true, social: true } },
-    { id: 'o3', name: '李四', dept: '', role: '', joinDate: '2023-12-25', idCard: '31010419900101****', phone: '13812345678', salary: '', source: 'qr', steps: { info: false, contract: false, tax: false, social: false } },
+    { id: 'o1', name: '王强', dept: '技术部', role: '前端开发', joinDate: '2023-12-15', idCard: '32050119950808****', phone: '15000000000', salary: '25,000.00', source: 'manual', steps: { info: 'done', contract: 'processing', tax: 'pending', social: 'pending' } },
+    { id: 'o2', name: '张三', dept: '设计部', role: 'UI设计师', joinDate: '2023-12-20', idCard: '31011519961212****', phone: '13711112222', salary: '18,000.00', source: 'manual', steps: { info: 'done', contract: 'done', tax: 'done', social: 'processing' } },
+    { id: 'o3', name: '李四', dept: '', role: '', joinDate: '2023-12-25', idCard: '31010419900101****', phone: '13812345678', salary: '', source: 'qr', steps: { info: 'pending', contract: 'pending', tax: 'pending', social: 'pending' } },
 ];
 
-const StatusTag = ({ label, done }: { label: string, done: boolean }) => (
+const StatusTag = ({ label, status }: { label: string, status: StepStatus }) => (
     <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black border transition-colors ${
-        done ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100'
+        status === 'done' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
+        status === 'processing' ? 'bg-blue-50 text-blue-600 border-blue-100' :
+        'bg-slate-50 text-slate-400 border-slate-100'
     }`}>
-        {done ? <CheckCircle2 size={10} strokeWidth={3} /> : <Circle size={10} strokeWidth={3} />}
+        {status === 'done' ? <CheckCircle2 size={10} strokeWidth={3} /> : 
+         status === 'processing' ? <Loader2 size={10} className="animate-spin" /> :
+         <Circle size={10} strokeWidth={3} />}
         {label}
     </div>
 );
@@ -67,7 +72,6 @@ const OnboardingProcess: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                     </div>
                     
                     {employees.map(emp => {
-                        const allDone = emp.steps.info && emp.steps.contract && emp.steps.tax && emp.steps.social;
                         const isQR = emp.source === 'qr';
                         const isMissingInfo = isQR && (!emp.dept || !emp.salary);
 
@@ -90,7 +94,7 @@ const OnboardingProcess: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                         <div>
                                             <div className="flex items-center gap-2 mb-0.5">
                                                 <h4 className="text-sm font-black text-slate-900">{emp.name}</h4>
-                                                {isQR && <span className="text-[9px] font-black bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded border border-indigo-100 flex items-center gap-0.5"><QrCode size={10} /> 扫码</span>}
+                                                {isQR && <span className="text-[9px] font-black bg-indigo-600 text-white px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm shadow-indigo-100"><QrCode size={10} /> 扫码</span>}
                                             </div>
                                             {isMissingInfo ? (
                                                 <p className="text-[10px] font-bold text-rose-500 flex items-center gap-1 bg-rose-50 px-2 py-0.5 rounded w-fit mt-1 border border-rose-100 animate-pulse"><AlertCircle size={10} /> 待补齐岗职及薪资</p>
@@ -106,10 +110,10 @@ const OnboardingProcess: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                 </div>
                                 
                                 <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-50 relative z-10">
-                                    <StatusTag label="资料" done={emp.steps.info} />
-                                    <StatusTag label="合同" done={emp.steps.contract} />
-                                    <StatusTag label="个税" done={emp.steps.tax} />
-                                    <StatusTag label="社保" done={emp.steps.social} />
+                                    <StatusTag label="资料" status={emp.steps.info} />
+                                    <StatusTag label="合同" status={emp.steps.contract} />
+                                    <StatusTag label="个税" status={emp.steps.tax} />
+                                    <StatusTag label="社保" status={emp.steps.social} />
                                 </div>
                                 
                                 <div className="absolute right-4 bottom-4 text-slate-200">

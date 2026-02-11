@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, Banknote, FileSignature, CheckCircle2, ChevronRight, Play, Loader2, Eye, EyeOff, Circle, User, Edit3, Save, X, QrCode, AlertCircle, Calculator, Check, Calendar } from 'lucide-react';
+import { ShieldCheck, Banknote, FileSignature, CheckCircle2, ChevronRight, Play, Loader2, Eye, EyeOff, Circle, User, Edit3, Save, X, QrCode, AlertCircle, Calculator, Check, Calendar, FileText, XCircle } from 'lucide-react';
 import { DetailLayout } from '../../components/DetailLayout';
-import { OnboardingEmployee } from './OnboardingProcess';
+import { OnboardingEmployee, StepStatus } from './OnboardingProcess';
 
 interface OnboardingDetailProps {
     employee: OnboardingEmployee;
@@ -76,6 +75,11 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
         setModalType(stepKey);
     };
 
+    const handleUpdateStatus = (stepKey: keyof typeof employee.steps, status: StepStatus) => {
+        const updatedSteps = { ...employee.steps, [stepKey]: status };
+        onUpdate({ ...employee, steps: updatedSteps });
+    };
+
     const confirmAction = () => {
         if (modalType === 'none') return;
         
@@ -83,8 +87,14 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
         setModalType('none');
         
         setTimeout(() => {
-            const updatedSteps = { ...employee.steps, [modalType]: true };
-            onUpdate({ ...employee, steps: updatedSteps });
+            let nextStatus: StepStatus = 'done';
+            
+            // Logic for specific flows
+            if (modalType === 'contract') nextStatus = 'processing'; // To "Signing"
+            if (modalType === 'social') nextStatus = 'processing'; // To "Declaring"
+            if (modalType === 'tax') nextStatus = 'done'; // To "Submitted"
+
+            handleUpdateStatus(modalType, nextStatus);
             setLoadingStep(null);
         }, 1200);
     };
@@ -97,55 +107,104 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
         onUpdate({
             ...employee,
             ...formData,
-            // Assuming once saved, info step is done
-            steps: { ...employee.steps, info: true }
+            steps: { ...employee.steps, info: 'done' }
         });
         setIsEditing(false);
     };
 
-    const StatusCard = ({ icon: Icon, title, desc, done, stepKey }: any) => (
-        <div className={`bg-white rounded-[24px] p-5 border shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all ${done ? 'border-emerald-100' : 'border-slate-100'} ${!done && isMissingInfo && stepKey !== 'info' ? 'opacity-60 grayscale-[0.5]' : ''}`}>
-            <div className="flex items-start gap-4">
-                <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border transition-colors ${
-                    done ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-indigo-50 text-indigo-600 border-indigo-100'
-                }`}>
-                    <Icon size={20} strokeWidth={2.5} />
-                </div>
-                <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-center mb-1">
-                        <h5 className="text-sm font-black text-slate-900">{title}</h5>
-                        {done ? (
-                            <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md flex items-center gap-1 border border-emerald-100">
-                                <CheckCircle2 size={10} strokeWidth={3} /> 已办结
+    const StatusCard = ({ icon: Icon, title, desc, status, stepKey }: { icon: any, title: string, desc: string, status: StepStatus, stepKey: string }) => {
+        const isPending = status === 'pending';
+        const isProcessing = status === 'processing';
+        const isDone = status === 'done';
+
+        // Custom Labels based on context
+        let statusLabel = '待办理';
+        let statusColor = 'text-amber-600 bg-amber-50 border-amber-100';
+        let statusIcon = <Circle size={8} fill="currentColor" />;
+
+        if (isDone) {
+            statusLabel = '已办结';
+            statusColor = 'text-emerald-600 bg-emerald-50 border-emerald-100';
+            statusIcon = <CheckCircle2 size={10} strokeWidth={3} />;
+            
+            if (stepKey === 'contract') statusLabel = '签署完成';
+            if (stepKey === 'tax') statusLabel = '已提交';
+            if (stepKey === 'social') statusLabel = '申报完成';
+        } else if (isProcessing) {
+            statusLabel = '处理中';
+            statusColor = 'text-blue-600 bg-blue-50 border-blue-100';
+            statusIcon = <Loader2 size={10} className="animate-spin" />;
+
+            if (stepKey === 'contract') statusLabel = '签署中';
+            if (stepKey === 'social') statusLabel = '申报中';
+        }
+
+        return (
+            <div className={`bg-white rounded-[24px] p-5 border shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all ${isDone ? 'border-emerald-100' : isProcessing ? 'border-blue-100' : 'border-slate-100'} ${isPending && isMissingInfo && stepKey !== 'info' ? 'opacity-60 grayscale-[0.5]' : ''}`}>
+                <div className="flex items-start gap-4">
+                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border transition-colors ${
+                        isDone ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
+                        isProcessing ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                        'bg-indigo-50 text-indigo-600 border-indigo-100'
+                    }`}>
+                        <Icon size={20} strokeWidth={2.5} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-center mb-1">
+                            <h5 className="text-sm font-black text-slate-900">{title}</h5>
+                            <span className={`text-[10px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 border ${statusColor}`}>
+                                {statusIcon}
+                                {statusLabel}
                             </span>
-                        ) : (
-                            <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md flex items-center gap-1 border border-amber-100">
-                                <Circle size={8} fill="currentColor" /> 待办理
-                            </span>
+                        </div>
+                        <p className="text-[11px] text-slate-400 leading-relaxed font-medium">{desc}</p>
+                        
+                        {/* Action Buttons */}
+                        {isPending && stepKey !== 'info' && (
+                            <button 
+                                onClick={() => handleStepClick(stepKey as any)}
+                                disabled={!!loadingStep}
+                                className={`mt-4 w-full py-3 rounded-xl text-[10px] font-black shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all ${
+                                    isMissingInfo 
+                                    ? 'bg-gray-100 text-gray-400 shadow-none cursor-not-allowed' 
+                                    : 'bg-indigo-600 text-white shadow-indigo-100'
+                                }`}
+                            >
+                                {loadingStep === stepKey ? <Loader2 size={14} className="animate-spin" /> : 
+                                 isMissingInfo ? <span className="flex items-center gap-1"><AlertCircle size={12}/> 请先补全档案</span> : 
+                                 <>立即发起办理 <ChevronRight size={12} strokeWidth={3} /></>
+                                }
+                            </button>
+                        )}
+
+                        {/* Contract Processing Actions */}
+                        {stepKey === 'contract' && isProcessing && (
+                            <div className="mt-4 flex gap-2">
+                                <button className="flex-1 bg-white border border-slate-200 text-slate-600 py-2.5 rounded-xl text-[10px] font-bold shadow-sm active:scale-95 transition-all flex items-center justify-center gap-1.5">
+                                    <FileText size={12} /> 查看签署文件
+                                </button>
+                                <button 
+                                    onClick={() => handleUpdateStatus('contract', 'pending')}
+                                    className="px-3 bg-white border border-rose-100 text-rose-500 py-2.5 rounded-xl text-[10px] font-bold shadow-sm active:scale-95 transition-all flex items-center justify-center gap-1"
+                                >
+                                    <XCircle size={12} /> 取消签署
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Contract Done Actions */}
+                        {stepKey === 'contract' && isDone && (
+                            <div className="mt-4">
+                                <button className="w-full bg-emerald-50 border border-emerald-100 text-emerald-700 py-2.5 rounded-xl text-[10px] font-bold shadow-sm active:scale-95 transition-all flex items-center justify-center gap-1.5">
+                                    <FileText size={12} /> 查看签署结果
+                                </button>
+                            </div>
                         )}
                     </div>
-                    <p className="text-[11px] text-slate-400 leading-relaxed font-medium">{desc}</p>
-                    
-                    {!done && stepKey !== 'info' && (
-                        <button 
-                            onClick={() => handleStepClick(stepKey)}
-                            disabled={!!loadingStep}
-                            className={`mt-4 w-full py-3 rounded-xl text-[10px] font-black shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all ${
-                                isMissingInfo 
-                                ? 'bg-gray-100 text-gray-400 shadow-none cursor-not-allowed' 
-                                : 'bg-indigo-600 text-white shadow-indigo-100'
-                            }`}
-                        >
-                            {loadingStep === stepKey ? <Loader2 size={14} className="animate-spin" /> : 
-                             isMissingInfo ? <span className="flex items-center gap-1"><AlertCircle size={12}/> 请先补全档案</span> : 
-                             <>立即发起办理 <ChevronRight size={12} strokeWidth={3} /></>
-                            }
-                        </button>
-                    )}
                 </div>
             </div>
-        </div>
-    );
+        );
+    };
 
     if (isEditing) {
         return (
@@ -327,28 +386,28 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
                             icon={ShieldCheck} 
                             title="基础资料核验" 
                             desc="包含实名认证、证件采集、银行卡信息核对。" 
-                            done={employee.steps.info} 
+                            status={employee.steps.info} 
                             stepKey="info"
                         />
                         <StatusCard 
                             icon={FileSignature} 
                             title="劳动合同签署" 
                             desc="发起电子劳动合同签署流程。" 
-                            done={employee.steps.contract} 
+                            status={employee.steps.contract} 
                             stepKey="contract"
                         />
                         <StatusCard 
                             icon={Calculator} 
                             title="个税申报设置" 
                             desc="确认个税专项附加扣除及核定基数。" 
-                            done={employee.steps.tax} 
+                            status={employee.steps.tax} 
                             stepKey="tax"
                         />
                         <StatusCard 
                             icon={Banknote} 
                             title="社保公积金办理" 
                             desc="五险一金本月增员申报及基数核定确认。" 
-                            done={employee.steps.social} 
+                            status={employee.steps.social} 
                             stepKey="social"
                         />
                     </div>
@@ -395,6 +454,21 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
                                             {['无', '3个月', '6个月'].map(t => (
                                                 <button key={t} onClick={() => setContractForm({...contractForm, probation: t === '无' ? '0' : t.replace('个月', '')})} className={`py-3 rounded-2xl text-xs font-bold border transition-all ${contractForm.probation === (t === '无' ? '0' : t.replace('个月', '')) ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-slate-50 text-slate-600 border-slate-100'}`}>{t}</button>
                                             ))}
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Contract Preview Card */}
+                                    <div className="mt-4 pt-4 border-t border-slate-50">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">合同文本预览</label>
+                                        <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex items-center gap-3 cursor-pointer hover:bg-slate-100 transition-colors">
+                                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-slate-200 shadow-sm text-indigo-600">
+                                                <FileText size={20} strokeWidth={1.5} />
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="text-xs font-black text-slate-800">劳动合同 (标准版).pdf</p>
+                                                <p className="text-[10px] text-slate-400 mt-0.5">点击预览完整条款</p>
+                                            </div>
+                                            <ChevronRight size={16} className="text-slate-300" />
                                         </div>
                                     </div>
                                 </>

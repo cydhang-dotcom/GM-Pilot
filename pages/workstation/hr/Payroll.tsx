@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
-import { Download, ChevronRight, Banknote, PieChart as PieChartIcon } from 'lucide-react';
-import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
+import { Download, ChevronRight, Banknote, TrendingUp } from 'lucide-react';
+import { BarChart, Bar, XAxis, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, CartesianGrid } from 'recharts';
 import PayrollDetail from './PayrollDetail';
 import PayrollExport from './PayrollExport';
 
@@ -11,11 +10,13 @@ const MOCK_PAYROLL_HISTORY = [
   { id: 'p3', month: '2023-10', amount: '415,000.00', status: '已发放', count: 31, date: '10-05', urgent: false },
 ];
 
-const MOCK_PAYROLL_BREAKDOWN = [
-  { name: '基本工资', value: 280000, color: '#6366f1' }, // Indigo
-  { name: '绩效奖金', value: 85000, color: '#8b5cf6' }, // Violet
-  { name: '五险一金', value: 50000, color: '#10b981' }, // Emerald
-  { name: '个税', value: 10000, color: '#f59e0b' }, // Amber
+const MOCK_SALARY_TREND = [
+  { month: '7月', value: 385000 },
+  { month: '8月', value: 392000 },
+  { month: '9月', value: 405000 },
+  { month: '10月', value: 415000 },
+  { month: '11月', value: 418200 },
+  { month: '12月', value: 425000 },
 ];
 
 const Payroll: React.FC = () => {
@@ -31,7 +32,7 @@ const Payroll: React.FC = () => {
             <div className="bg-gradient-to-br from-white via-white to-indigo-50/50 rounded-[32px] p-6 border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] relative overflow-hidden">
                 {/* Watermark */}
                 <div className="absolute -right-6 -top-6 opacity-[0.03] text-indigo-900 pointer-events-none transform rotate-12">
-                    <PieChartIcon size={180} />
+                    <TrendingUp size={180} />
                 </div>
 
                 <div className="flex justify-between items-end mb-6 relative z-10">
@@ -40,42 +41,45 @@ const Payroll: React.FC = () => {
                             <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100/50">
                                 <Banknote size={16} strokeWidth={2.5}/>
                             </div>
-                            本月薪资预览
+                            薪资总额变动
                         </h3>
                     </div>
                     <div className="text-right">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">预计发放</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">本月预计发放</p>
                         <p className="text-2xl font-black font-mono text-slate-900 tracking-tight">¥425,000.00</p>
                     </div>
                 </div>
 
                 <div className="h-48 w-full relative z-10">
                     <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                            <Pie 
-                                data={MOCK_PAYROLL_BREAKDOWN} 
-                                cx="50%" 
-                                cy="50%" 
-                                innerRadius={60} 
-                                outerRadius={80} 
-                                paddingAngle={4} 
-                                dataKey="value"
-                                cornerRadius={6}
-                            >
-                                {MOCK_PAYROLL_BREAKDOWN.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} stroke="none"/>)}
-                            </Pie>
-                            <Legend 
-                                iconType="circle" 
-                                iconSize={6} 
-                                layout="vertical" 
-                                verticalAlign="middle" 
-                                align="right" 
-                                wrapperStyle={{fontSize:'10px', fontWeight: 700, color: '#64748b'}}
+                        <BarChart data={MOCK_SALARY_TREND} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                            <XAxis 
+                                dataKey="month" 
+                                tick={{fontSize: 10, fill: '#64748b', fontWeight: 600}} 
+                                axisLine={false} 
+                                tickLine={false} 
+                                dy={10}
                             />
                             <RechartsTooltip 
-                                contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', fontSize: '12px', fontWeight: 'bold' }}
+                                cursor={{fill: '#f1f5f9'}}
+                                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '12px', fontWeight: 'bold' }}
+                                formatter={(value: number) => [`¥${(value/10000).toFixed(2)}w`, '薪资总额']}
                             />
-                        </PieChart>
+                            <Bar 
+                                dataKey="value" 
+                                radius={[6, 6, 0, 0]} 
+                                barSize={24}
+                                animationDuration={1500}
+                            >
+                                {MOCK_SALARY_TREND.map((entry, index) => (
+                                    <Cell 
+                                        key={`cell-${index}`} 
+                                        fill={index === MOCK_SALARY_TREND.length - 1 ? '#4f46e5' : '#cbd5e1'} 
+                                    />
+                                ))}
+                            </Bar>
+                        </BarChart>
                     </ResponsiveContainer>
                 </div>
             </div>
