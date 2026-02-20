@@ -5,9 +5,9 @@ import PayrollDetail from './PayrollDetail';
 import PayrollExport from './PayrollExport';
 
 const MOCK_PAYROLL_HISTORY = [
-  { id: 'p1', month: '2023-12', amount: '425,000.00', status: '待确认', count: 32, date: '12-05', urgent: true },
-  { id: 'p2', month: '2023-11', amount: '418,200.00', status: '已发放', count: 32, date: '11-05', urgent: false },
-  { id: 'p3', month: '2023-10', amount: '415,000.00', status: '已发放', count: 31, date: '10-05', urgent: false },
+  { id: 'p1', month: '2023-12', amount: '425,000.00', status: '待确认', count: 32, date: '12-05', urgent: true, change: '+6,800.00', changeRate: '+1.6%' },
+  { id: 'p2', month: '2023-11', amount: '418,200.00', status: '已发放', count: 32, date: '11-05', urgent: false, change: '+3,200.00', changeRate: '+0.8%' },
+  { id: 'p3', month: '2023-10', amount: '415,000.00', status: '已发放', count: 31, date: '10-05', urgent: false, change: '+10,000.00', changeRate: '+2.5%' },
 ];
 
 const MOCK_SALARY_TREND = [

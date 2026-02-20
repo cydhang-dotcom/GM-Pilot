@@ -4,7 +4,7 @@ import {
     FileText, Copy, Check, Settings, Stamp, ShieldCheck, MapPin, Plus, Trash2, 
     User, Phone, Map, Briefcase, Home, CheckCircle2, Crown, 
     Clock, Smartphone, Bell, ChevronRight, Search, Lock, UserPlus, LogOut,
-    AlertCircle, FileSignature, History, Fingerprint
+    AlertCircle, FileSignature, History, Fingerprint, Landmark, Building2, Wallet
 } from 'lucide-react';
 import { DetailLayout } from '../../components/DetailLayout';
 
@@ -240,57 +240,148 @@ const SealManager = ({ onBack }: { onBack: () => void }) => {
     );
 };
 
-// --- 4. Cert Manager ---
+// --- 4. Authority Manager (Renamed from CertManager) ---
 
-const CertManager = ({ onBack }: { onBack: () => void }) => (
-    <DetailLayout title="数字证书状态" onBack={onBack}>
-        <div className="bg-gradient-to-br from-indigo-600 to-blue-600 rounded-[32px] p-8 text-white shadow-xl shadow-indigo-200 relative overflow-hidden">
-            <ShieldCheck size={180} className="absolute -right-10 -bottom-10 opacity-10 text-white rotate-12" />
-            
-            <div className="relative z-10 text-center">
-                <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 mb-6">
-                    <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-                    <span className="text-[10px] font-bold tracking-wide">证书状态正常</span>
+const AddAuthority = ({ onBack }: { onBack: () => void }) => {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [activeTab, setActiveTab] = useState('bank');
+    
+    const services = [
+        { id: 'icbc', name: '中国工商银行', type: 'bank', desc: '银企互联 (API直连)', icon: Landmark, color: 'text-rose-600', bg: 'bg-rose-50' },
+        { id: 'ccb', name: '中国建设银行', type: 'bank', desc: '企业网银直连', icon: Landmark, color: 'text-blue-600', bg: 'bg-blue-50' },
+        { id: 'boc', name: '中国银行', type: 'bank', desc: '全球现金管理', icon: Landmark, color: 'text-rose-700', bg: 'bg-rose-50' },
+        { id: 'alipay', name: '支付宝企业版', type: 'fintech', desc: '资金授权与归集', icon: Wallet, color: 'text-blue-500', bg: 'bg-blue-50' },
+        { id: 'tax', name: '国家税务总局', type: 'gov', desc: '数电票自动同步', icon: Building2, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+    ];
+
+    const filtered = services.filter(s => 
+        (activeTab === 'all' || (activeTab === 'bank' && s.type === 'bank') || (activeTab === 'gov' && s.type === 'gov') || (activeTab === 'other' && s.type === 'fintech')) &&
+        s.name.includes(searchTerm)
+    );
+
+    return (
+        <DetailLayout title="新增业务授权" onBack={onBack} bgColor="bg-[#F8F9FB]">
+            <div className="space-y-6">
+                {/* Search */}
+                <div className="bg-white p-3 rounded-[24px] border border-slate-100 shadow-sm flex items-center gap-3">
+                    <Search size={18} className="text-slate-300 ml-2" />
+                    <input 
+                        type="text" 
+                        placeholder="搜索银行、政务平台..." 
+                        className="flex-1 text-sm font-bold text-slate-700 outline-none placeholder-slate-300"
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                    />
+                </div>
+
+                {/* Tabs */}
+                <div className="flex gap-2 overflow-x-auto no-scrollbar">
+                    {[{id: 'bank', label: '银行服务'}, {id: 'gov', label: '政务平台'}, {id: 'other', label: '第三方金融'}].map(tab => (
+                        <button 
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`px-4 py-2 rounded-xl text-xs font-black whitespace-nowrap transition-all ${
+                                activeTab === tab.id 
+                                ? 'bg-slate-900 text-white shadow-md' 
+                                : 'bg-white text-slate-500 border border-slate-100'
+                            }`}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+
+                {/* List */}
+                <div className="space-y-3">
+                    {filtered.map(item => (
+                        <div key={item.id} className="bg-white p-5 rounded-[24px] border border-slate-100 shadow-[0_4px_16px_rgba(0,0,0,0.01)] flex items-center justify-between group active:scale-[0.99] transition-all">
+                            <div className="flex items-center gap-4">
+                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${item.bg} ${item.color}`}>
+                                    <item.icon size={22} strokeWidth={2} />
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-black text-slate-900">{item.name}</h4>
+                                    <p className="text-[10px] font-bold text-slate-400 mt-0.5">{item.desc}</p>
+                                </div>
+                            </div>
+                            <button className="text-[10px] font-black bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-lg border border-indigo-100 active:scale-95 transition-transform">
+                                去授权
+                            </button>
+                        </div>
+                    ))}
                 </div>
                 
-                <h3 className="text-lg font-black tracking-tight mb-1">企业数字证书 (UKey)</h3>
-                <p className="text-xs text-indigo-100 font-mono opacity-80">SN: 2023 8812 9931</p>
-
-                <div className="mt-8 bg-black/10 rounded-2xl p-4 backdrop-blur-sm border border-white/10">
-                    <div className="flex justify-between text-xs font-bold mb-2 opacity-80">
-                        <span>有效期剩余</span>
-                        <span>285 天</span>
-                    </div>
-                    <div className="h-2 w-full bg-white/20 rounded-full overflow-hidden">
-                        <div className="h-full bg-emerald-400 w-[70%] rounded-full shadow-[0_0_10px_rgba(52,211,153,0.5)]"></div>
-                    </div>
-                    <div className="flex justify-between text-[10px] font-mono mt-2 opacity-60">
-                        <span>2023-01-01</span>
-                        <span>2024-12-31</span>
-                    </div>
+                <div className="mt-8 p-5 bg-slate-50 rounded-[24px] border border-slate-100 text-center">
+                    <p className="text-[10px] font-bold text-slate-400 mb-2">未找到需要的服务？</p>
+                    <button className="text-xs font-black text-indigo-600 flex items-center justify-center gap-1">
+                        联系客服申请接入 <ChevronRight size={12} />
+                    </button>
                 </div>
             </div>
-        </div>
+        </DetailLayout>
+    );
+};
 
-        <div className="bg-white rounded-[32px] border border-slate-100 p-6 shadow-sm mt-4">
-            <h4 className="text-xs font-black text-slate-900 mb-4">驱动与授权</h4>
-            <div className="space-y-4">
-                <div className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
-                    <span className="text-xs text-slate-500 font-bold">云端驱动版本</span>
-                    <span className="text-xs font-black font-mono text-slate-900">v2.4.1 (Latest)</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
-                    <span className="text-xs text-slate-500 font-bold">授权税务局</span>
-                    <span className="text-xs font-black text-slate-900">上海市徐汇区税务局</span>
-                </div>
-                <div className="flex justify-between items-center py-2">
-                    <span className="text-xs text-slate-500 font-bold">授权银行</span>
-                    <span className="text-xs font-black text-slate-900">招商银行, 浦发银行</span>
-                </div>
+const AuthorityManager = ({ onBack }: { onBack: () => void }) => {
+    const [mode, setMode] = useState<'list' | 'add'>('list');
+    const [auths, setAuths] = useState([
+        { id: '1', name: '招商银行 (银企直连)', icon: Landmark, color: 'text-rose-600', bg: 'bg-rose-50', status: 'active', scopes: ['余额查询', '回单下载'] },
+        { id: '2', name: '上海一网通办', icon: Building2, color: 'text-blue-600', bg: 'bg-blue-50', status: 'active', scopes: ['社保申报', '公积金办理', '税务查询'] },
+        { id: '3', name: '浦发银行 (一般户)', icon: Landmark, color: 'text-indigo-600', bg: 'bg-indigo-50', status: 'paused', scopes: ['余额查询'] },
+    ]);
+
+    const toggleAuth = (id: string) => {
+        setAuths(prev => prev.map(item => 
+            item.id === id ? { ...item, status: item.status === 'active' ? 'paused' : 'active' } : item
+        ));
+    };
+
+    if (mode === 'add') return <AddAuthority onBack={() => setMode('list')} />;
+
+    return (
+        <DetailLayout title="数字权鉴管理" onBack={onBack} bgColor="bg-[#F8F9FB]">
+            {/* Auth List */}
+            <div className="space-y-4 pb-20 mt-4">
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">已授权服务 (Authorized Services)</h3>
+                {auths.map(item => (
+                    <div key={item.id} className={`bg-white p-5 rounded-[24px] border transition-all ${item.status === 'active' ? 'border-slate-100 shadow-sm' : 'border-slate-100 opacity-60 grayscale-[0.5]'}`}>
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="flex items-center gap-3">
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${item.bg} ${item.color}`}>
+                                    <item.icon size={20} strokeWidth={2} />
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-black text-slate-900">{item.name}</h4>
+                                    <p className={`text-[10px] font-bold mt-0.5 ${item.status === 'active' ? 'text-emerald-600' : 'text-slate-400'}`}>
+                                        {item.status === 'active' ? '● 授权生效中' : '● 已暂停授权'}
+                                    </p>
+                                </div>
+                            </div>
+                            <div 
+                                onClick={() => toggleAuth(item.id)}
+                                className={`w-12 h-7 rounded-full relative transition-colors cursor-pointer ${item.status === 'active' ? 'bg-indigo-600' : 'bg-slate-200'}`}
+                            >
+                                <div className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${item.status === 'active' ? 'left-6' : 'left-1'}`}></div>
+                            </div>
+                        </div>
+                        {/* Scopes */}
+                        <div className="flex flex-wrap gap-2">
+                            {item.scopes.map(scope => (
+                                <span key={scope} className="text-[9px] font-bold bg-slate-50 text-slate-500 px-2 py-1 rounded-lg border border-slate-100">
+                                    {scope}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+                
+                <button onClick={() => setMode('add')} className="w-full py-4 border-2 border-dashed border-slate-200 rounded-[24px] text-slate-400 font-black text-xs flex items-center justify-center gap-2 hover:border-indigo-200 hover:text-indigo-500 hover:bg-indigo-50/50 transition-all active:scale-[0.98]">
+                    <Plus size={16} strokeWidth={3} /> 新增业务授权
+                </button>
             </div>
-        </div>
-    </DetailLayout>
-);
+        </DetailLayout>
+    );
+};
 
 // --- 5. Service Contract ---
 
@@ -477,7 +568,7 @@ const CompanyDetails = ({ type, onBack }: { type: string, onBack: () => void }) 
         case 'addr': return <AddressManager onBack={onBack} />;
         case 'inv': return <InvoiceInfo onBack={onBack} />;
         case 'seal': return <SealManager onBack={onBack} />;
-        case 'cert': return <CertManager onBack={onBack} />;
+        case 'cert': return <AuthorityManager onBack={onBack} />;
         case 'contract': return <ServiceContract onBack={onBack} />;
         case 'admin': return <AdminManager onBack={onBack} />;
         case 'log': return <OperationLogs onBack={onBack} />;

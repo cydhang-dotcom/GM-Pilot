@@ -11,7 +11,7 @@ const Company: React.FC = () => {
 
   const menuGroups = [
     { title: '常用业务资料', items: [{ id: 'inv', icon: FileText, label: '开票信息', desc: '税号、地址电话、开户行', iconTheme: 'text-blue-500' }, { id: 'addr', icon: MapPin, label: '收件地址', desc: '上海市徐汇区...', iconTheme: 'text-orange-500' }] },
-    { title: '权益与资产', items: [{ id: 'seal', icon: Stamp, label: '电子印章', value: '3枚', iconTheme: 'text-rose-500' }, { id: 'cert', icon: ShieldCheck, label: '数字证书', value: '有效期至 2024', iconTheme: 'text-emerald-500' }, { id: 'contract', icon: ScrollText, label: '签约服务', value: '尊享版', iconTheme: 'text-purple-500' }] },
+    { title: '权益与资产', items: [{ id: 'seal', icon: Stamp, label: '电子印章', value: '3枚', iconTheme: 'text-rose-500' }, { id: 'cert', icon: ShieldCheck, label: '数字权鉴', value: '3项授权', iconTheme: 'text-emerald-500' }, { id: 'contract', icon: ScrollText, label: '签约服务', value: '尊享版', iconTheme: 'text-purple-500' }] },
     { title: '企业管理', items: [{ id: 'admin', icon: Users, label: '成员权限', value: '2人', iconTheme: 'text-slate-500' }, { id: 'log', icon: History, label: '操作日志', value: '', iconTheme: 'text-slate-500' }, { id: 'notify', icon: Bell, label: '消息通知', value: '已开启', iconTheme: 'text-slate-500' }] }
   ];
 

@@ -5,11 +5,11 @@ import { DetailLayout } from '../../../components/DetailLayout';
 // --- Mock Data ---
 
 const MOCK_EMPLOYEE_PAYROLL = [
-    { id: 1, name: '张伟', dept: '技术部', base: '25,000', bonus: '5,000', tax: '1,200', social: '2,650', total: '26,150', status: '正常' },
-    { id: 2, name: '李娜', dept: '市场部', base: '18,000', bonus: '8,000', tax: '900', social: '1,908', total: '23,192', status: '正常' },
-    { id: 3, name: '王强', dept: '技术部', base: '12,000', bonus: '1,000', tax: '300', social: '1,272', total: '11,428', status: '试用期' },
-    { id: 4, name: '陈杰', dept: '设计部', base: '15,000', bonus: '2,000', tax: '450', social: '1,590', total: '14,960', status: '正常' },
-    { id: 5, name: '刘思思', dept: '运营部', base: '14,000', bonus: '3,000', tax: '400', social: '1,484', total: '15,116', status: '正常' },
+    { id: 1, name: '张伟', dept: '技术部', base: '25,000', bonus: '5,000', tax: '1,200', social: '2,650', total: '26,150', status: '正常', change: '+1,500', changeType: 'up' },
+    { id: 2, name: '李娜', dept: '市场部', base: '18,000', bonus: '8,000', tax: '900', social: '1,908', total: '23,192', status: '正常', change: '+2,000', changeType: 'up' },
+    { id: 3, name: '王强', dept: '技术部', base: '12,000', bonus: '1,000', tax: '300', social: '1,272', total: '11,428', status: '试用期', change: '0', changeType: 'none' },
+    { id: 4, name: '陈杰', dept: '设计部', base: '15,000', bonus: '2,000', tax: '450', social: '1,590', total: '14,960', status: '正常', change: '-500', changeType: 'down' },
+    { id: 5, name: '刘思思', dept: '运营部', base: '14,000', bonus: '3,000', tax: '400', social: '1,484', total: '15,116', status: '正常', change: '+800', changeType: 'up' },
 ];
 
 // --- Sub-Component: Individual Salary Detail ---
@@ -31,11 +31,30 @@ const StaffSalaryDetail = ({ employee, onBack }: { employee: any, onBack: () => 
                         {employee.name.charAt(0)}
                     </div>
                     <h3 className="text-lg font-black text-slate-900">{employee.name}</h3>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{employee.dept} · {employee.status}</p>
+                    <div className="flex items-center gap-2 mt-2">
+                        <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">{employee.dept}</span>
+                        {employee.status === '试用期' ? (
+                            <span className="text-[10px] font-bold text-orange-600 bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-md">试用期</span>
+                        ) : (
+                            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md">正式</span>
+                        )}
+                    </div>
                     
                     <div className="w-full mt-8 pt-8 border-t border-slate-50 text-center">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">本月实发金额 (Net Pay)</p>
                         <h2 className="text-4xl font-black font-mono text-indigo-600 tracking-tighter">¥{employee.total}</h2>
+                        {employee.changeType !== 'none' && (
+                            <div className={`inline-flex items-center gap-1 mt-2 px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                                employee.changeType === 'up' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+                            }`}>
+                                {employee.changeType === 'up' ? '↑' : '↓'} 较上月 {employee.change}
+                            </div>
+                        )}
+                        {employee.changeType === 'none' && (
+                            <div className="inline-flex items-center gap-1 mt-2 px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-50 text-slate-500">
+                                - 与上月持平
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -147,7 +166,14 @@ const PayrollDetail = ({ item, onBack }: { item: any, onBack: () => void }) => {
                 
                 <div className="relative z-10">
                     <p className="text-[10px] font-bold text-indigo-200 uppercase tracking-widest mb-1">实发总额 ({item.count}人)</p>
-                    <h3 className="text-4xl font-black font-mono tracking-tighter mb-5">¥{item.amount}</h3>
+                    <div className="flex items-end gap-3 mb-5">
+                        <h3 className="text-4xl font-black font-mono tracking-tighter leading-none">¥{item.amount}</h3>
+                        {item.change && (
+                            <div className={`flex items-center gap-1 text-xs font-bold mb-1 ${item.change.startsWith('+') ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                {item.change.startsWith('+') ? '↑' : '↓'} {item.change.replace(/[+-]/, '')} ({item.changeRate})
+                            </div>
+                        )}
+                    </div>
                     <div className="flex gap-3">
                         <span className="flex items-center gap-1.5 text-[10px] font-bold bg-white/10 px-2.5 py-1 rounded-lg backdrop-blur-md border border-white/10">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 五险一金已扣除
@@ -155,6 +181,44 @@ const PayrollDetail = ({ item, onBack }: { item: any, onBack: () => void }) => {
                         <span className="flex items-center gap-1.5 text-[10px] font-bold bg-white/10 px-2.5 py-1 rounded-lg backdrop-blur-md border border-white/10">
                             <span className="w-1.5 h-1.5 rounded-full bg-orange-400"></span> 个税已申报
                         </span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Department Breakdown */}
+            <div className="bg-white rounded-[28px] p-6 shadow-sm border border-slate-100">
+                <div className="flex items-center gap-2 mb-4">
+                    <PieChart size={14} className="text-indigo-500" />
+                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">部门薪资占比</h4>
+                </div>
+                <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                        <div className="w-14 text-xs font-bold text-slate-700">技术部</div>
+                        <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-indigo-500 rounded-full" style={{ width: '40%' }}></div>
+                        </div>
+                        <div className="w-10 text-right text-xs font-mono font-bold text-slate-500">40%</div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <div className="w-14 text-xs font-bold text-slate-700">市场部</div>
+                        <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-blue-400 rounded-full" style={{ width: '25%' }}></div>
+                        </div>
+                        <div className="w-10 text-right text-xs font-mono font-bold text-slate-500">25%</div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <div className="w-14 text-xs font-bold text-slate-700">运营部</div>
+                        <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-emerald-400 rounded-full" style={{ width: '20%' }}></div>
+                        </div>
+                        <div className="w-10 text-right text-xs font-mono font-bold text-slate-500">20%</div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <div className="w-14 text-xs font-bold text-slate-700">设计部</div>
+                        <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-orange-400 rounded-full" style={{ width: '15%' }}></div>
+                        </div>
+                        <div className="w-10 text-right text-xs font-mono font-bold text-slate-500">15%</div>
                     </div>
                 </div>
             </div>
@@ -187,7 +251,14 @@ const PayrollDetail = ({ item, onBack }: { item: any, onBack: () => void }) => {
                             <div className="flex items-center gap-3">
                                 <div className="text-right">
                                     <p className="text-sm font-black font-mono text-slate-900">¥{emp.total}</p>
-                                    <p className="text-[10px] font-bold text-slate-400 mt-0.5 uppercase tracking-tighter">本月实发</p>
+                                    <div className="flex items-center justify-end gap-1 mt-0.5">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">本月实发</p>
+                                        {emp.changeType !== 'none' && (
+                                            <span className={`text-[10px] font-bold font-mono ${emp.changeType === 'up' ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                                {emp.changeType === 'up' ? '↑' : '↓'}{emp.change.replace(/[+-]/, '')}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                                 <ChevronRight size={16} className="text-slate-300 group-hover:text-indigo-500 transition-colors" />
                             </div>
