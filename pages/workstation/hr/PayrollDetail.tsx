@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, Banknote, ShieldCheck, ChevronRight, User, Calculator, PieChart, ReceiptText, Info } from 'lucide-react';
+import { Download, Banknote, ShieldCheck, ChevronRight, User, Calculator, PieChart, ReceiptText, Info, CheckCircle2 } from 'lucide-react';
 import { DetailLayout } from '../../../components/DetailLayout';
 
 // --- Mock Data ---
@@ -44,14 +44,14 @@ const StaffSalaryDetail = ({ employee, onBack }: { employee: any, onBack: () => 
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">本月实发金额 (Net Pay)</p>
                         <h2 className="text-4xl font-black font-mono text-indigo-600 tracking-tighter">¥{employee.total}</h2>
                         {employee.changeType !== 'none' && (
-                            <div className={`inline-flex items-center gap-1 mt-2 px-2 py-0.5 rounded-md text-[10px] font-bold ${
-                                employee.changeType === 'up' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+                            <div className={`inline-flex items-center gap-1 mt-3 px-3 py-1 rounded-lg text-xs font-bold border ${
+                                employee.changeType === 'up' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'
                             }`}>
                                 {employee.changeType === 'up' ? '↑' : '↓'} 较上月 {employee.change}
                             </div>
                         )}
                         {employee.changeType === 'none' && (
-                            <div className="inline-flex items-center gap-1 mt-2 px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-50 text-slate-500">
+                            <div className="inline-flex items-center gap-1 mt-3 px-3 py-1 rounded-lg text-xs font-bold bg-slate-50 text-slate-500 border border-slate-100">
                                 - 与上月持平
                             </div>
                         )}
@@ -159,87 +159,99 @@ const PayrollDetail = ({ item, onBack }: { item: any, onBack: () => void }) => {
             )}
         >
             {/* Header Card */}
-            <div className="bg-slate-900 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden">
-                {/* Subtle background pattern/glow */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+            <div className="bg-gradient-to-br from-white via-white to-indigo-50/50 rounded-[32px] p-6 border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] relative overflow-hidden">
+                <div className="absolute -right-6 -top-6 opacity-[0.03] text-indigo-900 pointer-events-none transform rotate-12">
+                    <Banknote size={180} />
+                </div>
                 
                 <div className="relative z-10">
-                    <div className="flex justify-between items-start mb-6">
-                        <div>
-                            <p className="text-xs font-medium text-slate-400 mb-1">本月实发总额</p>
-                            <h3 className="text-4xl font-light tracking-tight font-mono">¥{item.amount}</h3>
+                    <div className="flex items-center gap-2 mb-6">
+                        <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100/50">
+                            <Banknote size={16} strokeWidth={2.5}/>
                         </div>
-                        <div className="text-right">
-                            <p className="text-xs font-medium text-slate-400 mb-1">发放人数</p>
-                            <p className="text-xl font-light font-mono">{item.count}<span className="text-sm text-slate-500 ml-1">人</span></p>
-                        </div>
+                        <h3 className="text-sm font-black text-slate-900">本月实发总额</h3>
                     </div>
 
-                    {/* Change Rate Pill */}
-                    {item.change && (
-                        <div className="mb-6 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
-                            <span className={`text-xs font-medium ${item.change.startsWith('+') ? 'text-emerald-400' : 'text-rose-400'}`}>
-                                {item.change.startsWith('+') ? '↑' : '↓'} 较上月 {item.change.replace(/[+-]/, '')}
-                            </span>
-                            <span className="text-xs text-slate-400 border-l border-white/10 pl-1.5">{item.changeRate}</span>
-                        </div>
-                    )}
+                    <div className="mb-6">
+                        <h3 className="text-4xl font-black tracking-tight font-mono text-slate-900">¥{item.amount}</h3>
+                        {item.change && (
+                            <div className="flex items-center gap-2 mt-2">
+                                <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold border ${item.change.startsWith('+') ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+                                    {item.change.startsWith('+') ? '↑' : '↓'} 较上月 {item.change.replace(/[+-]/, '')}
+                                </div>
+                                <span className="text-[10px] font-bold text-slate-500 bg-white px-2 py-0.5 rounded-md border border-slate-200 shadow-sm">
+                                    环比 {item.changeRate}
+                                </span>
+                            </div>
+                        )}
+                    </div>
 
-                    <div className="flex gap-3 pt-4 border-t border-white/10">
-                        <span className="flex items-center gap-1.5 text-[10px] font-medium text-slate-300">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 五险一金已扣除
-                        </span>
-                        <span className="flex items-center gap-1.5 text-[10px] font-medium text-slate-300">
-                            <span className="w-1.5 h-1.5 rounded-full bg-orange-400"></span> 个税已申报
-                        </span>
+                    <div className="grid grid-cols-2 gap-4 pt-5 border-t border-slate-50">
+                        <div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">发放人数</p>
+                            <p className="text-lg font-black font-mono text-slate-900">{item.count}<span className="text-xs text-slate-500 ml-1 font-bold">人</span></p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">处理状态</p>
+                            <div className="flex flex-col gap-1.5 mt-1">
+                                <span className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-600">
+                                    <CheckCircle2 size={12} className="text-emerald-500" /> 五险一金已扣除
+                                </span>
+                                <span className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-600">
+                                    <CheckCircle2 size={12} className="text-emerald-500" /> 个税已申报
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* Department Breakdown */}
-            <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
-                <div className="flex items-center justify-between mb-5">
-                    <h4 className="text-sm font-semibold text-slate-900">部门薪资占比</h4>
-                    <PieChart size={16} className="text-slate-400" />
+            <div className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-100">
+                <div className="flex items-center gap-2 mb-6">
+                    <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/50">
+                        <PieChart size={16} strokeWidth={2.5}/>
+                    </div>
+                    <h3 className="text-sm font-black text-slate-900">部门薪资占比</h3>
                 </div>
                 
                 {/* Stacked Bar */}
-                <div className="h-2.5 w-full flex rounded-full overflow-hidden mb-6 gap-0.5">
-                    <div className="bg-indigo-500 h-full transition-all duration-500" style={{ width: '40%' }}></div>
-                    <div className="bg-blue-400 h-full transition-all duration-500" style={{ width: '25%' }}></div>
-                    <div className="bg-emerald-400 h-full transition-all duration-500" style={{ width: '20%' }}></div>
-                    <div className="bg-orange-400 h-full transition-all duration-500" style={{ width: '15%' }}></div>
+                <div className="h-3 w-full flex rounded-full overflow-hidden mb-6 gap-0.5 bg-slate-50 p-0.5 border border-slate-100">
+                    <div className="bg-indigo-500 h-full rounded-full transition-all duration-500" style={{ width: '40%' }}></div>
+                    <div className="bg-blue-400 h-full rounded-full transition-all duration-500" style={{ width: '25%' }}></div>
+                    <div className="bg-emerald-400 h-full rounded-full transition-all duration-500" style={{ width: '20%' }}></div>
+                    <div className="bg-orange-400 h-full rounded-full transition-all duration-500" style={{ width: '15%' }}></div>
                 </div>
 
                 {/* Legend Grid */}
-                <div className="grid grid-cols-2 gap-y-4 gap-x-6">
-                    <div className="flex items-center justify-between">
+                <div className="grid grid-cols-2 gap-y-3 gap-x-4">
+                    <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100">
                         <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
-                            <span className="text-xs font-medium text-slate-600">技术部</span>
+                            <div className="w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-sm shadow-indigo-200"></div>
+                            <span className="text-xs font-bold text-slate-600">技术部</span>
                         </div>
-                        <span className="text-xs font-mono font-semibold text-slate-900">40%</span>
+                        <span className="text-sm font-black font-mono text-slate-900">40%</span>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100">
                         <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-blue-400"></div>
-                            <span className="text-xs font-medium text-slate-600">市场部</span>
+                            <div className="w-2.5 h-2.5 rounded-full bg-blue-400 shadow-sm shadow-blue-200"></div>
+                            <span className="text-xs font-bold text-slate-600">市场部</span>
                         </div>
-                        <span className="text-xs font-mono font-semibold text-slate-900">25%</span>
+                        <span className="text-sm font-black font-mono text-slate-900">25%</span>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100">
                         <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
-                            <span className="text-xs font-medium text-slate-600">运营部</span>
+                            <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-200"></div>
+                            <span className="text-xs font-bold text-slate-600">运营部</span>
                         </div>
-                        <span className="text-xs font-mono font-semibold text-slate-900">20%</span>
+                        <span className="text-sm font-black font-mono text-slate-900">20%</span>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100">
                         <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-orange-400"></div>
-                            <span className="text-xs font-medium text-slate-600">设计部</span>
+                            <div className="w-2.5 h-2.5 rounded-full bg-orange-400 shadow-sm shadow-orange-200"></div>
+                            <span className="text-xs font-bold text-slate-600">设计部</span>
                         </div>
-                        <span className="text-xs font-mono font-semibold text-slate-900">15%</span>
+                        <span className="text-sm font-black font-mono text-slate-900">15%</span>
                     </div>
                 </div>
             </div>
@@ -272,11 +284,14 @@ const PayrollDetail = ({ item, onBack }: { item: any, onBack: () => void }) => {
                             <div className="flex items-center gap-3">
                                 <div className="text-right">
                                     <p className="text-sm font-black font-mono text-slate-900">¥{emp.total}</p>
-                                    <div className="flex items-center justify-end gap-1 mt-0.5">
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">本月实发</p>
-                                        {emp.changeType !== 'none' && (
-                                            <span className={`text-[10px] font-bold font-mono ${emp.changeType === 'up' ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                                {emp.changeType === 'up' ? '↑' : '↓'}{emp.change.replace(/[+-]/, '')}
+                                    <div className="flex items-center justify-end gap-1.5 mt-1">
+                                        {emp.changeType !== 'none' ? (
+                                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 ${emp.changeType === 'up' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>
+                                                {emp.changeType === 'up' ? '↑' : '↓'} {emp.change.replace(/[+-]/, '')}
+                                            </span>
+                                        ) : (
+                                            <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">
+                                                - 持平
                                             </span>
                                         )}
                                     </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Search, CheckCircle2, Circle, AlertCircle, QrCode, ChevronRight, Loader2 } from 'lucide-react';
 import { DetailLayout } from '../../components/DetailLayout';
 import OnboardingDetail from './OnboardingDetail';
+import EmployeeAdd from '../workstation/hr/EmployeeAdd';
 
 export type StepStatus = 'pending' | 'processing' | 'done';
 
@@ -45,14 +46,25 @@ const StatusTag = ({ label, status }: { label: string, status: StepStatus }) => 
 const OnboardingProcess: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const [employees, setEmployees] = useState(MOCK_ONBOARDING_LIST);
     const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [isAdding, setIsAdding] = useState(false);
 
     const handleUpdate = (updated: OnboardingEmployee) => {
         setEmployees(employees.map(e => e.id === updated.id ? updated : e));
     };
 
+    const handleAddEmployee = (emp: any) => {
+        // In a real app, we would add the employee to the list
+        setIsAdding(false);
+        setSelectedId(null);
+    };
+
+    if (isAdding) {
+        return <EmployeeAdd onBack={() => setIsAdding(false)} onSave={handleAddEmployee} />;
+    }
+
     if (selectedId) {
         const emp = employees.find(e => e.id === selectedId);
-        if (emp) return <OnboardingDetail employee={emp} onBack={() => setSelectedId(null)} onUpdate={handleUpdate} />;
+        if (emp) return <OnboardingDetail employee={emp} onBack={() => setSelectedId(null)} onUpdate={handleUpdate} onAddEmployee={() => setIsAdding(true)} />;
     }
 
     return (

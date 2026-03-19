@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, Banknote, FileSignature, CheckCircle2, ChevronRight, Play, Loader2, Eye, EyeOff, Circle, User, Edit3, Save, X, QrCode, AlertCircle, Calculator, Check, Calendar, FileText, XCircle } from 'lucide-react';
 import { DetailLayout } from '../../components/DetailLayout';
 import { OnboardingEmployee, StepStatus } from './OnboardingProcess';
@@ -38,6 +39,7 @@ const InfoRow = ({ label, value, isMono = false, isSensitive = false, showSensit
 );
 
 const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, onUpdate }) => {
+    const navigate = useNavigate();
     const [loadingStep, setLoadingStep] = useState<string | null>(null);
     const [showSalary, setShowSalary] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -318,11 +320,11 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
             >
                 <div className="space-y-5 pb-24">
                     {isMissingInfo && (
-                        <div className="bg-rose-50 border border-rose-200 rounded-[24px] p-4 flex gap-3 items-start animate-pulse shadow-sm cursor-pointer" onClick={() => setIsEditing(true)}>
+                        <div className="bg-rose-50 border border-rose-200 rounded-[24px] p-4 flex gap-3 items-start animate-pulse shadow-sm">
                             <AlertCircle className="text-rose-600 shrink-0 mt-0.5" size={18} strokeWidth={2.5} />
                             <div>
                                 <h4 className="text-xs font-black text-rose-700">扫码入职：核心信息缺失</h4>
-                                <p className="text-[10px] text-rose-600/80 leading-relaxed mt-1 font-bold">该员工通过二维码自主完善了基础信息，请您核实并补足其部门、岗位及核定薪资标准。点击此处立即补充。</p>
+                                <p className="text-[10px] text-rose-600/80 leading-relaxed mt-1 font-bold">该员工通过二维码自主完善了基础信息，请您核实并补足其部门、岗位及核定薪资标准。</p>
                             </div>
                         </div>
                     )}
@@ -348,27 +350,29 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
                                 <p className="text-xs font-bold text-slate-400">{employee.dept || '待分配部门'} · {employee.role || '待确定岗位'}</p>
                             </div>
                         </div>
-                        <div className="relative z-10 grid grid-cols-2 gap-4 border-t border-slate-50 pt-5">
-                            <div>
-                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">拟入职日期</p>
-                                <p className="text-sm font-black font-mono text-slate-900">{employee.joinDate}</p>
+                        {!isMissingInfo && (
+                            <div className="relative z-10 grid grid-cols-2 gap-4 border-t border-slate-50 pt-5">
+                                <div>
+                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">拟入职日期</p>
+                                    <p className="text-sm font-black font-mono text-slate-900">{employee.joinDate}</p>
+                                </div>
+                                <div className="text-right">
+                                    <button 
+                                        onClick={() => setShowSalary(!showSalary)}
+                                        className="inline-flex items-center gap-1.5 text-[9px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg border border-indigo-100 active:scale-95 transition-transform"
+                                    >
+                                        {showSalary ? <EyeOff size={10}/> : <Eye size={10}/>} {showSalary ? '隐藏薪资' : '查看薪资'}
+                                    </button>
+                                    <p className={`text-sm font-black font-mono mt-1 text-slate-900 ${!showSalary ? 'blur-sm opacity-50' : ''}`}>
+                                        {employee.salary ? `¥ ${employee.salary}` : <span className="text-rose-500 font-bold">¥ 待补足</span>}
+                                    </p>
+                                </div>
                             </div>
-                            <div className="text-right">
-                                <button 
-                                    onClick={() => setShowSalary(!showSalary)}
-                                    className="inline-flex items-center gap-1.5 text-[9px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg border border-indigo-100 active:scale-95 transition-transform"
-                                >
-                                    {showSalary ? <EyeOff size={10}/> : <Eye size={10}/>} {showSalary ? '隐藏薪资' : '查看薪资'}
-                                </button>
-                                <p className={`text-sm font-black font-mono mt-1 text-slate-900 ${!showSalary ? 'blur-sm opacity-50' : ''}`}>
-                                    {employee.salary ? `¥ ${employee.salary}` : <span className="text-rose-500 font-bold">¥ 待补足</span>}
-                                </p>
-                            </div>
-                        </div>
+                        )}
                     </div>
 
                     {/* Personal Info */}
-                    <InfoSection title="档案信息确认" onEdit={() => setIsEditing(true)} isUrgent={isMissingInfo}>
+                    <InfoSection title="档案信息确认" onEdit={!isMissingInfo ? () => setIsEditing(true) : undefined} isUrgent={isMissingInfo}>
                         <InfoRow label="身份证号" value={employee.idCard} isMono />
                         <InfoRow label="手机号码" value={employee.phone} isMono />
                         {isQR && (
@@ -380,40 +384,50 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
                     </InfoSection>
 
                     {/* Checklist Section */}
-                    <div className="space-y-3">
-                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2">办理事项 (Action Required)</h4>
-                        <StatusCard 
-                            icon={ShieldCheck} 
-                            title="基础资料核验" 
-                            desc="包含实名认证、证件采集、银行卡信息核对。" 
-                            status={employee.steps.info} 
-                            stepKey="info"
-                        />
-                        <StatusCard 
-                            icon={FileSignature} 
-                            title="劳动合同签署" 
-                            desc="发起电子劳动合同签署流程。" 
-                            status={employee.steps.contract} 
-                            stepKey="contract"
-                        />
-                        <StatusCard 
-                            icon={Calculator} 
-                            title="个税申报设置" 
-                            desc="确认个税专项附加扣除及核定基数。" 
-                            status={employee.steps.tax} 
-                            stepKey="tax"
-                        />
-                        <StatusCard 
-                            icon={Banknote} 
-                            title="社保公积金办理" 
-                            desc="五险一金本月增员申报及基数核定确认。" 
-                            status={employee.steps.social} 
-                            stepKey="social"
-                        />
-                    </div>
+                    {!isMissingInfo && (
+                        <div className="space-y-3">
+                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2">办理事项 (Action Required)</h4>
+                            <StatusCard 
+                                icon={ShieldCheck} 
+                                title="基础资料核验" 
+                                desc="包含实名认证、证件采集、银行卡信息核对。" 
+                                status={employee.steps.info} 
+                                stepKey="info"
+                            />
+                            <StatusCard 
+                                icon={FileSignature} 
+                                title="劳动合同签署" 
+                                desc="发起电子劳动合同签署流程。" 
+                                status={employee.steps.contract} 
+                                stepKey="contract"
+                            />
+                            <StatusCard 
+                                icon={Calculator} 
+                                title="个税申报设置" 
+                                desc="确认个税专项附加扣除及核定基数。" 
+                                status={employee.steps.tax} 
+                                stepKey="tax"
+                            />
+                            <StatusCard 
+                                icon={Banknote} 
+                                title="社保公积金办理" 
+                                desc="五险一金本月增员申报及基数核定确认。" 
+                                status={employee.steps.social} 
+                                stepKey="social"
+                            />
+                        </div>
+                    )}
                 </div>
 
-                <div className="fixed bottom-0 left-0 right-0 p-6 bg-white/80 backdrop-blur-xl border-t border-slate-100 max-w-md mx-auto pb-8">
+                <div className="fixed bottom-0 left-0 right-0 p-6 bg-white/80 backdrop-blur-xl border-t border-slate-100 max-w-md mx-auto pb-8 flex flex-col gap-3">
+                     {isMissingInfo && (
+                         <button 
+                            onClick={() => navigate('/work/hr-emp', { state: { action: 'add' } })}
+                            className="w-full py-3.5 rounded-2xl font-black text-sm bg-indigo-600 text-white shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                         >
+                            <User size={18} /> 新增员工
+                         </button>
+                     )}
                      <button 
                         onClick={onBack}
                         className="w-full py-3.5 rounded-2xl font-black text-sm bg-gray-900 text-white shadow-xl active:scale-[0.98] transition-all"

@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Search, ChevronRight, Plus, Users, UserPlus, UserMinus, Filter, Briefcase, XCircle } from 'lucide-react';
 import EmployeeAdd from './EmployeeAdd';
 import EmployeeDetail from './EmployeeDetail';
@@ -17,11 +18,18 @@ export const MOCK_EMPLOYEES = [
 // --- Level 2: Dashboard View ---
 
 const Employee: React.FC = () => {
+    const location = useLocation();
     const [employees, setEmployees] = useState(MOCK_EMPLOYEES);
     const [selectedEmp, setSelectedEmp] = useState<any | null>(null);
-    const [isAdding, setIsAdding] = useState(false);
+    const [isAdding, setIsAdding] = useState(location.state?.action === 'add');
     const [filterMode, setFilterMode] = useState<'all' | 'new' | 'leaving' | 'probation'>('all');
     const [searchQuery, setSearchQuery] = useState('');
+
+    useEffect(() => {
+        if (location.state?.action === 'add') {
+            setIsAdding(true);
+        }
+    }, [location.state]);
 
     const handleAddEmployee = (newEmp: any) => {
         setEmployees([newEmp, ...employees]);

@@ -114,11 +114,18 @@ const Payroll: React.FC = () => {
                              <div className="flex items-center gap-4">
                                  <div className="text-right">
                                      <p className="font-black font-mono text-slate-900 text-base tracking-tight">¥{item.amount}</p>
-                                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-block mt-1 ${
-                                         item.status === '已发放' ? 'bg-emerald-50 text-emerald-600' : 'bg-orange-50 text-orange-600'
-                                     }`}>
-                                         {item.status}
-                                     </span>
+                                     <div className="flex items-center justify-end gap-1.5 mt-1">
+                                         {item.change && (
+                                             <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 ${item.change.startsWith('+') ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>
+                                                 {item.change.startsWith('+') ? '↑' : '↓'} {item.change.replace(/[+-]/, '')}
+                                             </span>
+                                         )}
+                                         <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${
+                                             item.status === '已发放' ? 'bg-slate-50 text-slate-500 border-slate-200' : 'bg-orange-50 text-orange-600 border-orange-100'
+                                         }`}>
+                                             {item.status}
+                                         </span>
+                                     </div>
                                  </div>
                                  <ChevronRight size={18} className="text-slate-300 group-hover:text-indigo-400 transition-colors" />
                              </div>
