@@ -7,12 +7,14 @@ import EmployeeDetail from './EmployeeDetail';
 // --- Mock Data ---
 
 export const MOCK_EMPLOYEES = [
-  { id: 1, name: '张伟', dept: '技术部', role: '高级工程师', status: '正式', joinDate: '2021-03-15', phone: '13812345678', email: 'zhangwei@company.com', idCard: '31010419900101****', contractEnd: '2024-03-15' },
-  { id: 2, name: '李娜', dept: '市场部', role: '市场经理', status: '正式', joinDate: '2022-06-01', phone: '13987654321', email: 'lina@company.com', idCard: '31010419920505****', contractEnd: '2025-06-01' },
-  { id: 3, name: '王强', dept: '技术部', role: '前端开发', status: '试用', joinDate: '2023-11-10', phone: '15000000000', email: 'wangqiang@company.com', idCard: '32050119950808****', contractEnd: '2026-11-10' },
-  { id: 4, name: '陈杰', dept: '设计部', role: 'UI设计师', status: '正式', joinDate: '2022-09-01', phone: '13711112222', email: 'chenjie@company.com', idCard: '31011519961212****', contractEnd: '2025-09-01' },
-  { id: 5, name: '赵六', dept: '行政部', role: '行政主管', status: '离职', joinDate: '2020-05-20', phone: '13599998888', email: 'zhaoliu@company.com', idCard: '31010419880101****', contractEnd: '2023-12-05' },
-  { id: 6, name: '周晓', dept: '技术部', role: '测试工程师', status: '正式', joinDate: '2023-12-01', phone: '18800001111', email: 'zhouxiao@company.com', idCard: '31010419980101****', contractEnd: '2026-12-01' },
+  { id: 1, name: '张伟', dept: '技术部', role: '高级工程师', status: '正式', joinDate: '2021-03-15', phone: '13812345678', email: 'zhangwei@company.com', idCard: '31010419900101****', contractEnd: '2024-03-15', tasks: { social: 'done', fund: 'done' } },
+  { id: 2, name: '李娜', dept: '市场部', role: '市场经理', status: '正式', joinDate: '2022-06-01', phone: '13987654321', email: 'lina@company.com', idCard: '31010419920505****', contractEnd: '2025-06-01', tasks: { social: 'pending', fund: 'pending' } },
+  { id: 3, name: '王强', dept: '技术部', role: '前端开发', status: '试用', joinDate: '2023-11-10', phone: '15000000000', email: 'wangqiang@company.com', idCard: '32050119950808****', contractEnd: '2026-11-10', tasks: { social: 'processing', fund: 'pending' } },
+  { id: 4, name: '陈杰', dept: '设计部', role: 'UI设计师', status: '正式', joinDate: '2022-09-01', phone: '13711112222', email: 'chenjie@company.com', idCard: '31011519961212****', contractEnd: '2025-09-01', tasks: { social: 'done', fund: 'processing' } },
+  { id: 5, name: '赵六', dept: '行政部', role: '行政主管', status: '离职', joinDate: '2020-05-20', phone: '13599998888', email: 'zhaoliu@company.com', idCard: '31010419880101****', contractEnd: '2023-12-05', tasks: { social: 'processing', fund: 'processing' } },
+  { id: 6, name: '周晓', dept: '技术部', role: '测试工程师', status: '正式', joinDate: '2023-12-01', phone: '18800001111', email: 'zhouxiao@company.com', idCard: '31010419980101****', contractEnd: '2026-12-01', tasks: { social: 'pending', fund: 'pending' } },
+  { id: 7, name: '孙七', dept: '技术部', role: '后端开发', status: '正式', joinDate: '2022-01-01', phone: '13300001111', email: 'sunqi@company.com', idCard: '31010419950101****', contractEnd: '2025-01-01', tasks: { social: 'done', fund: 'done' } },
+  { id: 8, name: '王五', dept: '市场部', role: '市场专员', status: '正式', joinDate: '2023-01-01', phone: '13300002222', email: 'wangwu@company.com', idCard: '31010419960101****', contractEnd: '2026-01-01', tasks: { social: 'pending', fund: 'pending' } },
 ];
 
 // --- Level 2: Dashboard View ---
@@ -219,15 +221,28 @@ const Employee: React.FC = () => {
                         <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-center mb-1">
                                 <h4 className="text-sm font-black text-slate-900 truncate">{emp.name}</h4>
-                                <span className={`text-[10px] px-2 py-0.5 rounded-md font-black border ${
-                                    emp.status === '正式' 
-                                    ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
-                                    : emp.status === '试用'
-                                    ? 'bg-blue-50 text-blue-600 border-blue-100'
-                                    : 'bg-slate-50 text-slate-500 border-slate-200'
-                                }`}>
-                                    {emp.status}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    {emp.tasks && (
+                                        <span className={`text-[10px] px-2 py-0.5 rounded-md font-black border ${
+                                            emp.tasks.social === 'done' && emp.tasks.fund === 'done' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                                            emp.tasks.social === 'pending' && emp.tasks.fund === 'pending' ? 'bg-slate-50 text-slate-500 border-slate-200' :
+                                            'bg-amber-50 text-amber-600 border-amber-100'
+                                        }`}>
+                                            {emp.tasks.social === 'done' && emp.tasks.fund === 'done' ? '办理完成' :
+                                             emp.tasks.social === 'pending' && emp.tasks.fund === 'pending' ? '待处理' :
+                                             '办理中'}
+                                        </span>
+                                    )}
+                                    <span className={`text-[10px] px-2 py-0.5 rounded-md font-black border ${
+                                        emp.status === '正式' 
+                                        ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                                        : emp.status === '试用'
+                                        ? 'bg-blue-50 text-blue-600 border-blue-100'
+                                        : 'bg-slate-50 text-slate-500 border-slate-200'
+                                    }`}>
+                                        {emp.status}
+                                    </span>
+                                </div>
                             </div>
                             <div className="flex flex-col gap-0.5">
                                 <p className="text-xs font-bold text-slate-500 truncate">{emp.dept} · {emp.role}</p>

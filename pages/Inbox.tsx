@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import { Task, TaskType } from '../types';
 import InboxSalaryDetail from './inbox/InboxSalaryDetail';
 import OnboardingProcess from './inbox/OnboardingProcess';
+import OffboardingProcess from './inbox/OffboardingProcess';
 import InboxReimbursement from './inbox/InboxReimbursement';
 import { 
   CheckCircle2, Clock, Play, Activity, ArrowRight,
-  ChevronDown, MoreHorizontal, UserPlus, Stamp, ReceiptText, ArrowUpRight, QrCode
+  ChevronDown, MoreHorizontal, UserPlus, UserMinus, Stamp, ReceiptText, ArrowUpRight, QrCode
 } from 'lucide-react';
 
 const SALARY_TASK: Task = { 
@@ -54,7 +55,7 @@ const timelineData: TimelineItem[] = [
 ];
 
 const Inbox: React.FC = () => {
-    const [viewMode, setViewMode] = useState<'main' | 'salary' | 'onboarding' | 'reimbursement'>('main');
+    const [viewMode, setViewMode] = useState<'main' | 'salary' | 'onboarding' | 'offboarding' | 'reimbursement'>('main');
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [isTimelineExpanded, setIsTimelineExpanded] = useState(false);
 
@@ -65,6 +66,7 @@ const Inbox: React.FC = () => {
 
     if (viewMode === 'salary' && selectedTask) return <InboxSalaryDetail task={selectedTask} onBack={() => setViewMode('main')} />;
     if (viewMode === 'onboarding') return <OnboardingProcess onBack={() => setViewMode('main')} />;
+    if (viewMode === 'offboarding') return <OffboardingProcess onBack={() => setViewMode('main')} />;
     if (viewMode === 'reimbursement') return <InboxReimbursement onBack={() => setViewMode('main')} />;
 
     const renderTimelineItem = (item: TimelineItem, index: number, isLast: boolean) => {
@@ -188,7 +190,7 @@ const Inbox: React.FC = () => {
                  <div onClick={() => setViewMode('onboarding')} className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-sm flex items-center gap-5 cursor-pointer active:scale-[0.99] transition-all group hover:border-indigo-100">
                       <div className="w-14 h-14 rounded-[24px] bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100/50 shadow-sm"><UserPlus size={24} strokeWidth={2}/></div>
                       <div className="flex-1">
-                          <h4 className="text-sm font-black text-slate-800">入职办理中心</h4>
+                          <h4 className="text-sm font-black text-slate-800">入职办理</h4>
                           <div className="flex items-center gap-3 mt-1.5">
                               <p className="text-[10px] font-medium text-slate-400 flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span> 普通: <span className="text-slate-600 font-bold">2</span></p>
                               <p className="text-[10px] font-medium text-slate-400 flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> 扫码: <span className="text-slate-600 font-bold">1</span></p>
@@ -197,6 +199,22 @@ const Inbox: React.FC = () => {
                       <div className="flex items-center -space-x-2.5">
                         <div className="w-8 h-8 rounded-xl bg-blue-500 text-white text-[10px] flex items-center justify-center font-bold shadow-md border-2 border-white relative z-10">2</div>
                         <div className="w-8 h-8 rounded-xl bg-indigo-500 text-white text-[10px] flex items-center justify-center font-bold shadow-md border-2 border-white relative z-20 flex items-center gap-0.5"><QrCode size={10} />1</div>
+                      </div>
+                 </div>
+
+                 {/* Offboarding Card */}
+                 <div onClick={() => setViewMode('offboarding')} className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-sm flex items-center gap-5 cursor-pointer active:scale-[0.99] transition-all group hover:border-rose-100">
+                      <div className="w-14 h-14 rounded-[24px] bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-100/50 shadow-sm"><UserMinus size={24} strokeWidth={2}/></div>
+                      <div className="flex-1">
+                          <h4 className="text-sm font-black text-slate-800">离职办理</h4>
+                          <div className="flex items-center gap-3 mt-1.5">
+                              <p className="text-[10px] font-medium text-slate-400 flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-rose-400"></span> 待处理: <span className="text-slate-600 font-bold">1</span></p>
+                              <p className="text-[10px] font-medium text-slate-400 flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> 办理中: <span className="text-slate-600 font-bold">1</span></p>
+                          </div>
+                      </div>
+                      <div className="flex items-center -space-x-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-rose-500 text-white text-[10px] flex items-center justify-center font-bold shadow-md border-2 border-white relative z-10">1</div>
+                        <div className="w-8 h-8 rounded-xl bg-indigo-500 text-white text-[10px] flex items-center justify-center font-bold shadow-md border-2 border-white relative z-20">1</div>
                       </div>
                  </div>
 
