@@ -1,11 +1,14 @@
 
 import React, { useState } from 'react';
-import { Building2, ChevronRight, ShieldCheck, Stamp, Users, FileText, Landmark, QrCode, Eye, EyeOff, ArrowDownLeft, ArrowUpRight, Copy, History, Bell, MapPin, ScrollText } from 'lucide-react';
+import { Building2, ChevronRight, ShieldCheck, Stamp, Users, FileText, Landmark, Repeat, Eye, EyeOff, ArrowDownLeft, ArrowUpRight, Copy, History, Bell, MapPin, ScrollText } from 'lucide-react';
 import CompanyDetails from './company/CompanyDetails';
+import CompanySwitchModal from '../components/CompanySwitchModal';
 
 const Company: React.FC = () => {
   const [showBalance, setShowBalance] = useState(false);
   const [activeDetail, setActiveDetail] = useState<string | null>(null);
+  const [isSwitchModalOpen, setIsSwitchModalOpen] = useState(false);
+  const [currentCompany, setCurrentCompany] = useState({ id: '1', name: '千机科技' });
   
   if (activeDetail) return <CompanyDetails type={activeDetail} onBack={() => setActiveDetail(null)} />;
 
@@ -17,6 +20,13 @@ const Company: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full bg-[#F8F9FB]">
+      {isSwitchModalOpen && (
+        <CompanySwitchModal 
+          onClose={() => setIsSwitchModalOpen(false)} 
+          onSelect={setCurrentCompany}
+          currentCompanyId={currentCompany.id}
+        />
+      )}
       <header className="sticky top-0 z-40 px-6 pt-12 pb-5 bg-[#F8F9FB]/90 backdrop-blur-xl border-b border-slate-100/50 flex justify-between items-end">
           <div>
               <div className="flex items-center gap-1.5 mb-1.5 opacity-60">
@@ -36,8 +46,8 @@ const Company: React.FC = () => {
                  </div>
                  <div className="pt-1 flex-1 min-w-0">
                      <div className="flex items-center justify-between mb-1.5">
-                        <h2 className="text-lg font-black text-slate-900 truncate tracking-tight">千机科技</h2>
-                        <QrCode size={20} className="text-slate-300 hover:text-indigo-600 transition-colors cursor-pointer" />
+                        <h2 className="text-lg font-black text-slate-900 truncate tracking-tight">{currentCompany.name}</h2>
+                        <Repeat size={20} className="text-slate-300 hover:text-indigo-600 transition-colors cursor-pointer" onClick={() => setIsSwitchModalOpen(true)} />
                      </div>
                      <div className="flex items-center gap-2 mb-4">
                         <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100/50 shrink-0">已实名认证</span>
