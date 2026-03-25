@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Briefcase, Banknote, FileSignature, Calculator, ShieldCheck, Check, X, ChevronRight, UserPlus, QrCode, Smartphone, Building2 } from 'lucide-react';
+import { Briefcase, Banknote, FileSignature, Calculator, ShieldCheck, Check, X, ChevronRight, UserPlus, QrCode, Smartphone, Building2, MapPin, Clock, FileText, Plus, Minus, AlertCircle } from 'lucide-react';
 import { DetailLayout } from '../../../components/DetailLayout';
 
 const SectionHeader = ({ icon: Icon, title, extra }: { icon: any, title: string, extra?: React.ReactNode }) => (
@@ -59,9 +59,30 @@ const EmployeeAdd: React.FC<EmployeeAddProps> = ({ onBack, onSave }) => {
     const [role, setRole] = useState('');
     const [salary, setSalary] = useState('');
 
-    const [isContractInitiated, setIsContractInitiated] = useState(false);
-    const [contractTerm, setContractTerm] = useState('3'); 
-    const [probation, setProbation] = useState('3'); 
+    const [isContractInitiated, setIsContractInitiated] = useState(true);
+    const [contractTerm, setContractTerm] = useState(3); 
+    const [probation, setProbation] = useState(3); 
+    const [contractTemplate, setContractTemplate] = useState('标准劳动合同 (2024版)');
+
+    const [companyInfo, setCompanyInfo] = useState({
+        address: '上海市浦东新区张江高科技园区',
+        workLocation: '上海',
+        payDay: '10',
+        payMonth: '本月'
+    });
+    const [hasConfirmedCompanyInfo, setHasConfirmedCompanyInfo] = useState(false);
+    const [contractModalType, setContractModalType] = useState<'none' | 'company_confirm' | 'contract' | 'contract_confirm'>('none');
+    const [positions] = useState(['高级工程师', '产品经理', '运营专家', '人事主管', '财务经理']);
+    const [showPositionInput, setShowPositionInput] = useState(false);
+    const [newPosition, setNewPosition] = useState('');
+
+    const handleToggleContract = () => {
+        const nextState = !isContractInitiated;
+        setIsContractInitiated(nextState);
+        if (nextState) {
+            setContractModalType(hasConfirmedCompanyInfo ? 'contract' : 'company_confirm');
+        }
+    }; 
 
     const [isTaxDeclared, setIsTaxDeclared] = useState(true);
     const [taxBase, setTaxBase] = useState('');
@@ -130,16 +151,31 @@ const EmployeeAdd: React.FC<EmployeeAddProps> = ({ onBack, onSave }) => {
 
                 <div className="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100">
                     <SectionHeader icon={FileSignature} title="3. 合同信息" />
-                    <ToggleRow label="发起合同签订" checked={isContractInitiated} onChange={() => setIsContractInitiated(!isContractInitiated)} />
+                    <ToggleRow label="发起合同签订" checked={isContractInitiated} onChange={handleToggleContract} />
                     {isContractInitiated && (
-                        <div className="grid grid-cols-2 gap-4 mt-5 animate-fade-in">
-                            <div>
-                                <label className="text-[10px] font-bold text-slate-400 mb-1.5 block uppercase ml-1">合同期限</label>
-                                <select value={contractTerm} onChange={(e) => setContractTerm(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 px-4 text-sm outline-none font-bold text-slate-900 appearance-none"><option value="3">3年 (标准)</option><option value="1">1年</option><option value="5">5年</option><option value="0">无固定期限</option></select>
+                        <div 
+                            onClick={() => setContractModalType(hasConfirmedCompanyInfo ? 'contract' : 'company_confirm')}
+                            className="mt-4 animate-fade-in bg-slate-50 rounded-2xl p-4 border border-dashed border-slate-200 cursor-pointer hover:bg-slate-100 transition-all"
+                        >
+                            <div className="flex justify-between items-start mb-3">
+                                <div>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">合同详情</p>
+                                    <p className="text-sm font-black text-slate-900 leading-relaxed">
+                                        {contractTerm === '0' ? '无固定期限' : `${contractTerm}年期`} · 试用期{probation}个月
+                                    </p>
+                                    <p className="text-[11px] text-indigo-600 font-bold mt-1 flex items-center gap-1">
+                                        <FileText size={12} /> {contractTemplate}
+                                    </p>
+                                </div>
+                                <span className="text-[10px] font-bold text-indigo-600 flex items-center gap-0.5">
+                                    修改 <ChevronRight size={12} strokeWidth={3} />
+                                </span>
                             </div>
-                            <div>
-                                <label className="text-[10px] font-bold text-slate-400 mb-1.5 block uppercase ml-1">试用期</label>
-                                <select value={probation} onChange={(e) => setProbation(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 px-4 text-sm outline-none font-bold text-slate-900 appearance-none"><option value="3">3个月</option><option value="6">6个月</option><option value="1">1个月</option><option value="0">无试用期</option></select>
+                            <div className="pt-3 border-t border-slate-200 flex items-center gap-2">
+                                <Building2 size={12} className="text-slate-400" />
+                                <p className="text-[10px] font-bold text-slate-500">
+                                    {companyInfo.workLocation} · {companyInfo.payDay}日发薪 ({companyInfo.payMonth})
+                                </p>
                             </div>
                         </div>
                     )}
@@ -236,6 +272,271 @@ const EmployeeAdd: React.FC<EmployeeAddProps> = ({ onBack, onSave }) => {
                         <div className="space-y-4 mb-6"><p className="text-xs text-slate-500">当前核定月薪：<span className="font-mono font-black text-slate-900">¥ {salary || '0.00'}</span></p><div><label className="text-[10px] font-bold text-slate-400 mb-1 block uppercase ml-1">社保基数</label><input type="number" value={tempSocialBase} onChange={(e) => setTempSocialBase(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 px-4 font-mono font-black text-slate-900" /></div><div><label className="text-[10px] font-bold text-slate-400 mb-1 block uppercase ml-1">公积金基数</label><input type="number" value={tempFundBase} onChange={(e) => setTempFundBase(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 px-4 font-mono font-black text-slate-900" /></div></div>
                         <button onClick={() => { setSocialBase(tempSocialBase); setFundBase(tempFundBase); setIsSocialFundCustomized(true); setShowSocialModal(false); }} className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-2xl shadow-lg flex items-center justify-center gap-2 mb-2"><Check size={18} /> 确认修改</button>
                         <button onClick={() => { setSocialBase(salary); setFundBase(salary); setIsSocialFundCustomized(false); setShowSocialModal(false); }} className="w-full text-slate-500 text-sm font-bold py-2">恢复同步月薪</button>
+                    </div>
+                </div>
+            )}
+
+            {contractModalType !== 'none' && (
+                <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 sm:p-6 animate-fade-in">
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={() => setContractModalType('none')}></div>
+                    <div className="bg-white w-full max-w-sm rounded-[32px] p-6 shadow-2xl relative z-10 animate-slide-up sm:animate-scale-up mb-safe sm:mb-0 max-h-[90vh] overflow-y-auto no-scrollbar">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-lg font-black text-slate-900">
+                                {contractModalType === 'company_confirm' && '完善公司合同信息'}
+                                {contractModalType === 'contract' && '完善合同细节'}
+                                {contractModalType === 'contract_confirm' && '确认合同信息'}
+                            </h3>
+                            <button onClick={() => setContractModalType('none')} className="p-2 bg-slate-50 rounded-full text-slate-400 hover:bg-slate-100 transition-colors"><X size={18}/></button>
+                        </div>
+
+                        <div className="space-y-5">
+                            {contractModalType === 'company_confirm' && (
+                                <div className="space-y-4">
+                                    <div className="bg-amber-50 border border-amber-100 p-4 rounded-2xl flex gap-3 items-start mb-2">
+                                        <AlertCircle className="text-amber-600 shrink-0 mt-0.5" size={16} />
+                                        <p className="text-[11px] text-amber-700 font-bold leading-relaxed">请确认企业基础信息，确认后将作为后续合同默认值。</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block">公司地址</label>
+                                        <div className="relative">
+                                            <Building2 size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                            <input 
+                                                type="text" 
+                                                value={companyInfo.address}
+                                                onChange={(e) => setCompanyInfo({...companyInfo, address: e.target.value})}
+                                                className="w-full bg-slate-50 border border-slate-100 rounded-xl py-2.5 pl-9 pr-4 text-xs font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block">工作所在地</label>
+                                        <div className="relative">
+                                            <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                            <input 
+                                                type="text" 
+                                                value={companyInfo.workLocation}
+                                                onChange={(e) => setCompanyInfo({...companyInfo, workLocation: e.target.value})}
+                                                className="w-full bg-slate-50 border border-slate-100 rounded-xl py-2.5 pl-9 pr-4 text-xs font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block">发薪日</label>
+                                            <div className="relative">
+                                                <Clock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                                <input 
+                                                    type="number" 
+                                                    value={companyInfo.payDay}
+                                                    onChange={(e) => setCompanyInfo({...companyInfo, payDay: e.target.value})}
+                                                    className="w-full bg-slate-50 border border-slate-100 rounded-xl py-2.5 pl-9 pr-4 text-xs font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all"
+                                                    placeholder="10"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block">发薪月份</label>
+                                            <select 
+                                                value={companyInfo.payMonth}
+                                                onChange={(e) => setCompanyInfo({...companyInfo, payMonth: e.target.value})}
+                                                className="w-full bg-slate-50 border border-slate-100 rounded-xl py-2.5 px-3 text-xs font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all appearance-none"
+                                            >
+                                                <option value="上月">上月</option>
+                                                <option value="本月">本月</option>
+                                                <option value="下月">下月</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <button 
+                                        onClick={() => {
+                                            setHasConfirmedCompanyInfo(true);
+                                            setContractModalType('contract');
+                                        }}
+                                        className="w-full mt-4 bg-indigo-600 text-white font-black py-3.5 rounded-2xl shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                    >
+                                        {hasConfirmedCompanyInfo ? '保存并返回' : '确认并下一步'} <ChevronRight size={16} strokeWidth={3} />
+                                    </button>
+                                </div>
+                            )}
+
+                            {contractModalType === 'contract' && (
+                                <div className="space-y-5">
+                                    {/* Company Info Link */}
+                                    <div 
+                                        onClick={() => setContractModalType('company_confirm')}
+                                        className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4 cursor-pointer hover:bg-slate-100 transition-colors group"
+                                    >
+                                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-slate-200 shadow-sm text-indigo-600 group-hover:scale-110 transition-transform">
+                                            <Building2 size={24} strokeWidth={1.5} />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-xs font-black text-slate-800">{companyInfo.name}</p>
+                                            <p className="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1"><MapPin size={10} /> {companyInfo.location} · 每月 {companyInfo.payDay} 日发薪</p>
+                                        </div>
+                                        <ChevronRight size={16} className="text-slate-300" />
+                                    </div>
+
+                                    {/* Position & Salary */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block ml-1">岗位</label>
+                                            <p className="bg-slate-50 border border-slate-100 rounded-xl py-2.5 px-3 text-xs font-black text-slate-700">{role || '未设置'}</p>
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block ml-1 flex items-center justify-between">
+                                                核定月薪 (税前)
+                                                <span className="text-[8px] bg-amber-100 text-amber-600 px-1 rounded">已修改</span>
+                                            </label>
+                                            <div className="relative">
+                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">¥</span>
+                                                <input 
+                                                    type="number"
+                                                    value={salary}
+                                                    onChange={(e) => setSalary(e.target.value)}
+                                                    className="w-full bg-slate-50 border border-slate-100 rounded-xl py-2.5 pl-7 pr-3 text-xs font-black text-slate-700 outline-none focus:border-indigo-300 transition-colors"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Start Date */}
+                                    <div>
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block ml-1">合同开始日期</label>
+                                        <div className="relative">
+                                            <Clock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                            <input 
+                                                type="date"
+                                                value={joinDate}
+                                                onChange={(e) => setJoinDate(e.target.value)}
+                                                className="w-full bg-slate-50 border border-slate-100 rounded-xl py-2.5 pl-9 pr-3 text-xs font-black text-slate-700 outline-none focus:border-indigo-300 transition-colors"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Term & Probation */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block ml-1">合同年限 (年)</label>
+                                            <div className="flex items-center bg-slate-50 border border-slate-100 rounded-xl overflow-hidden">
+                                                <button 
+                                                    onClick={() => setContractTerm(Math.max(1, contractTerm - 1))}
+                                                    className="p-2.5 text-slate-400 hover:bg-slate-100 active:bg-slate-200"
+                                                >
+                                                    <Minus size={14} strokeWidth={3} />
+                                                </button>
+                                                <div className="flex-1 text-center text-xs font-black text-slate-700">{contractTerm}</div>
+                                                <button 
+                                                    onClick={() => setContractTerm(contractTerm + 1)}
+                                                    className="p-2.5 text-slate-400 hover:bg-slate-100 active:bg-slate-200"
+                                                >
+                                                    <Plus size={14} strokeWidth={3} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block ml-1">试用期 (月)</label>
+                                            <div className="flex items-center bg-slate-50 border border-slate-100 rounded-xl overflow-hidden">
+                                                <button 
+                                                    onClick={() => setProbation(Math.max(0, probation - 1))}
+                                                    className="p-2.5 text-slate-400 hover:bg-slate-100 active:bg-slate-200"
+                                                >
+                                                    <Minus size={14} strokeWidth={3} />
+                                                </button>
+                                                <div className="flex-1 text-center text-xs font-black text-slate-700">{probation}</div>
+                                                <button 
+                                                    onClick={() => setProbation(probation + 1)}
+                                                    className="p-2.5 text-slate-400 hover:bg-slate-100 active:bg-slate-200"
+                                                >
+                                                    <Plus size={14} strokeWidth={3} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Template */}
+                                    <div>
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block ml-1">合同模版</label>
+                                        <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex items-center gap-3 cursor-pointer hover:bg-slate-100 transition-colors">
+                                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-slate-200 shadow-sm text-indigo-600">
+                                                <FileText size={20} strokeWidth={1.5} />
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="text-xs font-black text-slate-800">{contractTemplate}</p>
+                                                <p className="text-[10px] text-slate-400 mt-0.5">点击切换模版</p>
+                                            </div>
+                                            <ChevronRight size={16} className="text-slate-300" />
+                                        </div>
+                                    </div>
+
+                                    <button 
+                                        onClick={() => setContractModalType('contract_confirm')}
+                                        className="w-full mt-4 bg-indigo-600 text-white font-black py-3.5 rounded-2xl shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                    >
+                                        下一步：确认合同信息 <ChevronRight size={16} strokeWidth={3} />
+                                    </button>
+                                </div>
+                            )}
+
+                            {contractModalType === 'contract_confirm' && (
+                                <div className="space-y-6">
+                                    <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 space-y-6">
+                                        <div className="grid grid-cols-2 gap-y-5 gap-x-4">
+                                            <div>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">签署人</p>
+                                                <p className="text-sm font-black text-slate-800">{name || '待输入'}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">岗位</p>
+                                                <p className="text-sm font-black text-slate-800">{role || '待输入'}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">薪酬 (税前)</p>
+                                                <p className="text-sm font-black font-mono text-slate-800">¥ {salary || '0.00'}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">开始日期</p>
+                                                <p className="text-sm font-black font-mono text-slate-800">{joinDate}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">合同期限</p>
+                                                <p className="text-sm font-black text-slate-800">{contractTerm === 0 ? '无固定期限' : `${contractTerm}年`}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">试用期</p>
+                                                <p className="text-sm font-black text-slate-800">{probation} 个月</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="pt-5 border-t border-slate-200">
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2.5">签署模版</p>
+                                            <div className="flex items-center gap-2.5 text-sm font-black text-slate-700 bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+                                                <FileText size={16} className="text-indigo-500" />
+                                                {contractTemplate}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-3">
+                                        <button 
+                                            onClick={() => setContractModalType('contract')}
+                                            className="flex-1 py-3.5 rounded-2xl font-black text-sm bg-white border border-slate-200 text-slate-500 active:scale-[0.98] transition-all"
+                                        >
+                                            返回修改
+                                        </button>
+                                        <button 
+                                            onClick={() => setContractModalType('none')}
+                                            className="flex-[2] py-3.5 rounded-2xl font-black text-sm bg-indigo-600 text-white shadow-xl shadow-indigo-100 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                        >
+                                            确认并保存 <Check size={16} strokeWidth={3} />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}

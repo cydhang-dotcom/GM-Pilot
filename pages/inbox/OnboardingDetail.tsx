@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, Banknote, FileSignature, CheckCircle2, ChevronRight, Play, Loader2, Eye, EyeOff, Circle, User, Edit3, Save, X, QrCode, AlertCircle, Calculator, Check, Calendar, FileText, XCircle } from 'lucide-react';
+import { ShieldCheck, Banknote, FileSignature, CheckCircle2, ChevronRight, Play, Loader2, Eye, EyeOff, Circle, User, Edit3, Save, X, QrCode, AlertCircle, Calculator, Check, Calendar, FileText, XCircle, MapPin, Building2, Clock, Plus, Minus, ChevronUp, ChevronDown } from 'lucide-react';
 import { DetailLayout } from '../../components/DetailLayout';
 import { OnboardingEmployee, StepStatus } from './OnboardingProcess';
 
@@ -45,10 +45,31 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
     const [isEditing, setIsEditing] = useState(false);
     
     // Modals state
-    const [modalType, setModalType] = useState<'none' | 'contract' | 'tax' | 'social'>('none');
+    const [modalType, setModalType] = useState<'none' | 'contract' | 'tax' | 'social' | 'company_confirm' | 'contract_confirm'>('none');
+
+    // Company Info State (Simulating saved enterprise info)
+    const [companyInfo, setCompanyInfo] = useState({
+        address: '上海市浦东新区张江高科技园区',
+        workLocation: '上海',
+        payDay: '10',
+        payMonth: '本月'
+    });
+    const [hasConfirmedCompanyInfo, setHasConfirmedCompanyInfo] = useState(false);
 
     // Modal Form States
-    const [contractForm, setContractForm] = useState({ term: '3', probation: '3' });
+    const [contractForm, setContractForm] = useState({ 
+        position: employee.role || '',
+        salary: employee.salary || '',
+        startDate: employee.joinDate || new Date().toISOString().split('T')[0],
+        term: 3, 
+        probation: 3,
+        template: '标准劳动合同 (2024版)'
+    });
+    const [isSalaryModified, setIsSalaryModified] = useState(false);
+    const [showPositionInput, setShowPositionInput] = useState(false);
+    const [newPosition, setNewPosition] = useState('');
+    const [positions, setPositions] = useState(['前端开发', '后端开发', 'UI设计师', '产品经理', '市场经理']);
+
     const [taxForm, setTaxForm] = useState({ base: '' });
     const [socialForm, setSocialForm] = useState({ socialBase: '', fundBase: '' });
 
@@ -65,6 +86,12 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
     });
 
     useEffect(() => {
+        if (employee.role && !positions.includes(employee.role)) {
+            setPositions(prev => [...prev, employee.role]);
+        }
+    }, [employee.role]);
+
+    useEffect(() => {
         if(modalType === 'tax' && !taxForm.base) setTaxForm({ base: employee.salary });
         if(modalType === 'social' && !socialForm.socialBase) setSocialForm({ socialBase: employee.salary, fundBase: employee.salary });
     }, [modalType, employee.salary]);
@@ -74,7 +101,26 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
             setIsEditing(true);
             return;
         }
-        setModalType(stepKey);
+        
+        if (stepKey === 'contract' && !hasConfirmedCompanyInfo) {
+            setModalType('company_confirm');
+        } else {
+            setModalType(stepKey);
+        }
+    };
+
+    const handleSalaryChange = (val: string) => {
+        setContractForm({ ...contractForm, salary: val });
+        setIsSalaryModified(val !== employee.salary);
+    };
+
+    const handleAddPosition = () => {
+        if (newPosition && !positions.includes(newPosition)) {
+            setPositions([...positions, newPosition]);
+            setContractForm({ ...contractForm, position: newPosition });
+            setNewPosition('');
+            setShowPositionInput(false);
+        }
     };
 
     const handleUpdateStatus = (stepKey: keyof typeof employee.steps, status: StepStatus) => {
@@ -441,10 +487,12 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
             {modalType !== 'none' && (
                 <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-4 sm:p-6 animate-fade-in">
                     <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={() => setModalType('none')}></div>
-                    <div className="bg-white w-full max-w-sm rounded-[32px] p-6 shadow-2xl relative z-10 animate-slide-up sm:animate-scale-up mb-safe sm:mb-0">
+                    <div className="bg-white w-full max-w-sm rounded-[32px] p-6 shadow-2xl relative z-10 animate-slide-up sm:animate-scale-up mb-safe sm:mb-0 max-h-[90vh] overflow-y-auto no-scrollbar">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-lg font-black text-slate-900">
-                                {modalType === 'contract' && '发起电子合同'}
+                                {modalType === 'company_confirm' && '完善公司合同信息'}
+                                {modalType === 'contract' && '完善合同细节'}
+                                {modalType === 'contract_confirm' && '确认合同信息'}
                                 {modalType === 'tax' && '个税申报设置'}
                                 {modalType === 'social' && '社保增员办理'}
                             </h3>
@@ -452,40 +500,291 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
                         </div>
 
                         <div className="space-y-5">
-                            {modalType === 'contract' && (
-                                <>
-                                    <div>
-                                        <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block">合同期限</label>
-                                        <div className="grid grid-cols-3 gap-2">
-                                            {['1年', '3年', '5年'].map(t => (
-                                                <button key={t} onClick={() => setContractForm({...contractForm, term: t.replace('年', '')})} className={`py-3 rounded-2xl text-xs font-bold border transition-all ${contractForm.term === t.replace('年', '') ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-slate-50 text-slate-600 border-slate-100'}`}>{t}</button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block">试用期</label>
-                                        <div className="grid grid-cols-3 gap-2">
-                                            {['无', '3个月', '6个月'].map(t => (
-                                                <button key={t} onClick={() => setContractForm({...contractForm, probation: t === '无' ? '0' : t.replace('个月', '')})} className={`py-3 rounded-2xl text-xs font-bold border transition-all ${contractForm.probation === (t === '无' ? '0' : t.replace('个月', '')) ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-slate-50 text-slate-600 border-slate-100'}`}>{t}</button>
-                                            ))}
-                                        </div>
+                            {modalType === 'company_confirm' && (
+                                <div className="space-y-4">
+                                    <div className="bg-amber-50 border border-amber-100 p-4 rounded-2xl flex gap-3 items-start mb-2">
+                                        <AlertCircle className="text-amber-600 shrink-0 mt-0.5" size={16} />
+                                        <p className="text-[11px] text-amber-700 font-bold leading-relaxed">请确认企业基础信息，确认后将作为后续合同默认值。</p>
                                     </div>
                                     
-                                    {/* Contract Preview Card */}
-                                    <div className="mt-4 pt-4 border-t border-slate-50">
-                                        <label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">合同文本预览</label>
+                                    <div>
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block">公司地址</label>
+                                        <div className="relative">
+                                            <Building2 size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                            <input 
+                                                type="text" 
+                                                value={companyInfo.address}
+                                                onChange={(e) => setCompanyInfo({...companyInfo, address: e.target.value})}
+                                                className="w-full bg-slate-50 border border-slate-100 rounded-xl py-2.5 pl-9 pr-4 text-xs font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block">工作所在地</label>
+                                        <div className="relative">
+                                            <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                            <input 
+                                                type="text" 
+                                                value={companyInfo.workLocation}
+                                                onChange={(e) => setCompanyInfo({...companyInfo, workLocation: e.target.value})}
+                                                className="w-full bg-slate-50 border border-slate-100 rounded-xl py-2.5 pl-9 pr-4 text-xs font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block">发薪日</label>
+                                            <div className="relative">
+                                                <Clock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                                <input 
+                                                    type="number" 
+                                                    value={companyInfo.payDay}
+                                                    onChange={(e) => setCompanyInfo({...companyInfo, payDay: e.target.value})}
+                                                    className="w-full bg-slate-50 border border-slate-100 rounded-xl py-2.5 pl-9 pr-4 text-xs font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all"
+                                                    placeholder="10"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block">发薪月份</label>
+                                            <select 
+                                                value={companyInfo.payMonth}
+                                                onChange={(e) => setCompanyInfo({...companyInfo, payMonth: e.target.value})}
+                                                className="w-full bg-slate-50 border border-slate-100 rounded-xl py-2.5 px-3 text-xs font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all appearance-none"
+                                            >
+                                                <option value="上月">上月</option>
+                                                <option value="本月">本月</option>
+                                                <option value="下月">下月</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <button 
+                                        onClick={() => {
+                                            setHasConfirmedCompanyInfo(true);
+                                            setModalType('contract');
+                                        }}
+                                        className="w-full mt-4 bg-indigo-600 text-white font-black py-3.5 rounded-2xl shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                    >
+                                        {hasConfirmedCompanyInfo ? '保存并返回' : '确认并下一步'} <ChevronRight size={16} strokeWidth={3} />
+                                    </button>
+                                </div>
+                            )}
+
+                            {modalType === 'contract' && (
+                                <div className="space-y-5">
+                                    {/* Company Info Link */}
+                                    <div onClick={() => setModalType('company_confirm')} className="bg-indigo-50/50 border border-indigo-100/50 rounded-2xl p-4 flex items-center justify-between cursor-pointer group hover:bg-indigo-50 transition-all">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-indigo-600 shadow-sm">
+                                                <Building2 size={16} />
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">公司合同信息</p>
+                                                <p className="text-xs font-black text-slate-700">{companyInfo.workLocation} · {companyInfo.payDay}日发薪</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-1 text-[10px] font-bold text-indigo-600">
+                                            修改 <ChevronRight size={12} strokeWidth={3} />
+                                        </div>
+                                    </div>
+
+                                    {/* Position */}
+                                    <div>
+                                        <div className="flex justify-between items-center mb-1.5">
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase">岗位</label>
+                                            <button 
+                                                onClick={() => setShowPositionInput(!showPositionInput)}
+                                                className="text-[10px] font-bold text-indigo-600 flex items-center gap-0.5"
+                                            >
+                                                {showPositionInput ? '取消新增' : <><Plus size={10}/> 新增岗位</>}
+                                            </button>
+                                        </div>
+                                        {showPositionInput ? (
+                                            <div className="flex gap-2">
+                                                <input 
+                                                    type="text" 
+                                                    value={newPosition}
+                                                    onChange={(e) => setNewPosition(e.target.value)}
+                                                    placeholder="输入新岗位"
+                                                    className="flex-1 bg-slate-50 border border-slate-100 rounded-xl py-2.5 px-4 text-xs font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all"
+                                                />
+                                                <button 
+                                                    onClick={handleAddPosition}
+                                                    className="bg-indigo-600 text-white px-3 rounded-xl active:scale-95 transition-all"
+                                                >
+                                                    <Check size={16} strokeWidth={3} />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <select 
+                                                value={contractForm.position}
+                                                onChange={(e) => setContractForm({...contractForm, position: e.target.value})}
+                                                className="w-full bg-slate-50 border border-slate-100 rounded-xl py-2.5 px-4 text-xs font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all appearance-none"
+                                            >
+                                                {positions.map(p => <option key={p} value={p}>{p}</option>)}
+                                            </select>
+                                        )}
+                                    </div>
+
+                                    {/* Salary */}
+                                    <div>
+                                        <div className="flex justify-between items-center mb-1.5">
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase">薪酬 (税前)</label>
+                                            {isSalaryModified && (
+                                                <span className="text-[9px] font-black text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100 animate-pulse">已修改</span>
+                                            )}
+                                        </div>
+                                        <div className="relative">
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">¥</span>
+                                            <input 
+                                                type="text" 
+                                                value={contractForm.salary}
+                                                onChange={(e) => handleSalaryChange(e.target.value)}
+                                                className="w-full bg-slate-50 border border-slate-100 rounded-xl py-2.5 pl-8 pr-4 text-xs font-black font-mono outline-none focus:bg-white focus:border-indigo-500 transition-all"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Start Date */}
+                                    <div>
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block">合同开始日期</label>
+                                        <div className="relative">
+                                            <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                            <input 
+                                                type="date" 
+                                                value={contractForm.startDate}
+                                                onChange={(e) => setContractForm({...contractForm, startDate: e.target.value})}
+                                                className="w-full bg-slate-50 border border-slate-100 rounded-xl py-2.5 pl-9 pr-4 text-xs font-bold font-mono outline-none focus:bg-white focus:border-indigo-500 transition-all"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Term & Probation */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block">合同年限 (年)</label>
+                                            <div className="flex items-center bg-slate-50 border border-slate-100 rounded-xl overflow-hidden">
+                                                <button 
+                                                    onClick={() => setContractForm({...contractForm, term: Math.max(1, contractForm.term - 1)})}
+                                                    className="p-2.5 text-slate-400 hover:bg-slate-100 active:bg-slate-200"
+                                                >
+                                                    <Minus size={14} strokeWidth={3} />
+                                                </button>
+                                                <div className="flex-1 text-center text-xs font-black text-slate-700">{contractForm.term}</div>
+                                                <button 
+                                                    onClick={() => setContractForm({...contractForm, term: contractForm.term + 1})}
+                                                    className="p-2.5 text-slate-400 hover:bg-slate-100 active:bg-slate-200"
+                                                >
+                                                    <Plus size={14} strokeWidth={3} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block">试用期 (月)</label>
+                                            <div className="flex items-center bg-slate-50 border border-slate-100 rounded-xl overflow-hidden">
+                                                <button 
+                                                    onClick={() => setContractForm({...contractForm, probation: Math.max(0, contractForm.probation - 1)})}
+                                                    className="p-2.5 text-slate-400 hover:bg-slate-100 active:bg-slate-200"
+                                                >
+                                                    <Minus size={14} strokeWidth={3} />
+                                                </button>
+                                                <div className="flex-1 text-center text-xs font-black text-slate-700">{contractForm.probation}</div>
+                                                <button 
+                                                    onClick={() => setContractForm({...contractForm, probation: contractForm.probation + 1})}
+                                                    className="p-2.5 text-slate-400 hover:bg-slate-100 active:bg-slate-200"
+                                                >
+                                                    <Plus size={14} strokeWidth={3} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Template */}
+                                    <div>
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block">合同模版</label>
                                         <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex items-center gap-3 cursor-pointer hover:bg-slate-100 transition-colors">
                                             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-slate-200 shadow-sm text-indigo-600">
                                                 <FileText size={20} strokeWidth={1.5} />
                                             </div>
                                             <div className="flex-1">
-                                                <p className="text-xs font-black text-slate-800">劳动合同 (标准版).pdf</p>
-                                                <p className="text-[10px] text-slate-400 mt-0.5">点击预览完整条款</p>
+                                                <p className="text-xs font-black text-slate-800">{contractForm.template}</p>
+                                                <p className="text-[10px] text-slate-400 mt-0.5">点击切换模版</p>
                                             </div>
                                             <ChevronRight size={16} className="text-slate-300" />
                                         </div>
                                     </div>
-                                </>
+
+                                    <button 
+                                        onClick={() => {
+                                            setModalType('contract_confirm');
+                                        }}
+                                        className="w-full mt-4 bg-indigo-600 text-white font-black py-3.5 rounded-2xl shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                    >
+                                        下一步：确认并签署 <ChevronRight size={16} strokeWidth={3} />
+                                    </button>
+                                </div>
+                            )}
+
+                            {modalType === 'contract_confirm' && (
+                                <div className="space-y-6">
+                                    <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 space-y-6">
+                                        <div className="grid grid-cols-2 gap-y-5 gap-x-4">
+                                            <div>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">签署人</p>
+                                                <p className="text-sm font-black text-slate-800">{employee.name}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">岗位</p>
+                                                <p className="text-sm font-black text-slate-800">{contractForm.position}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">薪酬 (税前)</p>
+                                                <p className="text-sm font-black font-mono text-slate-800">¥ {contractForm.salary}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">开始日期</p>
+                                                <p className="text-sm font-black font-mono text-slate-800">{contractForm.startDate}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">合同期限</p>
+                                                <p className="text-sm font-black text-slate-800">{contractForm.term} 年</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">试用期</p>
+                                                <p className="text-sm font-black text-slate-800">{contractForm.probation} 个月</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="pt-5 border-t border-slate-200">
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2.5">签署模版</p>
+                                            <div className="flex items-center gap-2.5 text-sm font-black text-slate-700 bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+                                                <FileText size={16} className="text-indigo-500" />
+                                                {contractForm.template}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-3">
+                                        <button 
+                                            onClick={() => setModalType('contract')}
+                                            className="flex-1 py-3.5 rounded-2xl font-black text-sm bg-white border border-slate-200 text-slate-500 active:scale-[0.98] transition-all"
+                                        >
+                                            返回修改
+                                        </button>
+                                        <button 
+                                            onClick={() => {
+                                                setModalType('contract'); // Set back to contract for confirmAction logic
+                                                confirmAction();
+                                            }}
+                                            className="flex-[2] py-3.5 rounded-2xl font-black text-sm bg-indigo-600 text-white shadow-xl shadow-indigo-100 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                        >
+                                            确认发起签署 <ChevronRight size={16} strokeWidth={3} />
+                                        </button>
+                                    </div>
+                                </div>
                             )}
 
                             {modalType === 'tax' && (
@@ -501,6 +800,13 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
                                         />
                                     </div>
                                     <p className="text-[10px] text-slate-400 mt-2 ml-1">* 默认为核定月薪，如有差异请修改。</p>
+                                    
+                                    <button 
+                                        onClick={confirmAction}
+                                        className="w-full mt-8 bg-indigo-600 text-white font-black py-4 rounded-2xl shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <Check size={18} strokeWidth={3} /> 确认并办理
+                                    </button>
                                 </div>
                             )}
 
@@ -530,16 +836,16 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
                                             />
                                         </div>
                                     </div>
+
+                                    <button 
+                                        onClick={confirmAction}
+                                        className="w-full mt-8 bg-indigo-600 text-white font-black py-4 rounded-2xl shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <Check size={18} strokeWidth={3} /> 确认并办理
+                                    </button>
                                 </>
                             )}
                         </div>
-
-                        <button 
-                            onClick={confirmAction}
-                            className="w-full mt-8 bg-indigo-600 text-white font-black py-4 rounded-2xl shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                        >
-                            <Check size={18} strokeWidth={3} /> 确认并办理
-                        </button>
                     </div>
                 </div>
             )}

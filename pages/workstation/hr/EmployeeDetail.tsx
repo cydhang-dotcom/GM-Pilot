@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { DetailLayout } from '../../../components/DetailLayout';
 import EmployeeOffboarding from './EmployeeOffboarding';
+import ContractInitiation from './ContractInitiation';
 
 interface EmployeeDetailProps {
     employee: any;
@@ -112,9 +113,15 @@ const EmployeeDetail: React.FC<EmployeeDetailProps> = ({ employee, onBack }) => 
     const navigate = useNavigate();
     const [activeModal, setActiveModal] = useState<string | null>(null);
     const [isEditing, setIsEditing] = useState(false);
-    const [viewMode, setViewMode] = useState<'detail' | 'offboarding'>('detail');
+    const [viewMode, setViewMode] = useState<'detail' | 'offboarding' | 'contract'>('detail');
+    const [showFirstTimeAlert, setShowFirstTimeAlert] = useState(false);
 
     if (viewMode === 'offboarding') return <EmployeeOffboarding employee={employee} onBack={() => setViewMode('detail')} />;
+    if (viewMode === 'contract') return <ContractInitiation onClose={() => setViewMode('detail')} onNext={(data) => { console.log(data); setViewMode('detail'); }} />;
+
+    const handleContractInitiation = () => {
+        setShowFirstTimeAlert(true);
+    };
 
     // 数据模型
     const data = {
@@ -170,6 +177,14 @@ const EmployeeDetail: React.FC<EmployeeDetailProps> = ({ employee, onBack }) => 
         >
             {/* Header Profile */}
             <div className="bg-white rounded-[32px] p-7 shadow-sm border border-slate-100 flex flex-col items-center relative overflow-hidden mb-6">
+                {showFirstTimeAlert && (
+                    <div className="fixed inset-0 z-[200] bg-black/50 flex items-center justify-center p-6">
+                        <div className="bg-white p-8 rounded-3xl text-center">
+                            <p className="text-lg font-black mb-6">首次需完善合同信息</p>
+                            <button onClick={() => { setShowFirstTimeAlert(false); setViewMode('contract'); }} className="w-full p-4 bg-indigo-600 text-white font-black rounded-2xl">确定</button>
+                        </div>
+                    </div>
+                )}
                 <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-400"></div>
                 <div className="w-20 h-20 rounded-[28px] bg-indigo-600 text-white flex items-center justify-center text-3xl font-black shadow-lg border-4 border-white mt-2 relative">
                     {employee.name.charAt(0)}
@@ -178,7 +193,7 @@ const EmployeeDetail: React.FC<EmployeeDetailProps> = ({ employee, onBack }) => 
                 <h2 className="text-xl font-black text-slate-900 tracking-tight mt-4">{employee.name}</h2>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{employee.dept} · {employee.role}</p>
                 <div className="flex gap-2 w-full mt-6">
-                    <button className="flex-1 py-3 rounded-2xl bg-slate-900 text-white font-black text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all"><Phone size={14}/> 呼叫</button>
+                    <button onClick={handleContractInitiation} className="flex-1 py-3 rounded-2xl bg-indigo-600 text-white font-black text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all">立即发起办理</button>
                     <button className="flex-1 py-3 rounded-2xl bg-white text-slate-600 font-black text-xs flex items-center justify-center gap-1.5 border border-slate-200 active:scale-95 transition-all"><Mail size={14}/> 邮件</button>
                 </div>
             </div>

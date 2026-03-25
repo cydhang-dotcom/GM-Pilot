@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { Search, ChevronRight, Plus, Users, UserPlus, UserMinus, Filter, Briefcase, XCircle } from 'lucide-react';
 import EmployeeAdd from './EmployeeAdd';
 import EmployeeDetail from './EmployeeDetail';
+import EmployeeOffboarding from './EmployeeOffboarding';
 
 // --- Mock Data ---
 
@@ -24,6 +25,7 @@ const Employee: React.FC = () => {
     const [employees, setEmployees] = useState(MOCK_EMPLOYEES);
     const [selectedEmp, setSelectedEmp] = useState<any | null>(null);
     const [isAdding, setIsAdding] = useState(location.state?.action === 'add');
+    const [isOffboarding, setIsOffboarding] = useState(location.state?.action === 'offboarding');
     const [filterMode, setFilterMode] = useState<'all' | 'new' | 'leaving' | 'probation'>('all');
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -31,7 +33,14 @@ const Employee: React.FC = () => {
         if (location.state?.action === 'add') {
             setIsAdding(true);
         }
-    }, [location.state]);
+        if (location.state?.action === 'offboarding' && location.state?.employeeId) {
+            const emp = employees.find(e => e.id === location.state.employeeId);
+            if (emp) {
+                setSelectedEmp(emp);
+                setIsOffboarding(true);
+            }
+        }
+    }, [location.state, employees]);
 
     const handleAddEmployee = (newEmp: any) => {
         setEmployees([newEmp, ...employees]);
@@ -80,7 +89,16 @@ const Employee: React.FC = () => {
     }, [employees, filterMode, searchQuery]);
 
     if (isAdding) return <EmployeeAdd onBack={() => setIsAdding(false)} onSave={handleAddEmployee} />;
-    if (selectedEmp) return <EmployeeDetail employee={selectedEmp} onBack={() => setSelectedEmp(null)} />;
+    
+    if (selectedEmp) {
+        if (isOffboarding) {
+            return <EmployeeOffboarding employee={selectedEmp} onBack={() => {
+                setIsOffboarding(false);
+                setSelectedEmp(null);
+            }} />;
+        }
+        return <EmployeeDetail employee={selectedEmp} onBack={() => setSelectedEmp(null)} />;
+    }
 
     const filterLabels: Record<string, string> = {
         'all': '在职员工',
