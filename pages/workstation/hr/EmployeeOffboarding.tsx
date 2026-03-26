@@ -20,8 +20,9 @@ const EmployeeOffboarding = ({ employee, onBack, initialStep = 'confirm', onStat
     const [socialEndMonth, setSocialEndMonth] = useState(date.substring(0, 7)); // YYYY-MM
     const [salaryEndDate, setSalaryEndDate] = useState(date);
     
-    const [initiateModal, setInitiateModal] = useState<{ isOpen: boolean, taskType: 'social' | 'fund' | null }>({ isOpen: false, taskType: null });
-    const [tempEndMonth, setTempEndMonth] = useState('');
+    const [initiateModal, setInitiateModal] = useState<{ isOpen: boolean }>({ isOpen: false });
+    const [tempSocialMonth, setTempSocialMonth] = useState('');
+    const [tempFundMonth, setTempFundMonth] = useState('');
     const [confirmedSocialMonth, setConfirmedSocialMonth] = useState('');
     const [confirmedFundMonth, setConfirmedFundMonth] = useState('');
     
@@ -415,12 +416,9 @@ const EmployeeOffboarding = ({ employee, onBack, initialStep = 'confirm', onStat
                             </div>
                             <button 
                                 onClick={() => {
-                                    if (tasks.social === 'pending') {
-                                        setTempEndMonth(socialEndMonth || date.substring(0, 7));
-                                        setInitiateModal({ isOpen: true, taskType: 'social' });
-                                    } else if (tasks.social === 'processing') {
+                                    if (tasks.social === 'processing') {
                                         handleTaskChange('social', 'done');
-                                    } else {
+                                    } else if (tasks.social === 'done') {
                                         handleTaskChange('social', 'pending');
                                     }
                                 }}
@@ -436,11 +434,7 @@ const EmployeeOffboarding = ({ employee, onBack, initialStep = 'confirm', onStat
                                         <Clock size={14} strokeWidth={2.5} />
                                         <span className="text-xs font-bold">办理中</span>
                                     </div>
-                                ) : (
-                                    <div className="flex items-center gap-1.5 bg-rose-600 text-white px-4 py-2 rounded-lg shadow-md shadow-rose-200 hover:bg-rose-700 transition-all active:scale-95">
-                                        <span className="text-xs font-bold">发起办理</span>
-                                    </div>
-                                )}
+                                ) : null}
                             </button>
                         </div>
                         <div 
@@ -469,12 +463,9 @@ const EmployeeOffboarding = ({ employee, onBack, initialStep = 'confirm', onStat
                             </div>
                             <button 
                                 onClick={() => {
-                                    if (tasks.fund === 'pending') {
-                                        setTempEndMonth(socialEndMonth || date.substring(0, 7));
-                                        setInitiateModal({ isOpen: true, taskType: 'fund' });
-                                    } else if (tasks.fund === 'processing') {
+                                    if (tasks.fund === 'processing') {
                                         handleTaskChange('fund', 'done');
-                                    } else {
+                                    } else if (tasks.fund === 'done') {
                                         handleTaskChange('fund', 'pending');
                                     }
                                 }}
@@ -490,13 +481,22 @@ const EmployeeOffboarding = ({ employee, onBack, initialStep = 'confirm', onStat
                                         <Clock size={14} strokeWidth={2.5} />
                                         <span className="text-xs font-bold">办理中</span>
                                     </div>
-                                ) : (
-                                    <div className="flex items-center gap-1.5 bg-rose-600 text-white px-4 py-2 rounded-lg shadow-md shadow-rose-200 hover:bg-rose-700 transition-all active:scale-95">
-                                        <span className="text-xs font-bold">发起办理</span>
-                                    </div>
-                                )}
+                                ) : null}
                             </button>
                         </div>
+                        
+                        {(tasks.social === 'pending' || tasks.fund === 'pending') && (
+                            <button 
+                                onClick={() => {
+                                    setTempSocialMonth(socialEndMonth || date.substring(0, 7));
+                                    setTempFundMonth(socialEndMonth || date.substring(0, 7));
+                                    setInitiateModal({ isOpen: true });
+                                }}
+                                className="w-full mt-2 bg-rose-600 text-white px-4 py-3.5 rounded-xl shadow-md shadow-rose-200 hover:bg-rose-700 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                            >
+                                <span className="text-sm font-bold">发起办理</span>
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -551,28 +551,40 @@ const EmployeeOffboarding = ({ employee, onBack, initialStep = 'confirm', onStat
             {/* Initiate Task Modal */}
             {initiateModal.isOpen && (
                 <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 animate-in fade-in duration-200">
-                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setInitiateModal({ isOpen: false, taskType: null })}></div>
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setInitiateModal({ isOpen: false })}></div>
                     <div className="bg-white w-full rounded-[32px] p-6 shadow-2xl relative z-10 animate-in zoom-in-95 duration-200 max-w-sm">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="font-black text-slate-900 text-lg">
-                                发起{initiateModal.taskType === 'social' ? '社保' : '公积金'}减员
+                                发起办理
                             </h3>
-                            <button onClick={() => setInitiateModal({ isOpen: false, taskType: null })} className="text-slate-400 p-1 hover:bg-slate-100 rounded-full transition-colors">
+                            <button onClick={() => setInitiateModal({ isOpen: false })} className="text-slate-400 p-1 hover:bg-slate-100 rounded-full transition-colors">
                                 <X size={20} />
                             </button>
                         </div>
                         
                         <div className="space-y-4 mb-8">
-                            <div>
-                                <label className="text-[10px] font-bold text-slate-400 mb-2 block uppercase ml-1">确认缴纳截止月</label>
-                                <div className="relative">
-                                    <Calendar size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                                    <input 
-                                        type="month" 
-                                        value={tempEndMonth}
-                                        onChange={(e) => setTempEndMonth(e.target.value)}
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-10 pr-4 text-sm font-black font-mono outline-none focus:border-indigo-500 transition-colors text-slate-900"
-                                    />
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="text-[10px] font-bold text-slate-400 mb-2 block uppercase ml-1">社保截止月</label>
+                                    <div className="relative">
+                                        <input 
+                                            type="month" 
+                                            value={tempSocialMonth}
+                                            onChange={(e) => setTempSocialMonth(e.target.value)}
+                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-sm font-black font-mono outline-none focus:border-indigo-500 transition-colors text-slate-900"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="text-[10px] font-bold text-slate-400 mb-2 block uppercase ml-1">公积金截止月</label>
+                                    <div className="relative">
+                                        <input 
+                                            type="month" 
+                                            value={tempFundMonth}
+                                            onChange={(e) => setTempFundMonth(e.target.value)}
+                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-sm font-black font-mono outline-none focus:border-indigo-500 transition-colors text-slate-900"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                             <div className="flex items-start gap-2 text-indigo-500 bg-indigo-50 p-3 rounded-xl border border-indigo-100">
@@ -585,21 +597,22 @@ const EmployeeOffboarding = ({ employee, onBack, initialStep = 'confirm', onStat
                         
                         <div className="flex gap-3">
                             <button 
-                                onClick={() => setInitiateModal({ isOpen: false, taskType: null })} 
+                                onClick={() => setInitiateModal({ isOpen: false })} 
                                 className="flex-1 py-3.5 rounded-2xl font-black text-sm bg-white border border-slate-200 text-slate-600 active:scale-[0.98] transition-all"
                             >
                                 取消
                             </button>
                             <button 
                                 onClick={() => {
-                                    if (initiateModal.taskType === 'social') {
-                                        setConfirmedSocialMonth(tempEndMonth);
+                                    if (tasks.social === 'pending') {
+                                        setConfirmedSocialMonth(tempSocialMonth);
                                         handleTaskChange('social', 'processing');
-                                    } else if (initiateModal.taskType === 'fund') {
-                                        setConfirmedFundMonth(tempEndMonth);
+                                    }
+                                    if (tasks.fund === 'pending') {
+                                        setConfirmedFundMonth(tempFundMonth);
                                         handleTaskChange('fund', 'processing');
                                     }
-                                    setInitiateModal({ isOpen: false, taskType: null });
+                                    setInitiateModal({ isOpen: false });
                                 }} 
                                 className="flex-1 py-3.5 rounded-2xl font-black text-sm bg-indigo-600 text-white shadow-lg shadow-indigo-200 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                             >
