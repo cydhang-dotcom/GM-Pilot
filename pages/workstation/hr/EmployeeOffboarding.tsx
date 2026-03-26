@@ -7,6 +7,7 @@ import EmployeeDetail from './EmployeeDetail';
 const EmployeeOffboarding = ({ employee, onBack, initialStep = 'confirm', onStatusChange, onTaskStatusChange }: { employee: any, onBack: () => void, initialStep?: 'confirm' | 'process', onStatusChange?: (status: 'pending' | 'processing' | 'done') => void, onTaskStatusChange?: (task: 'social' | 'fund', status: 'pending' | 'processing' | 'done') => void }) => {
     const [step, setStep] = useState<'confirm' | 'process'>(initialStep);
     const [showDetail, setShowDetail] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
     
     // Confirm Step State
     const [offboardType, setOffboardType] = useState('员工辞职');
@@ -19,8 +20,22 @@ const EmployeeOffboarding = ({ employee, onBack, initialStep = 'confirm', onStat
     const [socialEndMonth, setSocialEndMonth] = useState(date.substring(0, 7)); // YYYY-MM
     const [salaryEndDate, setSalaryEndDate] = useState(date);
     
-    // Use employee tasks directly
-    const tasks = employee?.tasks || { social: 'pending', fund: 'pending' };
+    const [initiateModal, setInitiateModal] = useState<{ isOpen: boolean, taskType: 'social' | 'fund' | null }>({ isOpen: false, taskType: null });
+    const [tempEndMonth, setTempEndMonth] = useState('');
+    const [confirmedSocialMonth, setConfirmedSocialMonth] = useState('');
+    const [confirmedFundMonth, setConfirmedFundMonth] = useState('');
+    
+    // Use employee tasks directly or local state if not provided
+    const [localTasks, setLocalTasks] = useState(employee?.tasks || { social: 'pending', fund: 'pending' });
+    const tasks = onTaskStatusChange && employee?.tasks ? employee.tasks : localTasks;
+
+    const handleTaskChange = (task: 'social' | 'fund', status: 'pending' | 'processing' | 'done') => {
+        if (onTaskStatusChange) {
+            onTaskStatusChange(task, status);
+        } else {
+            setLocalTasks(prev => ({ ...prev, [task]: status }));
+        }
+    };
 
     const [editModal, setEditModal] = useState<{
         isOpen: boolean;
@@ -46,8 +61,11 @@ const EmployeeOffboarding = ({ employee, onBack, initialStep = 'confirm', onStat
     };
 
     const handleConfirm = () => {
-        setSocialEndMonth(date.substring(0, 7));
-        setSalaryEndDate(date);
+        setShowConfirmModal(true);
+    };
+
+    const proceedToProcess = () => {
+        setShowConfirmModal(false);
         setStep('process');
     };
 
@@ -106,9 +124,41 @@ const EmployeeOffboarding = ({ employee, onBack, initialStep = 'confirm', onStat
                                 <input 
                                     type="date" 
                                     value={date} 
-                                    onChange={(e) => setDate(e.target.value)}
+                                    onChange={(e) => {
+                                        const newDate = e.target.value;
+                                        setDate(newDate);
+                                        setSocialEndMonth(newDate.substring(0, 7));
+                                        setSalaryEndDate(newDate);
+                                    }}
                                     className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-10 pr-4 text-sm font-black font-mono outline-none focus:border-rose-500 transition-colors text-slate-900"
                                 />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-[10px] font-bold text-slate-400 mb-2 block uppercase ml-1">五险一金截止月</label>
+                                <div className="relative">
+                                    <Calendar size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input 
+                                        type="month" 
+                                        value={socialEndMonth} 
+                                        onChange={(e) => setSocialEndMonth(e.target.value)}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-10 pr-4 text-sm font-black font-mono outline-none focus:border-rose-500 transition-colors text-slate-900"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-[10px] font-bold text-slate-400 mb-2 block uppercase ml-1">工资结算截止日</label>
+                                <div className="relative">
+                                    <Calendar size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input 
+                                        type="date" 
+                                        value={salaryEndDate} 
+                                        onChange={(e) => setSalaryEndDate(e.target.value)}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-10 pr-4 text-sm font-black font-mono outline-none focus:border-rose-500 transition-colors text-slate-900"
+                                    />
+                                </div>
                             </div>
                         </div>
 
@@ -129,9 +179,67 @@ const EmployeeOffboarding = ({ employee, onBack, initialStep = 'confirm', onStat
                         onClick={handleConfirm}
                         className="w-full font-bold py-3.5 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 active:scale-[0.98] bg-rose-600 text-white shadow-rose-200"
                     >
-                        下一步：离职办理 <ChevronRight size={18} strokeWidth={2.5}/>
+                        确认办理离职 <ChevronRight size={18} strokeWidth={2.5}/>
                     </button>
                 </div>
+
+                {/* Confirm Modal */}
+                {showConfirmModal && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-200">
+                        <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowConfirmModal(false)}></div>
+                        <div className="bg-white w-full rounded-[32px] p-6 shadow-2xl relative z-10 animate-in zoom-in-95 duration-200 max-w-sm">
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="font-black text-slate-900 text-lg">确认办理离职</h3>
+                                <button onClick={() => setShowConfirmModal(false)} className="text-slate-400 p-1 hover:bg-slate-100 rounded-full transition-colors">
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            
+                            <div className="space-y-4 mb-8">
+                                <p className="text-sm text-slate-600 font-medium">
+                                    确认要为 <span className="font-black text-slate-900">{employee.name}</span> 办理离职吗？
+                                </p>
+                                
+                                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-3">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-xs text-slate-500 font-bold">离职日期</span>
+                                        <span className="text-sm font-black text-slate-900 font-mono">{date}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-xs text-slate-500 font-bold">五险一金截止</span>
+                                        <span className="text-sm font-black text-slate-900 font-mono">{socialEndMonth}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-xs text-slate-500 font-bold">工资结算截止</span>
+                                        <span className="text-sm font-black text-slate-900 font-mono">{salaryEndDate}</span>
+                                    </div>
+                                </div>
+                                
+                                <div className="flex items-start gap-2 text-rose-500 bg-rose-50 p-3 rounded-xl border border-rose-100">
+                                    <AlertCircle size={14} className="mt-0.5 shrink-0" />
+                                    <p className="text-xs font-bold leading-relaxed">
+                                        确认后将生成离职任务并通知相关人员，该操作不可撤销。
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div className="flex gap-3">
+                                <button 
+                                    onClick={() => setShowConfirmModal(false)} 
+                                    className="flex-1 py-3.5 rounded-2xl font-black text-sm bg-white border border-slate-200 text-slate-600 active:scale-[0.98] transition-all"
+                                >
+                                    取消
+                                </button>
+                                <button 
+                                    onClick={proceedToProcess} 
+                                    className="flex-1 py-3.5 rounded-2xl font-black text-sm bg-rose-600 text-white shadow-lg shadow-rose-200 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                >
+                                    确认办理 <Check size={16} strokeWidth={3} />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </DetailLayout>
         );
     }
@@ -244,32 +352,18 @@ const EmployeeOffboarding = ({ employee, onBack, initialStep = 'confirm', onStat
                     </div>
                     <div className="space-y-4">
                         <div className="flex justify-between items-center border-b border-slate-50 pb-3">
-                            <span className="text-xs text-slate-400 font-bold">离职发起日</span>
-                            <span className="text-sm font-black text-slate-900 font-mono">{initDate}</span>
+                            <span className="text-xs text-slate-400 font-bold">离职类型</span>
+                            <span className="text-sm font-black text-slate-900">{offboardType}</span>
                         </div>
                         <div className="flex justify-between items-center border-b border-slate-50 pb-3">
+                            <span className="text-xs text-slate-400 font-bold">离职原因</span>
+                            <span className="text-sm font-black text-slate-900">{reason}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
                             <span className="text-xs text-slate-400 font-bold">离职日期</span>
                             <div className="flex items-center gap-2">
                                 <span className="text-sm font-black text-slate-900 font-mono">{date}</span>
                                 <button onClick={() => setEditModal({ isOpen: true, field: 'date', value: date })} className="text-slate-400 hover:text-indigo-600 transition-colors">
-                                    <Pencil size={14} />
-                                </button>
-                            </div>
-                        </div>
-                        <div className="flex justify-between items-center border-b border-slate-50 pb-3">
-                            <span className="text-xs text-slate-400 font-bold">五险一金截止月</span>
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm font-black text-slate-900 font-mono">{socialEndMonth}</span>
-                                <button onClick={() => setEditModal({ isOpen: true, field: 'social', value: socialEndMonth })} className="text-slate-400 hover:text-indigo-600 transition-colors">
-                                    <Pencil size={14} />
-                                </button>
-                            </div>
-                        </div>
-                        <div className="flex justify-between items-center">
-                            <span className="text-xs text-slate-400 font-bold">工资结算截止日</span>
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm font-black text-slate-900 font-mono">{salaryEndDate}</span>
-                                <button onClick={() => setEditModal({ isOpen: true, field: 'salary', value: salaryEndDate })} className="text-slate-400 hover:text-indigo-600 transition-colors">
                                     <Pencil size={14} />
                                 </button>
                             </div>
@@ -290,22 +384,45 @@ const EmployeeOffboarding = ({ employee, onBack, initialStep = 'confirm', onStat
                             'bg-amber-100 text-amber-700'
                         }`}>
                             {tasks.social === 'done' && tasks.fund === 'done' ? '办理完成' :
-                             tasks.social === 'pending' && tasks.fund === 'pending' ? '待处理' :
+                             tasks.social === 'pending' && tasks.fund === 'pending' ? '待发起' :
                              '办理中'}
                         </div>
                     </div>
                     <div className="space-y-3">
                         <div 
-                            className={`p-4 rounded-xl transition-all flex items-center justify-between ${tasks.social === 'done' ? 'bg-emerald-50/50' : 'bg-slate-50'}`}
+                            className={`p-4 rounded-xl transition-all flex items-center justify-between border ${
+                                tasks.social === 'done' ? 'bg-emerald-50/50 border-emerald-100' : 
+                                tasks.social === 'processing' ? 'bg-slate-50 border-slate-100' : 
+                                'bg-rose-50 border-rose-200 shadow-sm'
+                            }`}
                         >
                             <div>
-                                <span className={`text-sm font-bold block ${tasks.social === 'done' ? 'text-emerald-800' : 'text-slate-700'}`}>社保减员</span>
-                                <span className={`text-[11px] font-medium mt-1 block ${tasks.social === 'done' ? 'text-emerald-600/70' : 'text-slate-500'}`}>缴纳截止月: <span className="font-mono">{socialEndMonth}</span></span>
+                                <div className="flex items-center gap-2">
+                                    <span className={`text-sm font-bold block ${
+                                        tasks.social === 'done' ? 'text-emerald-800' : 
+                                        tasks.social === 'processing' ? 'text-slate-700' : 
+                                        'text-rose-900'
+                                    }`}>社保减员</span>
+                                    {tasks.social === 'pending' && (
+                                        <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-rose-100 text-rose-600">待发起</span>
+                                    )}
+                                </div>
+                                {tasks.social !== 'pending' && confirmedSocialMonth ? (
+                                    <span className={`text-[11px] font-medium mt-1 block ${tasks.social === 'done' ? 'text-emerald-600/70' : 'text-slate-500'}`}>缴纳截止月: <span className="font-mono">{confirmedSocialMonth}</span></span>
+                                ) : (
+                                    <span className="text-[11px] font-medium mt-1 block text-rose-500/80">缴纳截止月: <span className="font-mono">{socialEndMonth}</span></span>
+                                )}
                             </div>
                             <button 
                                 onClick={() => {
-                                    const next = tasks.social === 'pending' ? 'processing' : tasks.social === 'processing' ? 'done' : 'pending';
-                                    onTaskStatusChange?.('social', next);
+                                    if (tasks.social === 'pending') {
+                                        setTempEndMonth(socialEndMonth || date.substring(0, 7));
+                                        setInitiateModal({ isOpen: true, taskType: 'social' });
+                                    } else if (tasks.social === 'processing') {
+                                        handleTaskChange('social', 'done');
+                                    } else {
+                                        handleTaskChange('social', 'pending');
+                                    }
                                 }}
                                 className="focus:outline-none"
                             >
@@ -320,24 +437,46 @@ const EmployeeOffboarding = ({ employee, onBack, initialStep = 'confirm', onStat
                                         <span className="text-xs font-bold">办理中</span>
                                     </div>
                                 ) : (
-                                    <div className="flex items-center gap-1.5 bg-white text-slate-500 px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm hover:bg-slate-50 transition-colors">
-                                        <Circle size={14} strokeWidth={2.5} />
-                                        <span className="text-xs font-bold">待处理</span>
+                                    <div className="flex items-center gap-1.5 bg-rose-600 text-white px-4 py-2 rounded-lg shadow-md shadow-rose-200 hover:bg-rose-700 transition-all active:scale-95">
+                                        <span className="text-xs font-bold">发起办理</span>
                                     </div>
                                 )}
                             </button>
                         </div>
                         <div 
-                            className={`p-4 rounded-xl transition-all flex items-center justify-between ${tasks.fund === 'done' ? 'bg-emerald-50/50' : 'bg-slate-50'}`}
+                            className={`p-4 rounded-xl transition-all flex items-center justify-between border ${
+                                tasks.fund === 'done' ? 'bg-emerald-50/50 border-emerald-100' : 
+                                tasks.fund === 'processing' ? 'bg-slate-50 border-slate-100' : 
+                                'bg-rose-50 border-rose-200 shadow-sm'
+                            }`}
                         >
                             <div>
-                                <span className={`text-sm font-bold block ${tasks.fund === 'done' ? 'text-emerald-800' : 'text-slate-700'}`}>公积金减员</span>
-                                <span className={`text-[11px] font-medium mt-1 block ${tasks.fund === 'done' ? 'text-emerald-600/70' : 'text-slate-500'}`}>缴纳截止月: <span className="font-mono">{socialEndMonth}</span></span>
+                                <div className="flex items-center gap-2">
+                                    <span className={`text-sm font-bold block ${
+                                        tasks.fund === 'done' ? 'text-emerald-800' : 
+                                        tasks.fund === 'processing' ? 'text-slate-700' : 
+                                        'text-rose-900'
+                                    }`}>公积金减员</span>
+                                    {tasks.fund === 'pending' && (
+                                        <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-rose-100 text-rose-600">待发起</span>
+                                    )}
+                                </div>
+                                {tasks.fund !== 'pending' && confirmedFundMonth ? (
+                                    <span className={`text-[11px] font-medium mt-1 block ${tasks.fund === 'done' ? 'text-emerald-600/70' : 'text-slate-500'}`}>缴纳截止月: <span className="font-mono">{confirmedFundMonth}</span></span>
+                                ) : (
+                                    <span className="text-[11px] font-medium mt-1 block text-rose-500/80">缴纳截止月: <span className="font-mono">{socialEndMonth}</span></span>
+                                )}
                             </div>
                             <button 
                                 onClick={() => {
-                                    const next = tasks.fund === 'pending' ? 'processing' : tasks.fund === 'processing' ? 'done' : 'pending';
-                                    onTaskStatusChange?.('fund', next);
+                                    if (tasks.fund === 'pending') {
+                                        setTempEndMonth(socialEndMonth || date.substring(0, 7));
+                                        setInitiateModal({ isOpen: true, taskType: 'fund' });
+                                    } else if (tasks.fund === 'processing') {
+                                        handleTaskChange('fund', 'done');
+                                    } else {
+                                        handleTaskChange('fund', 'pending');
+                                    }
                                 }}
                                 className="focus:outline-none"
                             >
@@ -352,9 +491,8 @@ const EmployeeOffboarding = ({ employee, onBack, initialStep = 'confirm', onStat
                                         <span className="text-xs font-bold">办理中</span>
                                     </div>
                                 ) : (
-                                    <div className="flex items-center gap-1.5 bg-white text-slate-500 px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm hover:bg-slate-50 transition-colors">
-                                        <Circle size={14} strokeWidth={2.5} />
-                                        <span className="text-xs font-bold">待处理</span>
+                                    <div className="flex items-center gap-1.5 bg-rose-600 text-white px-4 py-2 rounded-lg shadow-md shadow-rose-200 hover:bg-rose-700 transition-all active:scale-95">
+                                        <span className="text-xs font-bold">发起办理</span>
                                     </div>
                                 )}
                             </button>
@@ -409,6 +547,68 @@ const EmployeeOffboarding = ({ employee, onBack, initialStep = 'confirm', onStat
                 </div>
 
             </div>
+
+            {/* Initiate Task Modal */}
+            {initiateModal.isOpen && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 animate-in fade-in duration-200">
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setInitiateModal({ isOpen: false, taskType: null })}></div>
+                    <div className="bg-white w-full rounded-[32px] p-6 shadow-2xl relative z-10 animate-in zoom-in-95 duration-200 max-w-sm">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="font-black text-slate-900 text-lg">
+                                发起{initiateModal.taskType === 'social' ? '社保' : '公积金'}减员
+                            </h3>
+                            <button onClick={() => setInitiateModal({ isOpen: false, taskType: null })} className="text-slate-400 p-1 hover:bg-slate-100 rounded-full transition-colors">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        
+                        <div className="space-y-4 mb-8">
+                            <div>
+                                <label className="text-[10px] font-bold text-slate-400 mb-2 block uppercase ml-1">确认缴纳截止月</label>
+                                <div className="relative">
+                                    <Calendar size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input 
+                                        type="month" 
+                                        value={tempEndMonth}
+                                        onChange={(e) => setTempEndMonth(e.target.value)}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-10 pr-4 text-sm font-black font-mono outline-none focus:border-indigo-500 transition-colors text-slate-900"
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-2 text-indigo-500 bg-indigo-50 p-3 rounded-xl border border-indigo-100">
+                                <AlertCircle size={14} className="mt-0.5 shrink-0" />
+                                <p className="text-xs font-bold leading-relaxed">
+                                    确认后将变更为“办理中”状态，请及时在对应系统完成减员操作。
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div className="flex gap-3">
+                            <button 
+                                onClick={() => setInitiateModal({ isOpen: false, taskType: null })} 
+                                className="flex-1 py-3.5 rounded-2xl font-black text-sm bg-white border border-slate-200 text-slate-600 active:scale-[0.98] transition-all"
+                            >
+                                取消
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    if (initiateModal.taskType === 'social') {
+                                        setConfirmedSocialMonth(tempEndMonth);
+                                        handleTaskChange('social', 'processing');
+                                    } else if (initiateModal.taskType === 'fund') {
+                                        setConfirmedFundMonth(tempEndMonth);
+                                        handleTaskChange('fund', 'processing');
+                                    }
+                                    setInitiateModal({ isOpen: false, taskType: null });
+                                }} 
+                                className="flex-1 py-3.5 rounded-2xl font-black text-sm bg-indigo-600 text-white shadow-lg shadow-indigo-200 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                            >
+                                确认发起 <Check size={16} strokeWidth={3} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Edit Modal */}
             {editModal.isOpen && (
