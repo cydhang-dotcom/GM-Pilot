@@ -135,17 +135,54 @@ const SmartDiagnosisChat: React.FC<{
 
             const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
             const historyContext = history.length > 0 
-                ? history.map(h => `- ${h.month}: Rev ${h.revenue}, Cost ${h.cost}, Profit ${h.profit}`).join('\n')
-                : "No historical data available.";
+                ? history.map(h => `- ${h.month}: 营收 ¥${h.revenue}, 支出 ¥${h.cost}, 净利润 ¥${h.profit}`).join('\n')
+                : "暂无历史数据。";
+
+            const currentMonthDataStr = `
+【1. 本月经营净成果】
+- 营收: ¥${data.revenue}
+- 支出: ¥${data.cost}
+- 净利润: ¥${data.revenue - data.cost}
+- 人资规模: ${data.headcount}人 (对比上月: ${data.headcount - data.lastMonthHeadcount > 0 ? '+' : ''}${data.headcount - data.lastMonthHeadcount}人)
+
+【2. 银行账户余额走势】
+- 当前月末余额: ¥${data.bankBalance}
+
+【3. 经营支出总构成】
+${data.costStructure.map(c => `- ${c.category === 'R&D' ? '研发人力' : c.category === 'Admin' ? '管理费用' : c.category === 'Ops' ? '运营杂项' : '税金附加'} (${c.items.join(',')}): ¥${c.amount}`).join('\n')}
+
+【4. 收入回款总构成】
+${data.revenueSources.map(r => `- ${r.name} (${r.status}): ¥${r.amount} [预计/实际日期: ${r.date}]`).join('\n')}
+`;
 
             const prompt = `
-              You are a CFO assistant for a SME. 
-              Current Month (${month}): Revenue ${data.revenue}, Cost ${data.cost}, Profit ${data.revenue - data.cost}.
-              History: ${historyContext}.
-              Generate 4-5 concise insights. 
-              Format: "[Tag] Content". Tags: 资金安全, 趋势分析, 盈利对比, 成本控制, 经营提效.
-              Language: Chinese (Simplified).
-            `;
+# Role
+你现在是一位拥有20年经验的顶尖CFO（首席财务官）。你精通财务分析、现金流管理、成本控制与战略规划。你的语言风格专业、犀利、客观、数据导向，直击业务痛点。
+
+# Context
+请根据公司当前月（${month}）及历史的核心财务数据，为CEO提供一份深度的「AI智能经营诊断」。你需要穿透表面数据，发现数据之间的内在联系（如：利润与现金流的背离、支出结构与收入结构的匹配度等）。
+
+# Input Data
+当前月详细数据：
+${currentMonthDataStr}
+
+历史前两月核心趋势：
+${historyContext}
+
+# Task & Output Format
+请严格结合上述4个维度的数据，输出4-5条深度的诊断建议。每条建议必须以特定标签开头，格式为："[标签] 具体诊断内容"。
+
+请从以下标签库中选择最合适的标签（必须完全一致）：
+- 红色预警（严重风险）：合规风险, 亏损预警, 资金风险, 下降趋势
+- 黄色关注（潜在问题）：人效预警, 异常支出, 流动性, 成本分析, 趋势分析, 盈利对比
+- 绿色健康（良好表现）：资金安全, 经营提效, 营收增长
+
+示例：
+[流动性] 虽有40w服务费待入账，但当前银行余额仅128w，若回款逾期将面临现金周转压力，建议加强催收。
+[人效预警] 研发人力成本高达30w（扩招导致），但本月营收仅42w，投入产出比严重失衡，需建立产出评估模型。
+
+请直接输出诊断列表，每行一条，不要包含任何其他开头或结尾的废话。
+`;
 
             const response = await ai.models.generateContentStream({
                 model: 'gemini-3-flash-preview',

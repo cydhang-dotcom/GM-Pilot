@@ -66,6 +66,87 @@ const MOCK_CONTRACTS = [
     },
 ];
 
+// --- Level 4 Detail (劳动合同详情) ---
+const Field = ({ label, value, isEditing, onChange }: any) => (
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-3.5 border-b border-slate-50 last:border-0">
+        <span className="text-xs font-bold text-slate-400 w-24 shrink-0">{label}</span>
+        {isEditing ? (
+            <input 
+                type="text" 
+                value={value} 
+                onChange={e => onChange(e.target.value)}
+                className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-black text-slate-900 outline-none focus:border-indigo-500 transition-colors"
+            />
+        ) : (
+            <span className="text-sm font-black text-slate-900 text-right flex-1">{value}</span>
+        )}
+    </div>
+);
+
+const ContractHistoryDetail = ({ employee, contract, onBack }: { employee: typeof MOCK_CONTRACTS[0], contract: typeof MOCK_CONTRACTS[0]['history'][0], onBack: () => void }) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [formData, setFormData] = useState({
+        contractName: contract.type,
+        partyA: '某某科技有限公司',
+        partyB: employee.name,
+        period: contract.period,
+        probation: (contract.type.includes('首签') || contract.type.includes('试用期')) ? '3个月' : '无',
+        signType: contract.type.includes('首签') || contract.type.includes('试用期') ? '首次签订' : 
+                  contract.type.includes('无固定期限') ? '无固定期限' : '续约',
+        position: employee.dept + ' 核心岗位',
+        salary: '18000',
+        partyASignTime: '2022-03-14 11:49:08',
+        partyBSignTime: '2022-03-14 11:44:35'
+    });
+
+    const handleSave = () => {
+        setIsEditing(false);
+    };
+
+    return (
+        <DetailLayout title="劳动合同详情" onBack={onBack} bgColor="bg-[#F8F9FB]">
+            <div className="p-6 space-y-6 pb-32">
+                <div className="mb-2">
+                    <h2 className="text-2xl font-black text-slate-900">合同信息</h2>
+                    <p className="text-xs font-bold text-slate-400 mt-1">查看或修改当前合同的详细条款</p>
+                </div>
+
+                <div className="bg-white rounded-[32px] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-slate-100">
+                    <h3 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2">主体信息</h3>
+                    <Field label="合同名称" value={formData.contractName} isEditing={isEditing} onChange={(v: string) => setFormData({...formData, contractName: v})} />
+                    <Field label="合同甲方" value={formData.partyA} isEditing={isEditing} onChange={(v: string) => setFormData({...formData, partyA: v})} />
+                    <Field label="合同乙方" value={formData.partyB} isEditing={isEditing} onChange={(v: string) => setFormData({...formData, partyB: v})} />
+                    <Field label="签订类型" value={formData.signType} isEditing={isEditing} onChange={(v: string) => setFormData({...formData, signType: v})} />
+                </div>
+
+                <div className="bg-white rounded-[32px] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-slate-100">
+                    <h3 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2">条款明细</h3>
+                    <Field label="合同期限" value={formData.period} isEditing={isEditing} onChange={(v: string) => setFormData({...formData, period: v})} />
+                    <Field label="试用期" value={formData.probation} isEditing={isEditing} onChange={(v: string) => setFormData({...formData, probation: v})} />
+                    <Field label="岗位" value={formData.position} isEditing={isEditing} onChange={(v: string) => setFormData({...formData, position: v})} />
+                    <Field label="合同薪酬" value={formData.salary} isEditing={isEditing} onChange={(v: string) => setFormData({...formData, salary: v})} />
+                </div>
+
+                <div className="flex flex-col items-center justify-center gap-1.5 pt-4 pb-8 opacity-50">
+                    <p className="text-[10px] font-bold font-mono text-slate-400">甲方签署于 {formData.partyASignTime}</p>
+                    <p className="text-[10px] font-bold font-mono text-slate-400">乙方签署于 {formData.partyBSignTime}</p>
+                </div>
+            </div>
+
+            <div className="fixed bottom-0 left-0 right-0 p-6 bg-white/80 backdrop-blur-xl border-t border-slate-100 max-w-md mx-auto pb-8">
+                <button 
+                    onClick={() => isEditing ? handleSave() : setIsEditing(true)}
+                    className={`w-full py-4 rounded-2xl font-black text-sm active:scale-[0.98] transition-all flex items-center justify-center gap-2 ${
+                        isEditing ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-200' : 'bg-slate-900 text-white shadow-xl shadow-slate-200'
+                    }`}
+                >
+                    {isEditing ? <><CheckCircle2 size={18} /> 保存修改</> : <><FileSignature size={18} /> 编辑信息</>}
+                </button>
+            </div>
+        </DetailLayout>
+    );
+};
+
 // --- Level 3 Detail (完美还原图片中的“合同全景档案”) ---
 const ContractDetail = ({ employee, onBack }: { employee: typeof MOCK_CONTRACTS[0], onBack: () => void }) => {
     const navigate = useNavigate();
@@ -74,6 +155,7 @@ const ContractDetail = ({ employee, onBack }: { employee: typeof MOCK_CONTRACTS[
 
     // --- Renewal Flow States ---
     const [modalType, setModalType] = useState<'none' | 'company_confirm' | 'contract' | 'contract_confirm' | 'not_renew'>('none');
+    const [viewingContract, setViewingContract] = useState<typeof MOCK_CONTRACTS[0]['history'][0] | null>(null);
     const [companyInfo, setCompanyInfo] = useState({
         address: '上海市浦东新区张江高科技园区',
         workLocation: '上海',
@@ -109,6 +191,10 @@ const ContractDetail = ({ employee, onBack }: { employee: typeof MOCK_CONTRACTS[
             onBack(); // Return to list
         }, 1500);
     };
+
+    if (viewingContract) {
+        return <ContractHistoryDetail employee={employee} contract={viewingContract} onBack={() => setViewingContract(null)} />;
+    }
 
     return (
         <DetailLayout
@@ -197,10 +283,14 @@ const ContractDetail = ({ employee, onBack }: { employee: typeof MOCK_CONTRACTS[
                                      }`}></div>
                                  </div>
                                  
-                                 <div className={`p-5 rounded-3xl border transition-all ${
+                                 <div 
+                                     onClick={() => {
+                                         setViewingContract(h);
+                                     }}
+                                     className={`p-5 rounded-3xl border transition-all cursor-pointer ${
                                      h.current 
-                                     ? 'bg-white border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] scale-[1.02]' 
-                                     : 'bg-slate-50/50 border-transparent opacity-60'
+                                     ? 'bg-white border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] scale-[1.02] hover:border-indigo-200' 
+                                     : 'bg-slate-50/50 border-transparent opacity-60 hover:opacity-100 hover:bg-white hover:border-slate-200 hover:shadow-sm'
                                  }`}>
                                      <div className="flex justify-between items-center mb-2">
                                          <h4 className="text-sm font-black text-slate-900">{h.type}</h4>

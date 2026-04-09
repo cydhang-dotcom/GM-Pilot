@@ -143,11 +143,7 @@ const OffboardingProcess = ({ onBack }: { onBack: () => void }) => {
                             <div 
                                 key={emp.id}
                                 onClick={() => handleSelectEmp(emp)}
-                                className={`rounded-[24px] p-5 border shadow-[0_4px_20px_rgba(0,0,0,0.02)] active:scale-[0.99] transition-all cursor-pointer group relative overflow-hidden ${
-                                    emp.status === 'done' ? 'bg-emerald-50/80 border-emerald-100 hover:border-emerald-200' :
-                                    emp.status === 'pending' ? 'bg-slate-50/80 border-slate-100 hover:border-slate-200' :
-                                    'bg-amber-50/80 border-amber-100 hover:border-amber-200'
-                                }`}
+                                className="rounded-[24px] p-5 border shadow-[0_4px_20px_rgba(0,0,0,0.02)] active:scale-[0.99] transition-all cursor-pointer group relative overflow-hidden bg-white border-slate-100 hover:border-slate-200"
                             >
                                 <div className="flex justify-between items-start mb-4 relative z-10">
                                     <div 
@@ -157,11 +153,7 @@ const OffboardingProcess = ({ onBack }: { onBack: () => void }) => {
                                             setViewEmployeeDetail(emp);
                                         }}
                                     >
-                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-sm shrink-0 border shadow-sm ${
-                                            emp.status === 'done' ? 'bg-emerald-100 text-emerald-600 border-emerald-200' :
-                                            emp.status === 'pending' ? 'bg-white text-slate-500 border-slate-200' :
-                                            'bg-amber-100 text-amber-600 border-amber-200'
-                                        }`}>
+                                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-sm shrink-0 border shadow-sm bg-slate-50 text-slate-600 border-slate-200">
                                             {emp.name.charAt(0)}
                                         </div>
                                         <div>
