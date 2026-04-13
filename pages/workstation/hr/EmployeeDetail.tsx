@@ -5,7 +5,8 @@ import {
     UserX, Edit3, User, MapPin, CreditCard, GraduationCap, History, 
     AlertCircle, Fingerprint, Home, Landmark, X, Check, Calendar, 
     PhoneCall, UserSquare2, FileSignature, ExternalLink, Award, Clock,
-    RotateCcw, LayoutList, History as HistoryIcon, Layers, MoveRight
+    RotateCcw, LayoutList, History as HistoryIcon, Layers, MoveRight,
+    UserPlus, CheckCircle2, Loader2, Circle
 } from 'lucide-react';
 import { DetailLayout } from '../../../components/DetailLayout';
 import EmployeeOffboarding from './EmployeeOffboarding';
@@ -113,11 +114,27 @@ const EmployeeDetail: React.FC<EmployeeDetailProps> = ({ employee, onBack }) => 
     const navigate = useNavigate();
     const [activeModal, setActiveModal] = useState<string | null>(null);
     const [isEditing, setIsEditing] = useState(false);
-    const [viewMode, setViewMode] = useState<'detail' | 'offboarding' | 'contract'>('detail');
+    const [viewMode, setViewMode] = useState<'detail' | 'offboarding' | 'contract' | 'onboarding'>('detail');
     const [showFirstTimeAlert, setShowFirstTimeAlert] = useState(false);
 
-    if (viewMode === 'offboarding') return <EmployeeOffboarding employee={employee} onBack={() => setViewMode('detail')} />;
+    if (viewMode === 'offboarding') return <EmployeeOffboarding employee={employee} onBack={() => setViewMode('detail')} initialStep={employee.status === '离职' ? 'process' : 'confirm'} />;
     if (viewMode === 'contract') return <ContractInitiation onClose={() => setViewMode('detail')} onNext={(data) => { console.log(data); setViewMode('detail'); }} />;
+    if (viewMode === 'onboarding') {
+        const OnboardingDetail = require('../../../pages/inbox/OnboardingDetail').default;
+        const mockOnboardingEmp = {
+            id: String(employee.id),
+            name: employee.name,
+            dept: employee.dept,
+            role: employee.role,
+            joinDate: employee.joinDate,
+            idCard: employee.idCard,
+            phone: employee.phone,
+            salary: '18,000.00',
+            source: 'manual' as const,
+            steps: employee.onboardingTasks || { info: 'done', contract: 'processing', tax: 'pending', social: 'pending' }
+        };
+        return <OnboardingDetail employee={mockOnboardingEmp} onBack={() => setViewMode('detail')} onUpdate={() => {}} />;
+    }
 
     const handleContractInitiation = () => {
         setShowFirstTimeAlert(true);
@@ -172,7 +189,11 @@ const EmployeeDetail: React.FC<EmployeeDetailProps> = ({ employee, onBack }) => 
         <DetailLayout
             title="员工档案全景"
             onBack={onBack}
-            tag={{ label: employee.status, color: 'text-emerald-600', bg: 'bg-emerald-50' }}
+            tag={{ 
+                label: employee.status === '离职' ? '已离职' : employee.status, 
+                color: employee.status === '离职' ? 'text-slate-500' : 'text-emerald-600', 
+                bg: employee.status === '离职' ? 'bg-slate-100' : 'bg-emerald-50' 
+            }}
             bgColor="bg-[#F8F9FB]"
         >
             {/* Header Profile */}
@@ -186,9 +207,11 @@ const EmployeeDetail: React.FC<EmployeeDetailProps> = ({ employee, onBack }) => 
                     </div>
                 )}
                 <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-400"></div>
-                <div className="w-20 h-20 rounded-[28px] bg-indigo-600 text-white flex items-center justify-center text-3xl font-black shadow-lg border-4 border-white mt-2 relative">
+                <div className={`w-20 h-20 rounded-[28px] ${employee.status === '离职' ? 'bg-slate-300' : 'bg-indigo-600'} text-white flex items-center justify-center text-3xl font-black shadow-lg border-4 border-white mt-2 relative`}>
                     {employee.name.charAt(0)}
-                    <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-emerald-500 rounded-full border-4 border-white flex items-center justify-center text-white shadow-sm"><ShieldCheck size={14} strokeWidth={3} /></div>
+                    {employee.status !== '离职' && (
+                        <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-emerald-500 rounded-full border-4 border-white flex items-center justify-center text-white shadow-sm"><ShieldCheck size={14} strokeWidth={3} /></div>
+                    )}
                 </div>
                 <h2 className="text-xl font-black text-slate-900 tracking-tight mt-4">{employee.name}</h2>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{employee.dept} · {employee.role}</p>
@@ -197,6 +220,113 @@ const EmployeeDetail: React.FC<EmployeeDetailProps> = ({ employee, onBack }) => 
                     <button className="flex-1 py-3 rounded-2xl bg-white text-slate-600 font-black text-xs flex items-center justify-center gap-1.5 border border-slate-200 active:scale-95 transition-all"><Mail size={14}/> 邮件</button>
                 </div>
             </div>
+
+            {/* 离职信息 (仅离职员工显示) */}
+            {employee.status === '离职' && (
+                <InfoSection 
+                    title="离职信息" 
+                    icon={UserX} 
+                    badge={(employee.tasks && (employee.tasks.social !== 'done' || employee.tasks.fund !== 'done')) ? '代办中' : '已完成'}
+                    onView={() => {
+                        if (employee.tasks && (employee.tasks.social !== 'done' || employee.tasks.fund !== 'done')) {
+                            setViewMode('offboarding');
+                        }
+                    }}
+                >
+                    <InfoRow label="离职类型" value="员工辞职" />
+                    <InfoRow label="离职原因" value="个人原因" />
+                    <InfoRow label="离职日期" value={employee.contractEnd || '2023-12-05'} isMono />
+                    <InfoRow label="五险一金截止" value={(employee.contractEnd || '2023-12-05').substring(0, 7)} isMono />
+                    <InfoRow label="工资结算截止" value={employee.contractEnd || '2023-12-05'} isMono />
+                    
+                    {employee.tasks && (employee.tasks.social !== 'done' || employee.tasks.fund !== 'done') && (
+                        <div 
+                            className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between cursor-pointer active:scale-95 transition-transform"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setViewMode('offboarding');
+                            }}
+                        >
+                            <div className="flex items-center gap-2">
+                                <AlertCircle size={14} className="text-amber-500" />
+                                <span className="text-xs font-bold text-amber-600">有未完成的离职代办任务</span>
+                            </div>
+                            <span className="text-xs font-black text-indigo-600 flex items-center gap-1">
+                                去处理 <ChevronRight size={14} />
+                            </span>
+                        </div>
+                    )}
+                </InfoSection>
+            )}
+
+            {/* 入职信息 (仅试用员工显示) */}
+            {employee.status === '试用' && (
+                <InfoSection 
+                    title="入职信息" 
+                    icon={UserPlus} 
+                    badge="办理中"
+                    onView={() => setViewMode('onboarding')}
+                >
+                    <div className="grid grid-cols-2 gap-4 mb-2">
+                        <div className="flex flex-col gap-1">
+                            <span className="text-[10px] font-bold text-slate-400">资料完善</span>
+                            {(!employee.onboardingTasks || employee.onboardingTasks.info === 'done') ? (
+                                <span className="text-xs font-black text-emerald-600 flex items-center gap-1"><CheckCircle2 size={12}/> 已完成</span>
+                            ) : employee.onboardingTasks.info === 'processing' ? (
+                                <span className="text-xs font-black text-blue-600 flex items-center gap-1"><Loader2 size={12} className="animate-spin"/> 办理中</span>
+                            ) : (
+                                <span className="text-xs font-black text-slate-400 flex items-center gap-1"><Circle size={12}/> 待处理</span>
+                            )}
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <span className="text-[10px] font-bold text-slate-400">合同签署</span>
+                            {(!employee.onboardingTasks || employee.onboardingTasks.contract === 'done') ? (
+                                <span className="text-xs font-black text-emerald-600 flex items-center gap-1"><CheckCircle2 size={12}/> 已完成</span>
+                            ) : (!employee.onboardingTasks || employee.onboardingTasks.contract === 'processing') ? (
+                                <span className="text-xs font-black text-blue-600 flex items-center gap-1"><Loader2 size={12} className="animate-spin"/> 办理中</span>
+                            ) : (
+                                <span className="text-xs font-black text-slate-400 flex items-center gap-1"><Circle size={12}/> 待处理</span>
+                            )}
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <span className="text-[10px] font-bold text-slate-400">个税申报</span>
+                            {(employee.onboardingTasks && employee.onboardingTasks.tax === 'done') ? (
+                                <span className="text-xs font-black text-emerald-600 flex items-center gap-1"><CheckCircle2 size={12}/> 已完成</span>
+                            ) : (employee.onboardingTasks && employee.onboardingTasks.tax === 'processing') ? (
+                                <span className="text-xs font-black text-blue-600 flex items-center gap-1"><Loader2 size={12} className="animate-spin"/> 办理中</span>
+                            ) : (
+                                <span className="text-xs font-black text-slate-400 flex items-center gap-1"><Circle size={12}/> 待处理</span>
+                            )}
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <span className="text-[10px] font-bold text-slate-400">社保公积金</span>
+                            {(employee.onboardingTasks && employee.onboardingTasks.social === 'done') ? (
+                                <span className="text-xs font-black text-emerald-600 flex items-center gap-1"><CheckCircle2 size={12}/> 已完成</span>
+                            ) : (employee.onboardingTasks && employee.onboardingTasks.social === 'processing') ? (
+                                <span className="text-xs font-black text-blue-600 flex items-center gap-1"><Loader2 size={12} className="animate-spin"/> 办理中</span>
+                            ) : (
+                                <span className="text-xs font-black text-slate-400 flex items-center gap-1"><Circle size={12}/> 待处理</span>
+                            )}
+                        </div>
+                    </div>
+                    
+                    <div 
+                        className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between cursor-pointer active:scale-95 transition-transform"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setViewMode('onboarding');
+                        }}
+                    >
+                        <div className="flex items-center gap-2">
+                            <AlertCircle size={14} className="text-blue-500" />
+                            <span className="text-xs font-bold text-blue-600">有进行中的入职任务</span>
+                        </div>
+                        <span className="text-xs font-black text-indigo-600 flex items-center gap-1">
+                            去处理 <ChevronRight size={14} />
+                        </span>
+                    </div>
+                </InfoSection>
+            )}
 
             {/* 1. 任职信息 */}
             <InfoSection title="任职信息" icon={Briefcase} onView={() => handleOpenModal('appointment')}>
