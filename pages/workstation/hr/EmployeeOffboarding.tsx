@@ -54,11 +54,26 @@ const EmployeeOffboarding = ({ employee, onBack, initialStep = 'confirm', onStat
         }
     };
 
+    const getTerminationType = (type: string) => {
+        switch(type) {
+            case '员工辞职': return '解除合同(因劳动者本人意愿中断就业)';
+            case '公司解除': return '解除合同(非因劳动者本人意愿中断就业)';
+            case '合同到期终止': return '终止合同';
+            case '协商解除': return '终止合同';
+            default: return '解除合同(因劳动者本人意愿中断就业)';
+        }
+    };
+
+    const [terminationType, setTerminationType] = useState(getTerminationType('员工辞职'));
+    const [showTerminationTypeModal, setShowTerminationTypeModal] = useState(false);
+    const [tempTerminationType, setTempTerminationType] = useState('');
+
     // Update reason when type changes
     const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newType = e.target.value;
         setOffboardType(newType);
         setReason(getReasonsByType(newType)[0]);
+        setTerminationType(getTerminationType(newType));
     };
 
     const handleConfirm = () => {
@@ -106,7 +121,7 @@ const EmployeeOffboarding = ({ employee, onBack, initialStep = 'confirm', onStat
 
                         <div>
                             <label className="text-[10px] font-bold text-slate-400 mb-2 block uppercase ml-1">离职原因</label>
-                            <div className="relative">
+                            <div className="relative mb-2">
                                 <select 
                                     value={reason} 
                                     onChange={(e) => setReason(e.target.value)}
@@ -115,6 +130,26 @@ const EmployeeOffboarding = ({ employee, onBack, initialStep = 'confirm', onStat
                                     {getReasonsByType(offboardType).map(r => <option key={r}>{r}</option>)}
                                 </select>
                                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-slate-400"></div>
+                            </div>
+                            <div className="mt-3 bg-slate-50 rounded-2xl p-3.5 flex items-center justify-between border border-slate-100">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-xl bg-white shadow-sm border border-slate-200 flex items-center justify-center shrink-0">
+                                        <FileSignature size={14} className="text-slate-500" />
+                                    </div>
+                                    <div>
+                                        <span className="text-[10px] font-bold text-slate-400 block mb-0.5">退工类型</span>
+                                        <span className="text-xs font-black text-slate-700">{terminationType}</span>
+                                    </div>
+                                </div>
+                                <button 
+                                    onClick={() => {
+                                        setTempTerminationType(terminationType);
+                                        setShowTerminationTypeModal(true);
+                                    }}
+                                    className="shrink-0 text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1.5 rounded-lg active:scale-95 transition-transform flex items-center gap-0.5"
+                                >
+                                    修改
+                                </button>
                             </div>
                         </div>
 
@@ -183,6 +218,64 @@ const EmployeeOffboarding = ({ employee, onBack, initialStep = 'confirm', onStat
                         确认办理离职 <ChevronRight size={18} strokeWidth={2.5}/>
                     </button>
                 </div>
+
+                {/* Termination Type Modal */}
+                {showTerminationTypeModal && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-200">
+                        <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowTerminationTypeModal(false)}></div>
+                        <div className="bg-white w-full rounded-[32px] p-6 shadow-2xl relative z-10 animate-in zoom-in-95 duration-200 max-w-sm">
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="font-black text-slate-900 text-lg">修改退工类型</h3>
+                                <button onClick={() => setShowTerminationTypeModal(false)} className="text-slate-400 p-1 hover:bg-slate-100 rounded-full transition-colors">
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            
+                            <div className="space-y-4 mb-8">
+                                <p className="text-xs text-slate-500 font-medium">
+                                    请选择适合的退工类型，这将影响后续的离职证明及相关手续。
+                                </p>
+                                
+                                <div className="space-y-2">
+                                    {[
+                                        '解除合同(因劳动者本人意愿中断就业)',
+                                        '解除合同(非因劳动者本人意愿中断就业)',
+                                        '终止合同'
+                                    ].map(type => (
+                                        <div 
+                                            key={type}
+                                            onClick={() => setTempTerminationType(type)}
+                                            className={`p-4 rounded-2xl border cursor-pointer transition-all ${tempTerminationType === type ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-slate-200 hover:bg-slate-50'}`}
+                                        >
+                                            <div className="flex items-center justify-between">
+                                                <span className={`text-sm font-bold ${tempTerminationType === type ? 'text-indigo-700' : 'text-slate-700'}`}>{type}</span>
+                                                {tempTerminationType === type && <CheckCircle2 size={18} className="text-indigo-600" />}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            <div className="flex gap-3">
+                                <button 
+                                    onClick={() => setShowTerminationTypeModal(false)}
+                                    className="flex-1 py-3.5 rounded-2xl font-black text-sm bg-slate-100 text-slate-600 active:scale-[0.98] transition-all"
+                                >
+                                    取消
+                                </button>
+                                <button 
+                                    onClick={() => {
+                                        setTerminationType(tempTerminationType);
+                                        setShowTerminationTypeModal(false);
+                                    }}
+                                    className="flex-1 py-3.5 rounded-2xl font-black text-sm bg-indigo-600 text-white shadow-xl shadow-indigo-100 active:scale-[0.98] transition-all"
+                                >
+                                    确认修改
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Confirm Modal */}
                 {showConfirmModal && (
