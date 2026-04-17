@@ -561,6 +561,72 @@ const NotificationSettings = ({ onBack }: { onBack: () => void }) => {
     );
 };
 
+// --- 9. Account Settings ---
+
+const AccountSettings = ({ onBack }: { onBack: () => void }) => {
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+    const handleLogout = () => {
+        window.location.reload();
+    };
+
+    return (
+        <DetailLayout title="我的账号" onBack={onBack}>
+            <div className="bg-white rounded-[32px] overflow-hidden shadow-sm border border-slate-100">
+                <div className="p-6 border-b border-slate-50 flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
+                        <User size={32} />
+                    </div>
+                    <div>
+                        <h2 className="text-lg font-black text-slate-900">GM 管理员</h2>
+                        <p className="text-xs font-bold text-slate-400">138-0000-0000</p>
+                    </div>
+                </div>
+                <div className="p-2">
+                    <div 
+                        onClick={() => setShowLogoutConfirm(true)}
+                        className="flex items-center justify-center gap-2 p-4 text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer rounded-2xl font-bold"
+                    >
+                        <LogOut size={18} />
+                        退出登录
+                    </div>
+                </div>
+            </div>
+
+            <div className="mt-8 text-center opacity-30 select-none">
+                <p className="text-[10px] font-mono text-slate-400">v2.2.0 / 20260416-2315 / 8492</p>
+            </div>
+
+            {showLogoutConfirm && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-200">
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowLogoutConfirm(false)}></div>
+                    <div className="bg-white w-full rounded-[32px] p-6 shadow-2xl relative z-10 animate-in zoom-in-95 duration-200 max-w-sm text-center">
+                        <div className="w-16 h-16 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-rose-100">
+                            <LogOut size={32} />
+                        </div>
+                        <h3 className="text-lg font-black text-slate-900 mb-2">确认退出登录？</h3>
+                        <p className="text-sm text-slate-500 mb-6 font-medium">退出后将重新返回到工作台界面</p>
+                        <div className="flex gap-3">
+                            <button 
+                                onClick={() => setShowLogoutConfirm(false)}
+                                className="flex-1 py-3.5 rounded-2xl font-black text-sm bg-slate-100 text-slate-600 active:scale-[0.98] transition-all"
+                            >
+                                取消
+                            </button>
+                            <button 
+                                onClick={handleLogout}
+                                className="flex-1 py-3.5 rounded-2xl font-black text-sm bg-rose-500 text-white shadow-xl shadow-rose-200 active:scale-[0.98] transition-all"
+                            >
+                                确认退出
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </DetailLayout>
+    );
+};
+
 // --- Main Switch Component ---
 
 const CompanyDetails = ({ type, onBack }: { type: string, onBack: () => void }) => {
@@ -573,6 +639,7 @@ const CompanyDetails = ({ type, onBack }: { type: string, onBack: () => void }) 
         case 'admin': return <AdminManager onBack={onBack} />;
         case 'log': return <OperationLogs onBack={onBack} />;
         case 'notify': return <NotificationSettings onBack={onBack} />;
+        case 'account': return <AccountSettings onBack={onBack} />;
         default: return <DetailLayout title="详情" onBack={onBack}><div className="text-center py-20 text-gray-400">功能建设中</div></DetailLayout>;
     }
 };
