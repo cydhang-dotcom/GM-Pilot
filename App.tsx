@@ -6,6 +6,7 @@ import Inbox from './pages/Inbox';
 import Work from './pages/Work';
 import WorkDetail from './pages/WorkDetail';
 import Company from './pages/Company';
+import SelfOnboarding from './pages/SelfOnboarding';
 import BottomNav from './components/BottomNav';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -28,6 +29,7 @@ const App: React.FC = () => {
         <Route path="/work/:id" element={<Layout><WorkDetail /></Layout>} />
         <Route path="/work" element={<Layout><Work /></Layout>} />
         <Route path="/company" element={<Layout><Company /></Layout>} />
+        <Route path="/self-onboarding" element={<SelfOnboarding />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </HashRouter>

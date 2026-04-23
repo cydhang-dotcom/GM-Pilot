@@ -20,10 +20,6 @@ const SALARY_TASK: Task = {
   source: 'Finance Outsourcing' 
 };
 
-const mockTasks: Task[] = [
-  { id: 'b_service', title: '12月平台服务费', description: '待支付 ¥ 5,800.00', deadline: '2023-12-25', type: TaskType.CONFIRM, priority: 'HIGH', source: 'HR Outsourcing' },
-];
-
 interface SubItem {
   label: string;
   statusText?: string;
@@ -173,18 +169,6 @@ const Inbox: React.FC = () => {
                         <div className="pt-4">{(isTimelineExpanded ? timelineData : timelineData.filter(i => i.status === 'active' || i.taskData)).map((item, index, arr) => renderTimelineItem(item, index, index === arr.length - 1))}</div>
                     </div>
                  </section>
-                 
-                 {/* Bill Card - Emerald Theme */}
-                 <div onClick={() => handleOpenSalary(mockTasks[0])} className="bg-gradient-to-br from-white via-white to-emerald-50/40 border border-emerald-100/60 rounded-[32px] p-6 shadow-[0_8px_30px_rgba(16,185,129,0.06)] active:scale-[0.99] cursor-pointer flex items-center justify-between gap-4 group transition-all duration-300 hover:shadow-lg hover:shadow-emerald-100/30">
-                      <div className="flex items-center gap-4 flex-1 min-w-0">
-                          <div className="w-14 h-14 rounded-[24px] bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0 border border-emerald-100 shadow-sm"><ReceiptText size={24} strokeWidth={2}/></div>
-                          <div className="min-w-0">
-                              <h3 className="font-black text-slate-800 text-sm truncate">12月平台服务费</h3>
-                              <div className="flex items-center gap-2 mt-1.5"><span className="text-xs font-black text-emerald-600 font-mono tracking-tight">¥5,800.00</span><div className="w-1 h-1 rounded-full bg-emerald-200"></div><p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">待支付</p></div>
-                          </div>
-                      </div>
-                      <div className="bg-emerald-600 text-white px-4 py-3 rounded-2xl text-[11px] font-black shadow-xl shadow-emerald-200 flex items-center gap-1.5 shrink-0 group-hover:bg-emerald-700 transition-colors">立即支付<ArrowUpRight size={14} strokeWidth={3}/></div>
-                 </div>
 
                  {/* Onboarding Card */}
                  <div onClick={() => setViewMode('onboarding')} className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-sm flex items-center gap-5 cursor-pointer active:scale-[0.99] transition-all group hover:border-indigo-100">

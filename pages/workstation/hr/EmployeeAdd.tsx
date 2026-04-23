@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Briefcase, Banknote, FileSignature, Calculator, ShieldCheck, Check, X, ChevronRight, UserPlus, QrCode, Smartphone, Building2, MapPin, Clock, FileText, Plus, Minus, AlertCircle } from 'lucide-react';
 import { DetailLayout } from '../../../components/DetailLayout';
 
@@ -51,6 +52,7 @@ interface EmployeeAddProps {
 }
 
 const EmployeeAdd: React.FC<EmployeeAddProps> = ({ onBack, onSave }) => {
+    const navigate = useNavigate();
     const [name, setName] = useState('');
     const [idCard, setIdCard] = useState('');
     const [phone, setPhone] = useState('');
@@ -112,6 +114,11 @@ const EmployeeAdd: React.FC<EmployeeAddProps> = ({ onBack, onSave }) => {
 
     useEffect(() => { if (!isTaxBaseCustomized) setTaxBase(salary); }, [salary, isTaxBaseCustomized]);
     useEffect(() => { if (!isSocialFundCustomized) { setSocialBase(salary); setFundBase(salary); } }, [salary, isSocialFundCustomized]);
+
+    const handleSimulateScan = () => {
+        setShowQrModal(false);
+        navigate('/self-onboarding');
+    };
 
     const handleSave = () => {
         if (!name || !dept || !role || !joinDate || !salary) {
@@ -230,8 +237,13 @@ const EmployeeAdd: React.FC<EmployeeAddProps> = ({ onBack, onSave }) => {
                                 <span className="text-[10px] text-indigo-400 font-bold mt-0.5">入职登记 · 身份核验</span>
                             </div>
 
-                            <div className="bg-white p-3 rounded-2xl shadow-xl shadow-indigo-100/50 border border-indigo-50 w-fit mx-auto">
-                                <QrCode size={160} className="text-indigo-900" strokeWidth={1.5} />
+                            <div 
+                                className="bg-white p-3 rounded-2xl shadow-xl shadow-indigo-100/50 border border-indigo-50 w-fit mx-auto cursor-pointer active:scale-95 transition-transform group relative"
+                                onClick={handleSimulateScan}
+                                title="点击模拟员工扫码提交"
+                            >
+                                <div className="absolute inset-0 bg-indigo-600/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <QrCode size={160} className="text-indigo-900 relative z-10" strokeWidth={1.5} />
                             </div>
                             <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-black px-4 py-1.5 rounded-full shadow-lg whitespace-nowrap">
                                 有效期 24 小时
