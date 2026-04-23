@@ -4,7 +4,8 @@ import {
     FileText, Copy, Check, Settings, Stamp, ShieldCheck, MapPin, Plus, Trash2, 
     User, Phone, Map, Briefcase, Home, CheckCircle2, Crown, 
     Clock, Smartphone, Bell, ChevronRight, Search, Lock, UserPlus, LogOut,
-    AlertCircle, FileSignature, History, Fingerprint, Landmark, Building2, Wallet
+    AlertCircle, FileSignature, History, Fingerprint, Landmark, Building2, Wallet,
+    Share2, QrCode, X, Download
 } from 'lucide-react';
 import { DetailLayout } from '../../components/DetailLayout';
 
@@ -565,6 +566,7 @@ const NotificationSettings = ({ onBack }: { onBack: () => void }) => {
 
 const AccountSettings = ({ onBack }: { onBack: () => void }) => {
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
 
     const handleLogout = () => {
         window.location.reload();
@@ -582,13 +584,30 @@ const AccountSettings = ({ onBack }: { onBack: () => void }) => {
                         <p className="text-xs font-bold text-slate-400">138-0000-0000</p>
                     </div>
                 </div>
-                <div className="p-2">
+                <div className="p-2 space-y-1">
+                    <div 
+                        onClick={() => setShowShareModal(true)}
+                        className="flex items-center justify-between p-4 text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer rounded-2xl font-bold"
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                <Share2 size={16} />
+                            </div>
+                            分享班步一企通
+                        </div>
+                        <ChevronRight size={18} className="text-slate-300" />
+                    </div>
                     <div 
                         onClick={() => setShowLogoutConfirm(true)}
-                        className="flex items-center justify-center gap-2 p-4 text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer rounded-2xl font-bold"
+                        className="flex items-center justify-between p-4 text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer rounded-2xl font-bold"
                     >
-                        <LogOut size={18} />
-                        退出登录
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-rose-50 flex items-center justify-center text-rose-500">
+                                <LogOut size={16} />
+                            </div>
+                            退出登录
+                        </div>
+                        <ChevronRight size={18} className="text-rose-200" />
                     </div>
                 </div>
             </div>
@@ -596,6 +615,104 @@ const AccountSettings = ({ onBack }: { onBack: () => void }) => {
             <div className="mt-8 text-center opacity-30 select-none">
                 <p className="text-[10px] font-mono text-slate-400">v2.2.0 / 20260416-2315 / 8492</p>
             </div>
+
+            {showShareModal && (
+                <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md animate-in fade-in duration-200">
+                    {/* The Poster Card */}
+                    <div className="w-full max-w-[320px] bg-white rounded-[32px] overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] relative mb-8 animate-in zoom-in-95 duration-300 ring-1 ring-white/20">
+                        {/* Upper Section */}
+                        <div className="p-8 pb-16 bg-gradient-to-b from-[#1ab394]/10 to-transparent relative overflow-hidden border-b border-[#1ab394]/20">
+                            {/* Dot Pattern Overlay */}
+                            <div className="absolute inset-0 bg-[radial-gradient(#1ab394_1.5px,transparent_1.5px)] [background-size:20px_20px] opacity-[0.06] pointer-events-none"></div>
+                            
+                            {/* Ambient Glows */}
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-[#1ab394]/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
+                            <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#1ab394]/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20"></div>
+                            
+                            {/* Inviter Info Pill */}
+                            <div className="inline-flex items-center gap-2 bg-white/70 backdrop-blur-md rounded-full pr-4 pl-1.5 py-1.5 mb-8 shadow-sm border border-[#1ab394]/30 relative z-10 cursor-default">
+                                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#1ab394] to-[#128a71] flex items-center justify-center text-white shadow-sm">
+                                    <User size={12} strokeWidth={3} />
+                                </div>
+                                <div className="flex items-baseline gap-1.5">
+                                    <span className="text-slate-800 font-black text-xs">GM 管理员</span>
+                                    <span className="text-[#1ab394] text-[10px] font-bold">邀请体验</span>
+                                </div>
+                            </div>
+
+                            {/* Core Message */}
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="p-2.5 bg-gradient-to-br from-[#1ab394] to-[#128a71] rounded-xl shadow-[0_4px_12px_rgba(26,179,148,0.3)] text-white shrink-0">
+                                        <Building2 size={24} strokeWidth={2.5} />
+                                    </div>
+                                    <h1 className="text-[26px] font-black text-[#1ab394] tracking-tight leading-none">
+                                        班步一企通
+                                    </h1>
+                                </div>
+                                
+                                <div className="inline-block px-3 py-1 bg-[#1ab394]/10 border border-[#1ab394]/20 rounded-lg mb-5 shadow-sm">
+                                    <h2 className="text-[11px] font-black text-[#1ab394] tracking-wider">初创企业一站式服务</h2>
+                                </div>
+                                
+                                <p className="text-slate-600 text-[11px] leading-relaxed font-medium max-w-[240px]">
+                                    聚合 <span className="font-black text-slate-800">公司注册、财税代理、人事外包</span> 与 <span className="font-black text-slate-800">补贴申请</span>。<br/>
+                                    通过微信小程序随时查看企业经营概况、<br/>每月服务进度。
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Lower Section */}
+                        <div className="px-7 pb-7 pt-5 bg-white relative">
+                            {/* Floating QR Code */}
+                            <div className="absolute right-5 -top-12 bg-white p-2 rounded-[24px] shadow-[0_12px_30px_rgba(0,0,0,0.08)] border border-slate-100/80 group transform transition-transform hover:-translate-y-1">
+                                <div className="bg-[#1ab394]/5 p-2 rounded-[16px] border border-[#1ab394]/20 flex flex-col items-center relative">
+                                    <QrCode size={68} className="text-slate-800" strokeWidth={1.2} />
+                                    {/* QR Code Center Icon */}
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <div className="w-6 h-6 bg-white rounded-[6px] shadow-sm border border-[#1ab394]/30 flex items-center justify-center text-[#1ab394] p-1">
+                                            <Building2 size={12} strokeWidth={2.5} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="pr-20 pt-1 pb-1">
+                                <h3 className="text-[13px] font-black text-slate-900 tracking-tight">扫码极速体验</h3>
+                                <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">官方微信小程序</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex w-full max-w-[320px] gap-3">
+                        <button 
+                            className="flex-1 bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/20 py-3.5 rounded-2xl font-black text-sm transition-colors flex items-center justify-center gap-2 active:scale-95 shadow-lg"
+                            onClick={() => {
+                                alert("已保存海报到手机相册");
+                                setShowShareModal(false);
+                            }}
+                        >
+                            <Download size={16} />
+                            保存海报
+                        </button>
+                        <button 
+                            className="flex-[2] bg-[#1ab394] hover:bg-[#18a286] text-white shadow-[0_8px_20px_rgba(26,179,148,0.25)] border border-[#1ab394] py-3.5 rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-2 active:scale-95 group"
+                            onClick={() => setShowShareModal(false)}
+                        >
+                            <Share2 size={16} className="group-hover:scale-110 transition-transform" />
+                            立即发送
+                        </button>
+                    </div>
+
+                    <button 
+                        onClick={() => setShowShareModal(false)}
+                        className="mt-6 text-white/50 hover:text-white transition-colors p-3 bg-white/5 hover:bg-white/10 rounded-full backdrop-blur-sm"
+                    >
+                        <X size={20} />
+                    </button>
+                </div>
+            )}
 
             {showLogoutConfirm && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-200">
