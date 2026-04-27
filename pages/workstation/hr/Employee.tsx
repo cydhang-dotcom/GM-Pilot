@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Search, ChevronRight, Plus, Users, UserPlus, UserMinus, Filter, Briefcase, XCircle } from 'lucide-react';
+import { Search, ChevronRight, Plus, Users, UserPlus, UserMinus, Filter, Briefcase, XCircle, X } from 'lucide-react';
 import EmployeeAdd from './EmployeeAdd';
 import EmployeeDetail from './EmployeeDetail';
 import EmployeeOffboarding from './EmployeeOffboarding';
@@ -72,6 +72,13 @@ const Employee: React.FC = () => {
             result = result.filter(e => e.joinDate.startsWith('2023-12') || e.joinDate.startsWith('2024-01'));
         } else if (filterMode === 'leaving') {
             result = result.filter(e => e.status === '离职');
+            
+            // 离职人员按离职日期从近到远排序
+            result.sort((a, b) => {
+                const dateA = new Date(a.leaveDate || a.contractEnd).getTime();
+                const dateB = new Date(b.leaveDate || b.contractEnd).getTime();
+                return dateB - dateA;
+            });
         } else if (filterMode === 'probation') {
             result = result.filter(e => e.status === '试用');
         }
@@ -186,19 +193,20 @@ const Employee: React.FC = () => {
                     <Search size={18} className="text-slate-300 ml-2 shrink-0" strokeWidth={2.5} />
                     
                     {filterMode !== 'all' && (
-                        <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md border shadow-sm text-xs font-black shrink-0 ${
+                        <div className={`flex items-center gap-1.5 px-2 py-1 rounded-lg border shadow-sm text-xs font-black shrink-0 ${
                             filterMode === 'new' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
                             filterMode === 'leaving' ? 'bg-rose-50 text-rose-600 border-rose-100' :
                             filterMode === 'active' ? 'bg-indigo-50 text-indigo-600 border-indigo-100' :
                             'bg-blue-50 text-blue-600 border-blue-100'
                         }`}>
                             <span>{filterLabels[filterMode]}</span>
-                            <button 
+                            <div className="w-1 h-3 border-l border-current opacity-30"></div>
+                            <span 
                                 onClick={(e) => { e.stopPropagation(); setFilterMode('all'); }} 
-                                className="hover:text-slate-800 transition-colors opacity-60 hover:opacity-100 rounded-full bg-white/50 p-0.5 ml-0.5"
+                                className="cursor-pointer hover:opacity-70 active:scale-90"
                             >
-                                <XCircle size={12} strokeWidth={2.5} />
-                            </button>
+                                <X size={12} strokeWidth={3} />
+                            </span>
                         </div>
                     )}
 
@@ -267,13 +275,9 @@ const Employee: React.FC = () => {
                                     }`}>
                                         {emp.status}
                                     </span>
-                                    {emp.status === '离职' && (
-                                        <span className={`text-[10px] px-2 py-0.5 rounded-md font-black border ${
-                                            (emp.leaveDate?.startsWith('2023-12') || emp.leaveDate?.startsWith('2024-01'))
-                                            ? 'bg-rose-50 text-rose-600 border-rose-100'
-                                            : 'bg-slate-100 text-slate-400 border-slate-200'
-                                        }`}>
-                                            {(emp.leaveDate?.startsWith('2023-12') || emp.leaveDate?.startsWith('2024-01')) ? '本月离职' : '历史离职'}
+                                    {emp.status === '离职' && (emp.leaveDate?.startsWith('2023-12') || emp.leaveDate?.startsWith('2024-01')) && (
+                                        <span className="text-[10px] px-2 py-0.5 rounded-md font-black border bg-rose-50 text-rose-600 border-rose-100">
+                                            本月离职
                                         </span>
                                     )}
                                 </div>

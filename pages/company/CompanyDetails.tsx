@@ -5,7 +5,7 @@ import {
     User, Phone, Map, Briefcase, Home, CheckCircle2, Crown, 
     Clock, Smartphone, Bell, ChevronRight, Search, Lock, UserPlus, LogOut,
     AlertCircle, FileSignature, History, Fingerprint, Landmark, Building2, Wallet,
-    Share2, QrCode, X, Download
+    Share2, QrCode, X, Download, Filter
 } from 'lucide-react';
 import { DetailLayout } from '../../components/DetailLayout';
 
@@ -486,19 +486,130 @@ const AdminManager = ({ onBack }: { onBack: () => void }) => {
 // --- 7. Operation Logs ---
 
 const OperationLogs = ({ onBack }: { onBack: () => void }) => {
+    const [selectedMonth, setSelectedMonth] = useState('全部月份');
+    const [selectedModule, setSelectedModule] = useState('全部类型');
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+
     const logs = [
-        { id: 1, action: '确认薪资发放', module: '薪酬管理', time: '今天 10:30', ip: 'iPhone 14 Pro', urgent: false },
-        { id: 2, action: '导出资产负债表', module: '财税报表', time: '昨天 15:45', ip: 'Web PC', urgent: true },
-        { id: 3, action: '发起合同续签', module: '合同管理', time: '12-20 09:20', ip: 'iPhone 14 Pro', urgent: false },
-        { id: 4, action: '修改员工王强薪资', module: '员工档案', time: '12-18 14:00', ip: 'iPhone 14 Pro', urgent: true },
+        { id: 1, action: '确认 2023-12 薪资发放清单', module: '薪酬与税务', time: '2024-01-05 10:30', ip: 'Web PC (上海)', urgent: true },
+        { id: 2, action: '导出 2023年度资产负债表', module: '财务与报销', time: '2024-01-04 15:45', ip: 'Web PC (北京)', urgent: false },
+        { id: 3, action: '为员工 孙七 发起合同续签', module: '合同与社保', time: '2023-12-28 09:20', ip: 'iPhone 14 Pro', urgent: true },
+        { id: 4, action: '修改员工 赵六 部门与薪资信息', module: '组织与员工', time: '2023-12-18 14:00', ip: 'Web PC (上海)', urgent: false },
+        { id: 5, action: '发起员工 郑八 离职待办流程', module: '组织与员工', time: '2023-12-10 11:15', ip: 'Web PC (上海)', urgent: true },
+        { id: 6, action: '上传并识别餐饮费增值税专用发票', module: '财务与报销', time: '2023-12-05 16:20', ip: 'iPhone 14 Pro', urgent: false },
+        { id: 7, action: '提交 2023-11 增值税及附加税申报', module: '薪酬与税务', time: '2023-12-01 10:00', ip: 'Web PC (上海)', urgent: true },
+        { id: 8, action: '新增员工 周晓 并发起入职背调', module: '组织与员工', time: '2023-11-28 14:30', ip: 'Web PC (上海)', urgent: false },
+        { id: 9, action: '导出 2023-11 社保公积金缴纳台账', module: '合同与社保', time: '2023-11-20 17:00', ip: 'Web PC (上海)', urgent: false },
+        { id: 10, action: '授权新设备 (iPad Pro) 访问企业控制台', module: '系统与安全', time: '2023-11-05 20:30', ip: '114.212.x.x', urgent: true },
     ];
+
+    const filteredLogs = logs.filter(log => {
+        if (selectedModule !== '全部类型' && log.module !== selectedModule) return false;
+        if (selectedMonth !== '全部月份' && !log.time.startsWith(selectedMonth)) return false;
+        return true;
+    });
 
     return (
         <DetailLayout title="安全操作日志" onBack={onBack}>
+            {/* Filter Header */}
+            <div className="flex justify-between items-center px-1 mb-4">
+                <div>
+                    <h3 className="text-sm font-black text-slate-900">操作记录</h3>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Audit Trail</p>
+                </div>
+                
+                <div className="relative">
+                    <button 
+                        onClick={() => setIsFilterOpen(!isFilterOpen)}
+                        className={`p-2.5 rounded-xl border transition-all flex items-center gap-2 ${
+                            isFilterOpen || selectedModule !== '全部类型' || selectedMonth !== '全部月份'
+                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg scale-105' 
+                            : 'bg-white text-slate-400 border-slate-200 shadow-sm active:scale-95'
+                        }`}
+                    >
+                        <Filter size={18} strokeWidth={2.5} />
+                    </button>
+
+                    {isFilterOpen && (
+                        <>
+                            <div className="fixed inset-0 z-[80]" onClick={() => setIsFilterOpen(false)}></div>
+                            <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-[0_12px_48px_rgba(0,0,0,0.12)] border border-slate-100 p-2 z-[90] animate-scale-up origin-top-right overflow-hidden flex flex-col gap-2">
+                                <div>
+                                    <div className="text-[9px] font-black text-slate-400 uppercase px-3 py-1.5 tracking-widest">月份</div>
+                                    <div className="grid grid-cols-2 gap-1 px-1">
+                                        {['全部月份', '2024-01', '2023-12', '2023-11'].map(m => (
+                                            <button 
+                                                key={m}
+                                                onClick={() => { setSelectedMonth(m); }}
+                                                className={`px-2 py-1.5 rounded-lg text-[10px] font-black transition-all ${
+                                                    selectedMonth === m 
+                                                    ? 'bg-indigo-50 text-indigo-600' 
+                                                    : 'text-slate-500 hover:bg-slate-50'
+                                                }`}
+                                            >
+                                                {m}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="text-[9px] font-black text-slate-400 uppercase px-3 py-1.5 tracking-widest border-t border-slate-50 mt-1 pt-2">日志类型</div>
+                                    <div className="flex flex-col gap-1 px-1">
+                                        {['全部类型', '组织与员工', '合同与社保', '薪酬与税务', '财务与报销', '系统与安全'].map(t => (
+                                            <button 
+                                                key={t}
+                                                onClick={() => { setSelectedModule(t); setIsFilterOpen(false); }}
+                                                className={`px-3 py-2 rounded-xl text-[11px] font-black w-full text-left transition-all ${
+                                                    selectedModule === t 
+                                                    ? 'bg-indigo-50 text-indigo-600' 
+                                                    : 'text-slate-500 hover:bg-slate-50'
+                                                }`}
+                                            >
+                                                {t}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
+
+            {/* Filter Result Tags */}
+            {(selectedModule !== '全部类型' || selectedMonth !== '全部月份') && (
+                <div className="px-1 flex items-center gap-2 animate-fade-in mb-4">
+                    {selectedMonth !== '全部月份' && (
+                        <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg border shadow-sm text-xs font-black bg-indigo-50 text-indigo-600 border-indigo-100">
+                            月份: {selectedMonth}
+                            <div className="w-1 h-3 border-l border-current opacity-30"></div>
+                            <span 
+                                onClick={() => setSelectedMonth('全部月份')}
+                                className="cursor-pointer hover:opacity-70 active:scale-90"
+                            >
+                                <X size={12} strokeWidth={3} />
+                            </span>
+                        </div>
+                    )}
+                    {selectedModule !== '全部类型' && (
+                        <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg border shadow-sm text-xs font-black bg-emerald-50 text-emerald-600 border-emerald-100">
+                            类型: {selectedModule}
+                            <div className="w-1 h-3 border-l border-current opacity-30"></div>
+                            <span 
+                                onClick={() => setSelectedModule('全部类型')}
+                                className="cursor-pointer hover:opacity-70 active:scale-90"
+                            >
+                                <X size={12} strokeWidth={3} />
+                            </span>
+                        </div>
+                    )}
+                </div>
+            )}
+
             <div className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-100">
                 <div className="space-y-6 relative ml-2">
                     <div className="absolute left-[15px] top-4 bottom-4 w-[2px] bg-slate-100 rounded-full"></div>
-                    {logs.map(log => (
+                    {filteredLogs.map(log => (
                         <div key={log.id} className="relative flex gap-5">
                             <div className={`w-8 h-8 rounded-full border-4 border-white shadow-sm flex items-center justify-center shrink-0 z-10 ${
                                 log.urgent ? 'bg-rose-500 text-white' : 'bg-slate-100 text-slate-400'

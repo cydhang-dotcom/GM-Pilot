@@ -693,7 +693,7 @@ const Contract: React.FC = () => {
 
                     <div className="grid grid-cols-3 gap-3">
                         <div 
-                            onClick={() => setFilterMode('normal')}
+                            onClick={() => setFilterMode(filterMode === 'normal' ? 'all' : 'normal')}
                             className={`rounded-2xl p-3 border transition-all cursor-pointer active:scale-95 flex flex-col items-center justify-center gap-1 ${
                                 filterMode === 'normal' 
                                 ? 'bg-emerald-500 text-white border-emerald-600 shadow-lg shadow-emerald-100' 
@@ -705,7 +705,7 @@ const Contract: React.FC = () => {
                             <p className={`text-base font-black font-mono ${filterMode === 'normal' ? 'text-white' : 'text-emerald-700'}`}>{normalCount}</p>
                         </div>
                         <div 
-                            onClick={() => setFilterMode('expiring')}
+                            onClick={() => setFilterMode(filterMode === 'expiring' ? 'all' : 'expiring')}
                             className={`rounded-2xl p-3 border transition-all cursor-pointer active:scale-95 flex flex-col items-center justify-center gap-1 ${
                                 filterMode === 'expiring' 
                                 ? 'bg-orange-500 text-white border-orange-600 shadow-lg shadow-orange-100' 
@@ -717,7 +717,7 @@ const Contract: React.FC = () => {
                             <p className={`text-base font-black font-mono ${filterMode === 'expiring' ? 'text-white' : 'text-orange-700'}`}>{expiringCount}</p>
                         </div>
                         <div 
-                            onClick={() => setFilterMode('overdue')}
+                            onClick={() => setFilterMode(filterMode === 'overdue' ? 'all' : 'overdue')}
                             className={`rounded-2xl p-3 border transition-all cursor-pointer active:scale-95 flex flex-col items-center justify-center gap-1 ${
                                 filterMode === 'overdue' 
                                 ? 'bg-rose-500 text-white border-rose-600 shadow-lg shadow-rose-100' 
@@ -734,23 +734,21 @@ const Contract: React.FC = () => {
 
             {/* Filter Result Header */}
             {filterMode !== 'all' && (
-                <div className="px-2 flex items-center justify-between animate-fade-in">
-                    <div className="flex items-center gap-2">
-                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest">正在查看:</span>
-                        <span className={`text-xs font-black px-2 py-1 rounded-lg border shadow-sm ${
-                            filterMode === 'normal' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                            filterMode === 'expiring' ? 'bg-orange-50 text-orange-600 border-orange-100' :
-                            'bg-rose-50 text-rose-600 border-rose-100'
-                        }`}>
-                            {filterLabels[filterMode]} ({filteredContracts.length})
+                <div className="px-2 flex items-center animate-fade-in">
+                    <div className={`flex items-center gap-1.5 px-2 py-1 rounded-lg border shadow-sm text-xs font-black ${
+                        filterMode === 'normal' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                        filterMode === 'expiring' ? 'bg-orange-50 text-orange-600 border-orange-100' :
+                        'bg-rose-50 text-rose-600 border-rose-100'
+                    }`}>
+                        {filterLabels[filterMode]} ({filteredContracts.length})
+                        <div className="w-1 h-3 border-l border-current opacity-30"></div>
+                        <span 
+                            onClick={() => setFilterMode('all')}
+                            className="cursor-pointer hover:opacity-70 active:scale-90"
+                        >
+                            <X size={12} strokeWidth={3} />
                         </span>
                     </div>
-                    <button 
-                        onClick={() => setFilterMode('all')}
-                        className="text-[10px] font-black text-slate-400 flex items-center gap-1 hover:text-slate-600 transition-colors"
-                    >
-                        <XCircle size={12} /> 清空筛选
-                    </button>
                 </div>
             )}
 
