@@ -491,16 +491,18 @@ const OperationLogs = ({ onBack }: { onBack: () => void }) => {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
 
     const logs = [
-        { id: 1, action: '确认 2023-12 薪资发放清单', module: '薪酬与税务', time: '2024-01-05 10:30', ip: 'Web PC (上海)', urgent: true },
-        { id: 2, action: '导出 2023年度资产负债表', module: '财务与报销', time: '2024-01-04 15:45', ip: 'Web PC (北京)', urgent: false },
-        { id: 3, action: '为员工 孙七 发起合同续签', module: '合同与社保', time: '2023-12-28 09:20', ip: 'iPhone 14 Pro', urgent: true },
-        { id: 4, action: '修改员工 赵六 部门与薪资信息', module: '组织与员工', time: '2023-12-18 14:00', ip: 'Web PC (上海)', urgent: false },
-        { id: 5, action: '发起员工 郑八 离职待办流程', module: '组织与员工', time: '2023-12-10 11:15', ip: 'Web PC (上海)', urgent: true },
-        { id: 6, action: '上传并识别餐饮费增值税专用发票', module: '财务与报销', time: '2023-12-05 16:20', ip: 'iPhone 14 Pro', urgent: false },
-        { id: 7, action: '提交 2023-11 增值税及附加税申报', module: '薪酬与税务', time: '2023-12-01 10:00', ip: 'Web PC (上海)', urgent: true },
-        { id: 8, action: '新增员工 周晓 并发起入职背调', module: '组织与员工', time: '2023-11-28 14:30', ip: 'Web PC (上海)', urgent: false },
-        { id: 9, action: '导出 2023-11 社保公积金缴纳台账', module: '合同与社保', time: '2023-11-20 17:00', ip: 'Web PC (上海)', urgent: false },
-        { id: 10, action: '授权新设备 (iPad Pro) 访问企业控制台', module: '系统与安全', time: '2023-11-05 20:30', ip: '114.212.x.x', urgent: true },
+        { id: 1, action: '确认 2023-12 薪资发放清单', module: '薪酬管理', time: '2024-01-05 10:30', ip: 'Web PC (上海)', urgent: true },
+        { id: 2, action: '导出 2023年度资产负债表', module: '财务报表', time: '2024-01-04 15:45', ip: 'Web PC (北京)', urgent: false },
+        { id: 11, action: '查看员工 张伟 身份证完整信息 (解除隐藏)', module: '隐私查看', time: '2024-01-02 11:20', ip: 'Web PC (上海)', urgent: true },
+        { id: 3, action: '为员工 孙七 发起合同续签', module: '合同管理', time: '2023-12-28 09:20', ip: 'iPhone 14 Pro', urgent: true },
+        { id: 4, action: '修改员工 赵六 部门信息', module: '员工档案', time: '2023-12-18 14:00', ip: 'Web PC (上海)', urgent: false },
+        { id: 12, action: '查看员工 李娜 银行卡号完整信息', module: '隐私查看', time: '2023-12-15 16:40', ip: 'iPhone 14 Pro', urgent: false },
+        { id: 5, action: '发起员工 郑八 离职待办流程', module: '员工档案', time: '2023-12-10 11:15', ip: 'Web PC (上海)', urgent: true },
+        { id: 6, action: '上传并识别餐饮费发票', module: '凭证报销', time: '2023-12-05 16:20', ip: 'iPhone 14 Pro', urgent: false },
+        { id: 7, action: '提交 2023-11 增值税及附加税申报', module: '税务管理', time: '2023-12-01 10:00', ip: 'Web PC (上海)', urgent: true },
+        { id: 8, action: '新增员工 周晓 并发起入职背调', module: '员工档案', time: '2023-11-28 14:30', ip: 'Web PC (上海)', urgent: false },
+        { id: 9, action: '导出 2023-11 社保公积金缴纳单', module: '社保管理', time: '2023-11-20 17:00', ip: 'Web PC (上海)', urgent: false },
+        { id: 10, action: '授权新设备 (iPad) 访问控制台', module: '系统设置', time: '2023-11-05 20:30', ip: '114.212.x.x', urgent: true },
     ];
 
     const filteredLogs = logs.filter(log => {
@@ -537,17 +539,22 @@ const OperationLogs = ({ onBack }: { onBack: () => void }) => {
                                 <div>
                                     <div className="text-[9px] font-black text-slate-400 uppercase px-3 py-1.5 tracking-widest">月份</div>
                                     <div className="grid grid-cols-2 gap-1 px-1">
-                                        {['全部月份', '2024-01', '2023-12', '2023-11'].map(m => (
+                                        {[
+                                            { label: '全部月份', value: '全部月份' },
+                                            { label: '2024年1月', value: '2024-01' },
+                                            { label: '2023年12月', value: '2023-12' },
+                                            { label: '2023年11月', value: '2023-11' }
+                                        ].map(m => (
                                             <button 
-                                                key={m}
-                                                onClick={() => { setSelectedMonth(m); }}
+                                                key={m.value}
+                                                onClick={() => { setSelectedMonth(m.value); }}
                                                 className={`px-2 py-1.5 rounded-lg text-[10px] font-black transition-all ${
-                                                    selectedMonth === m 
+                                                    selectedMonth === m.value 
                                                     ? 'bg-indigo-50 text-indigo-600' 
                                                     : 'text-slate-500 hover:bg-slate-50'
                                                 }`}
                                             >
-                                                {m}
+                                                {m.label}
                                             </button>
                                         ))}
                                     </div>
@@ -555,7 +562,7 @@ const OperationLogs = ({ onBack }: { onBack: () => void }) => {
                                 <div>
                                     <div className="text-[9px] font-black text-slate-400 uppercase px-3 py-1.5 tracking-widest border-t border-slate-50 mt-1 pt-2">日志类型</div>
                                     <div className="flex flex-col gap-1 px-1">
-                                        {['全部类型', '组织与员工', '合同与社保', '薪酬与税务', '财务与报销', '系统与安全'].map(t => (
+                                        {['全部类型', '员工档案', '合同管理', '薪酬管理', '社保管理', '凭证报销', '财务报表', '税务管理', '隐私查看', '系统设置'].map(t => (
                                             <button 
                                                 key={t}
                                                 onClick={() => { setSelectedModule(t); setIsFilterOpen(false); }}
@@ -581,7 +588,7 @@ const OperationLogs = ({ onBack }: { onBack: () => void }) => {
                 <div className="px-1 flex items-center gap-2 animate-fade-in mb-4">
                     {selectedMonth !== '全部月份' && (
                         <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg border shadow-sm text-xs font-black bg-indigo-50 text-indigo-600 border-indigo-100">
-                            月份: {selectedMonth}
+                            月份: {selectedMonth === '2024-01' ? '2024年1月' : selectedMonth === '2023-12' ? '2023年12月' : '2023年11月'}
                             <div className="w-1 h-3 border-l border-current opacity-30"></div>
                             <span 
                                 onClick={() => setSelectedMonth('全部月份')}

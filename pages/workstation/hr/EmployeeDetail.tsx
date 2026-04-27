@@ -66,14 +66,35 @@ const ModalInput = ({ label, value, placeholder, isMono = false, type = "text" }
 );
 
 // 详情行组件
-const InfoRow = ({ label, value, isMono = false, isSensitive = false, showSensitive = true }: any) => (
-    <div className="flex justify-between items-baseline py-3.5 border-b border-slate-50 last:border-0">
-        <span className="text-xs font-bold text-slate-400 shrink-0">{label}</span>
-        <span className={`text-sm font-black text-slate-900 text-right ${isMono ? 'font-mono' : ''} ${isSensitive && !showSensitive ? 'blur-md opacity-30 select-none' : ''}`}>
-            {value || '--'}
-        </span>
-    </div>
-);
+const InfoRow = ({ label, value, isMono = false, isSensitive = false, defaultShowSensitive = false, onReveal }: any) => {
+    const [showSensitive, setShowSensitive] = useState(defaultShowSensitive);
+
+    return (
+        <div className="flex justify-between items-center py-3.5 border-b border-slate-50 last:border-0 group">
+            <span className="text-xs font-bold text-slate-400 shrink-0">{label}</span>
+            <div className="flex items-center gap-2">
+                <span className={`text-sm font-black text-slate-900 text-right ${isMono ? 'font-mono' : ''} ${isSensitive && !showSensitive ? 'blur-sm select-none opacity-50' : ''}`}>
+                    {isSensitive && !showSensitive ? value?.replace(/./g, '*') || '********' : value || '--'}
+                </span>
+                {isSensitive && (
+                    <button 
+                        onClick={() => {
+                            const nextState = !showSensitive;
+                            setShowSensitive(nextState);
+                            if (nextState && onReveal) {
+                                onReveal();
+                            }
+                        }}
+                        className="text-slate-300 hover:text-indigo-500 transition-colors opacity-0 group-hover:opacity-100"
+                        title={showSensitive ? '隐藏信息' : '查看完整信息'}
+                    >
+                        {showSensitive ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </button>
+                )}
+            </div>
+        </div>
+    );
+};
 
 // 统一卡片容器
 const InfoSection = ({ title, icon: Icon, children, badge, onView, paddingClass = "px-6 py-5" }: any) => (
@@ -375,7 +396,7 @@ const EmployeeDetail: React.FC<EmployeeDetailProps> = ({ employee, onBack }) => 
             {/* 3. 基本信息 */}
             <InfoSection title="基本信息" icon={Fingerprint} onView={() => handleOpenModal('basic')}>
                 <InfoRow label="性别" value={data.basic.gender} />
-                <InfoRow label="证件号码" value={employee.idCard} isMono isSensitive showSensitive={false} />
+                <InfoRow label="证件号码" value={employee.idCard} isMono isSensitive />
                 <InfoRow label="最高学历" value={data.basic.highestDegree} />
                 <InfoRow label="政治面貌" value={data.basic.politics} />
             </InfoSection>
@@ -411,7 +432,7 @@ const EmployeeDetail: React.FC<EmployeeDetailProps> = ({ employee, onBack }) => 
 
             <InfoSection title="薪资发放账户" icon={CreditCard} onView={() => handleOpenModal('finance')}>
                 <InfoRow label="开户银行" value={data.finance.bankName} />
-                <InfoRow label="银行卡号" value={data.finance.bankCard} isMono isSensitive showSensitive={false} />
+                <InfoRow label="银行卡号" value={data.finance.bankCard} isMono isSensitive />
             </InfoSection>
 
             {/* 离职入口 */}

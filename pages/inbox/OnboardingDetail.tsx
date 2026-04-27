@@ -29,14 +29,29 @@ const InfoSection = ({ title, children, onEdit, isUrgent }: { title: string, chi
     </div>
 );
 
-const InfoRow = ({ label, value, isMono = false, isSensitive = false, showSensitive = true }: any) => (
-    <div className="flex justify-between items-baseline border-b border-slate-50 pb-3 last:border-0 last:pb-0">
-        <span className="text-xs text-slate-400 font-bold">{label}</span>
-        <span className={`text-xs font-black text-slate-900 ${isMono ? 'font-mono' : ''} ${isSensitive && !showSensitive ? 'blur-md opacity-30 select-none' : ''}`}>
-            {value || <span className="text-rose-500 font-bold flex items-center gap-1 animate-pulse"><AlertCircle size={10}/>待补充</span>}
-        </span>
-    </div>
-);
+const InfoRow = ({ label, value, isMono = false, isSensitive = false, defaultShowSensitive = false }: any) => {
+    const [showSensitive, setShowSensitive] = React.useState(defaultShowSensitive);
+    
+    return (
+        <div className="flex justify-between items-center border-b border-slate-50 pb-3 last:border-0 last:pb-0 group">
+            <span className="text-xs text-slate-400 font-bold">{label}</span>
+            <div className="flex items-center gap-2">
+                <span className={`text-xs font-black text-slate-900 ${isMono ? 'font-mono' : ''} ${isSensitive && !showSensitive ? 'blur-sm select-none opacity-50' : ''}`}>
+                    {value ? (isSensitive && !showSensitive ? value?.replace(/./g, '*') || '********' : value) : <span className="text-rose-500 font-bold flex items-center gap-1 animate-pulse"><AlertCircle size={10}/>待补充</span>}
+                </span>
+                {isSensitive && value && (
+                    <button 
+                        onClick={() => setShowSensitive(!showSensitive)}
+                        className="text-slate-300 hover:text-indigo-500 transition-colors opacity-0 group-hover:opacity-100"
+                        title={showSensitive ? '隐藏信息' : '查看完整信息'}
+                    >
+                        {showSensitive ? <EyeOff size={12} /> : <Eye size={12} />}
+                    </button>
+                )}
+            </div>
+        </div>
+    );
+};
 
 const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, onUpdate }) => {
     const navigate = useNavigate();
@@ -419,7 +434,7 @@ const OnboardingDetail: React.FC<OnboardingDetailProps> = ({ employee, onBack, o
 
                     {/* Personal Info */}
                     <InfoSection title="档案信息确认" onEdit={!isMissingInfo ? () => setIsEditing(true) : undefined} isUrgent={isMissingInfo}>
-                        <InfoRow label="身份证号" value={employee.idCard} isMono />
+                        <InfoRow label="身份证号" value={employee.idCard} isMono isSensitive />
                         <InfoRow label="手机号码" value={employee.phone} isMono />
                         {isQR && (
                             <>
