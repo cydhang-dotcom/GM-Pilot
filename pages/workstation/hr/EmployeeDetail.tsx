@@ -6,11 +6,14 @@ import {
     AlertCircle, Fingerprint, Home, Landmark, X, Check, Calendar, 
     PhoneCall, UserSquare2, FileSignature, ExternalLink, Award, Clock,
     RotateCcw, LayoutList, History as HistoryIcon, Layers, MoveRight,
-    UserPlus, CheckCircle2, Loader2, Circle
+    UserPlus, CheckCircle2, Loader2, Circle, Banknote, UserMinus, Grip
 } from 'lucide-react';
 import { DetailLayout } from '../../../components/DetailLayout';
 import EmployeeOffboarding from './EmployeeOffboarding';
 import ContractInitiation from './ContractInitiation';
+import RoleChange from './RoleChange';
+import SalaryChange from './SalaryChange';
+import SocialChange from './SocialChange';
 
 interface EmployeeDetailProps {
     employee: any;
@@ -135,11 +138,15 @@ const EmployeeDetail: React.FC<EmployeeDetailProps> = ({ employee, onBack }) => 
     const navigate = useNavigate();
     const [activeModal, setActiveModal] = useState<string | null>(null);
     const [isEditing, setIsEditing] = useState(false);
-    const [viewMode, setViewMode] = useState<'detail' | 'offboarding' | 'contract' | 'onboarding'>('detail');
+    const [viewMode, setViewMode] = useState<'detail' | 'offboarding' | 'contract' | 'onboarding' | 'role_change' | 'salary_change' | 'social_change'>('detail');
     const [showFirstTimeAlert, setShowFirstTimeAlert] = useState(false);
+    const [showActionMenu, setShowActionMenu] = useState(false);
 
     if (viewMode === 'offboarding') return <EmployeeOffboarding employee={employee} onBack={() => setViewMode('detail')} initialStep={employee.status === '离职' ? 'process' : 'confirm'} />;
     if (viewMode === 'contract') return <ContractInitiation onClose={() => setViewMode('detail')} onNext={(data) => { console.log(data); setViewMode('detail'); }} />;
+    if (viewMode === 'role_change') return <RoleChange employee={employee} onBack={() => setViewMode('detail')} />;
+    if (viewMode === 'salary_change') return <SalaryChange employee={employee} onBack={() => setViewMode('detail')} />;
+    if (viewMode === 'social_change') return <SocialChange employee={employee} onBack={() => setViewMode('detail')} />;
     if (viewMode === 'onboarding') {
         const OnboardingDetail = require('../../../pages/inbox/OnboardingDetail').default;
         const mockOnboardingEmp = {
@@ -236,11 +243,100 @@ const EmployeeDetail: React.FC<EmployeeDetailProps> = ({ employee, onBack }) => 
                 </div>
                 <h2 className="text-xl font-black text-slate-900 tracking-tight mt-4">{employee.name}</h2>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{employee.dept} · {employee.role}</p>
-                <div className="flex gap-2 w-full mt-6">
-                    <button onClick={handleContractInitiation} className="flex-1 py-3 rounded-2xl bg-indigo-600 text-white font-black text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all">立即发起办理</button>
-                    <button className="flex-1 py-3 rounded-2xl bg-white text-slate-600 font-black text-xs flex items-center justify-center gap-1.5 border border-slate-200 active:scale-95 transition-all"><Mail size={14}/> 邮件</button>
+                <div className="flex gap-2 w-full mt-6 relative">
+                    <button className="flex-1 py-3 rounded-2xl bg-indigo-50 text-indigo-600 font-black text-xs flex flex-col items-center justify-center gap-1.5 border border-indigo-100 active:scale-95 transition-all">
+                        <Phone size={16} /> <span className="text-[10px]">电话</span>
+                    </button>
+                    <button className="flex-1 py-3 rounded-2xl bg-white text-slate-600 font-black text-xs flex flex-col items-center justify-center gap-1.5 border border-slate-200 active:scale-95 transition-all">
+                        <Mail size={16}/> <span className="text-[10px]">邮件</span>
+                    </button>
+                    {employee.status !== '离职' && (
+                        <button onClick={() => setShowActionMenu(true)} className="flex-1 py-3 rounded-2xl bg-slate-900 text-white font-black text-xs flex flex-col items-center justify-center gap-1.5 shadow-lg shadow-slate-900/20 active:scale-95 transition-all">
+                            <LayoutList size={16} /> <span className="text-[10px]">操作</span>
+                        </button>
+                    )}
                 </div>
             </div>
+
+            {/* 当显示 ActionMenu 时 */}
+            {showActionMenu && (
+                <div className="fixed inset-0 z-[100] flex items-end justify-center animate-fade-in p-2 pb-6">
+                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setShowActionMenu(false)}></div>
+                    <div className="bg-[#F8F9FB] w-full max-w-sm rounded-[32px] shadow-2xl relative z-10 animate-slide-up overflow-hidden">
+                        <div className="px-6 py-5 flex justify-between items-center bg-white border-b border-slate-100">
+                            <h3 className="text-xl font-black text-slate-900 tracking-tight">员工操作</h3>
+                            <button onClick={() => setShowActionMenu(false)} className="p-2 bg-slate-50 rounded-full text-slate-400 active:scale-90"><X size={20}/></button>
+                        </div>
+                        <div className="p-4 space-y-2">
+                            <button 
+                                onClick={() => { handleContractInitiation(); setShowActionMenu(false); }}
+                                className="w-full flex items-center gap-4 p-4 rounded-[24px] bg-white border border-transparent hover:border-indigo-100 active:scale-[0.98] transition-all group shadow-sm"
+                            >
+                                <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-500 shadow-sm group-hover:scale-105 transition-transform">
+                                    <FileSignature size={18} strokeWidth={2}/>
+                                </div>
+                                <div className="flex-1 text-left">
+                                    <span className="text-sm font-black text-slate-900 block">合同办理</span>
+                                    <span className="text-[10px] font-bold text-slate-400 mt-0.5">发起新合同或续签流程</span>
+                                </div>
+                                <ChevronRight size={16} className="text-slate-300 group-hover:text-indigo-400" />
+                            </button>
+                            <button 
+                                onClick={() => { setViewMode('role_change'); setShowActionMenu(false); }}
+                                className="w-full flex items-center gap-4 p-4 rounded-[24px] bg-white border border-transparent hover:border-indigo-100 active:scale-[0.98] transition-all group shadow-sm"
+                            >
+                                <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-500 shadow-sm group-hover:scale-105 transition-transform">
+                                    <Briefcase size={18} strokeWidth={2}/>
+                                </div>
+                                <div className="flex-1 text-left">
+                                    <span className="text-sm font-black text-slate-900 block">岗位调整</span>
+                                    <span className="text-[10px] font-bold text-slate-400 mt-0.5">调换部门或员工职位</span>
+                                </div>
+                                <ChevronRight size={16} className="text-slate-300 group-hover:text-indigo-400" />
+                            </button>
+                            <button 
+                                onClick={() => { setViewMode('salary_change'); setShowActionMenu(false); }}
+                                className="w-full flex items-center gap-4 p-4 rounded-[24px] bg-white border border-transparent hover:border-indigo-100 active:scale-[0.98] transition-all group shadow-sm"
+                            >
+                                <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-500 shadow-sm group-hover:scale-105 transition-transform">
+                                    <Banknote size={18} strokeWidth={2}/>
+                                </div>
+                                <div className="flex-1 text-left">
+                                    <span className="text-sm font-black text-slate-900 block">薪酬调整</span>
+                                    <span className="text-[10px] font-bold text-slate-400 mt-0.5">修改每月薪酬及发放标准</span>
+                                </div>
+                                <ChevronRight size={16} className="text-slate-300 group-hover:text-indigo-400" />
+                            </button>
+                            <button 
+                                onClick={() => { setViewMode('social_change'); setShowActionMenu(false); }}
+                                className="w-full flex items-center gap-4 p-4 rounded-[24px] bg-white border border-transparent hover:border-indigo-100 active:scale-[0.98] transition-all group shadow-sm"
+                            >
+                                <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-500 shadow-sm group-hover:scale-105 transition-transform">
+                                    <ShieldCheck size={18} strokeWidth={2}/>
+                                </div>
+                                <div className="flex-1 text-left">
+                                    <span className="text-sm font-black text-slate-900 block">社保调整</span>
+                                    <span className="text-[10px] font-bold text-slate-400 mt-0.5">调整社保或公积金基数</span>
+                                </div>
+                                <ChevronRight size={16} className="text-slate-300 group-hover:text-indigo-400" />
+                            </button>
+                            <button 
+                                onClick={() => { setViewMode('offboarding'); setShowActionMenu(false); }}
+                                className="w-full flex items-center gap-4 p-4 rounded-[24px] bg-white border border-transparent hover:border-rose-100 active:scale-[0.98] transition-all group shadow-sm mt-4"
+                            >
+                                <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center text-rose-500 shadow-sm group-hover:scale-105 transition-transform">
+                                    <UserMinus size={18} strokeWidth={2}/>
+                                </div>
+                                <div className="flex-1 text-left">
+                                    <span className="text-sm font-black text-rose-600 block">办理离职</span>
+                                    <span className="text-[10px] font-bold text-rose-400 mt-0.5">发起员工主动或被动离职</span>
+                                </div>
+                                <ChevronRight size={16} className="text-rose-300 group-hover:text-rose-400" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* 离职信息 (仅离职员工显示) */}
             {employee.status === '离职' && (
@@ -356,6 +452,15 @@ const EmployeeDetail: React.FC<EmployeeDetailProps> = ({ employee, onBack }) => 
                 <InfoRow label="入职日期" value={employee.joinDate} isMono />
             </InfoSection>
 
+            {/* 薪酬福利 */}
+            <InfoSection title="薪酬福利" icon={Banknote} onView={() => handleOpenModal('compensation')}>
+                <InfoRow label="基本月薪 (税前)" value="¥ 15,000" isMono isSensitive />
+                <div className="flex gap-4">
+                    <InfoRow label="社保基数" value="¥ 10,000" isMono />
+                    <InfoRow label="公积金基数" value="¥ 10,000" isMono />
+                </div>
+            </InfoSection>
+
             {/* 2. 劳动合同 */}
             <InfoSection 
                 title="劳动合同" 
@@ -435,18 +540,31 @@ const EmployeeDetail: React.FC<EmployeeDetailProps> = ({ employee, onBack }) => 
                 <InfoRow label="银行卡号" value={data.finance.bankCard} isMono isSensitive />
             </InfoSection>
 
-            {/* 离职入口 */}
-            <div className="mt-10 mb-16 px-2">
-                <button onClick={() => setViewMode('offboarding')} className="w-full flex items-center justify-center gap-3 p-5 bg-white rounded-[28px] border border-rose-100 shadow-sm active:bg-rose-50 group">
-                    <div className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-100"><UserX size={20} /></div>
-                    <div className="text-left flex-1"><p className="text-sm font-black text-rose-600">办理员工离职</p><p className="text-[9px] font-bold text-rose-400 uppercase tracking-tighter">Exit Formalities</p></div>
-                    <ChevronRight size={18} className="text-rose-200" />
-                </button>
-            </div>
+            {/* Modals placed here */}
 
             {/* 统一弹窗逻辑 */}
             <SectionModal title="任职信息" isOpen={activeModal === 'appointment'} onClose={() => setActiveModal(null)} isEditing={isEditing} setIsEditing={setIsEditing} onSave={() => setActiveModal(null)} viewContent={<><InfoRow label="部门" value={data.appointment.dept} /><InfoRow label="岗位" value={data.appointment.role} /><InfoRow label="入职" value={data.appointment.joinDate} isMono /><InfoRow label="试用期" value={data.appointment.probation} /></>}><ModalInput label="部门" value={data.appointment.dept} /><ModalInput label="岗位" value={data.appointment.role} /><ModalInput label="入职" value={data.appointment.joinDate} type="date" isMono /></SectionModal>
             
+            <SectionModal 
+                title="薪酬福利" 
+                isOpen={activeModal === 'compensation'} 
+                onClose={() => setActiveModal(null)} 
+                isEditing={isEditing} 
+                setIsEditing={setIsEditing} 
+                onSave={() => setActiveModal(null)} 
+                viewContent={
+                    <div className="space-y-4">
+                        <InfoRow label="基本月薪 (税前)" value="¥ 15,000" isMono isSensitive />
+                        <InfoRow label="当月社保基数" value="¥ 10,000" isMono />
+                        <InfoRow label="当月公积金基数" value="¥ 10,000" isMono />
+                    </div>
+                }
+            >
+                <ModalInput label="基本月薪" value="15000" type="number" isMono />
+                <ModalInput label="社保基数" value="10000" type="number" isMono />
+                <ModalInput label="公积金基数" value="10000" type="number" isMono />
+            </SectionModal>
+
             <SectionModal 
                 title="基本信息" 
                 isOpen={activeModal === 'basic'} 
